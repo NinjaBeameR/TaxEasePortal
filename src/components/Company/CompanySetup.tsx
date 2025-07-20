@@ -116,7 +116,11 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    console.log('Submitting...');
+    if (!validateForm()) {
+      console.log('Validation failed', errors);
+      return;
+    }
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
