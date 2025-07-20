@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Save} from 'lucide-react';
+import { Building2, Save } from 'lucide-react';
 import { Company, INDIAN_STATES } from '../../types';
 import { validateGSTIN, validateEmail, validatePhone, validatePincode } from '../../utils/validation';
-import { db } from '../../services/database';
-import { supabase } from '../../services/supabase'; // Make sure this is your Supabase client
+import { supabase } from '../../services/supabase';
 
 interface CompanySetupProps {
   onComplete: () => void;
@@ -25,6 +24,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
       email: '',
       website: '',
     },
+    logo: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -39,19 +39,17 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
       const { data, error } = await supabase
         .from('companies')
         .select('*')
-        .limit(1)
-        .single(); // This throws if no rows
+        .limit(1);
 
-      if (error && error.code === 'PGRST116') {
-        // No company found, do nothing
-        setIsEdit(false);
+      if (error) {
+        console.error('Error loading company:', error);
         return;
       }
-      if (error) throw error;
-
-      if (data) {
-        setCompany(data);
+      if (data && data.length > 0) {
+        setCompany(data[0]);
         setIsEdit(true);
+      } else {
+        setIsEdit(false);
       }
     } catch (error) {
       console.error('Error loading company:', error);
@@ -64,34 +62,27 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     if (!company.businessName?.trim()) {
       newErrors.businessName = 'Business name is required';
     }
-
     if (!company.address?.line1?.trim()) {
-      newErrors.addressLine1 = 'Address line 1 is required';
+      newErrors.line1 = 'Address Line 1 is required';
     }
-
     if (!company.address?.city?.trim()) {
       newErrors.city = 'City is required';
     }
-
     if (!company.address?.state) {
       newErrors.state = 'State is required';
     }
-
     const pincodeValidation = validatePincode(company.address?.pincode || '');
     if (!pincodeValidation.isValid) {
       newErrors.pincode = pincodeValidation.error || '';
     }
-
     const gstinValidation = validateGSTIN(company.gstin || '');
     if (!gstinValidation.isValid) {
       newErrors.gstin = gstinValidation.error || '';
     }
-
     const phoneValidation = validatePhone(company.contact?.phone || '');
     if (!phoneValidation.isValid) {
       newErrors.phone = phoneValidation.error || '';
     }
-
     const emailValidation = validateEmail(company.contact?.email || '');
     if (!emailValidation.isValid) {
       newErrors.email = emailValidation.error || '';
@@ -103,37 +94,29 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setLoading(true);
     try {
       const companyData: Company = {
-        id: isEdit ? (company as Company).id : crypto.randomUUID(),
-        businessName: company.businessName!,
-        address: company.address!,
-        gstin: company.gstin!,
-        contact: company.contact!,
-        logo: company.logo,
-        createdAt: isEdit ? (company as Company).createdAt : new Date(),
-        updatedAt: new Date(),
-      };
+        ...company,
+        id: company.id || crypto.randomUUID(),
+        createdAt: company.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } as Company;
 
-      // Supabase upsert logic
       const { error } = await supabase
-        .from('company')
+        .from('companies')
         .upsert([companyData]);
 
       if (error) {
-        throw error;
+        console.error('Error saving company:', error);
+        setErrors({ submit: error.message });
+        return;
       }
-
       onComplete();
     } catch (error) {
       console.error('Error saving company:', error);
-      // Optionally show error to user
+      setErrors({ submit: 'Unexpected error saving company.' });
     } finally {
       setLoading(false);
     }
@@ -246,12 +229,12 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
                 value={company.address?.line1 || ''}
                 onChange={(e) => handleInputChange('address.line1', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.addressLine1 ? 'border-red-300' : 'border-gray-300'
+                  errors.line1 ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Building, Street"
               />
-              {errors.addressLine1 && (
-                <p className="mt-1 text-sm text-red-600">{errors.addressLine1}</p>
+              {errors.line1 && (
+                <p className="mt-1 text-sm text-red-600">{errors.line1}</p>
               )}
             </div>
 
