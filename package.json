@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.52.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",

@@ -36,9 +36,16 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const loadExistingCompany = async () => {
     try {
+      const user = await supabase.auth.getUser();
+      const userId = user?.data?.user?.id;
+      if (!userId) {
+        // Handle not logged in
+        return;
+      }
       const { data, error } = await supabase
         .from('companies')
         .select('*')
+        .eq('user_id', userId)
         .limit(1);
 
       if (error) {
@@ -117,6 +124,12 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     if (!validateForm()) return;
     setLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.id) {
+        setErrors({ submit: 'User not authenticated.' });
+        setLoading(false);
+        return;
+      }
       const companyData = {
         id: company.id || crypto.randomUUID(),
         business_name: company.businessName,
@@ -132,6 +145,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
         logo: company.logo || '',
         created_at: company.createdAt || new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        user_id: user.id,
       };
 
       const { error } = await supabase

@@ -1,5 +1,6 @@
 //import React from 'react';
 import { useState, useEffect } from 'react';
+import { supabase } from './supabaseClient';
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import CompanySetup from './components/Company/CompanySetup';
@@ -10,6 +11,7 @@ import ProductForm from './components/Products/ProductForm';
 import InvoiceList from './components/Invoices/InvoiceList';
 import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
+import AuthPage from './components/Auth/AuthPage';
 import { Customer, Product, Invoice } from './types';
 import { db } from './services/database';
 
@@ -20,9 +22,24 @@ function App() {
   const [navigationData, setNavigationData] = useState<any>(null);
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState(null);
 
   useEffect(() => {
     initializeApp();
+  }, []);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
+      setSession(session);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event: any, session: any) => {
+        setSession(session);
+      }
+    );
+    return () => {
+      listener.subscription.unsubscribe();
+    };
   }, []);
 
   const initializeApp = async () => {
@@ -194,6 +211,10 @@ function App() {
         return <Dashboard onNavigate={handleNavigate} />;
     }
   };
+
+  if (!session) {
+    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
