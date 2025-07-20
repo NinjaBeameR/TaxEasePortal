@@ -37,7 +37,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
   const loadExistingCompany = async () => {
     try {
       const { data, error } = await supabase
-        .from('companies') // Make sure your table is named 'companies'
+        .from('companies')
         .select('*')
         .limit(1);
 
@@ -46,7 +46,27 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
         return;
       }
       if (data && data.length > 0) {
-        setCompany(data[0]);
+        // Map flat fields back to your form structure
+        setCompany({
+          id: data[0].id,
+          businessName: data[0].business_name,
+          address: {
+            line1: data[0].address_line1,
+            line2: data[0].address_line2,
+            city: data[0].city,
+            state: data[0].state,
+            pincode: data[0].pincode,
+          },
+          gstin: data[0].gstin,
+          contact: {
+            phone: data[0].phone,
+            email: data[0].email,
+            website: data[0].website,
+          },
+          logo: data[0].logo,
+          createdAt: data[0].created_at,
+          updatedAt: data[0].updated_at,
+        });
         setIsEdit(true);
       } else {
         setIsEdit(false);
@@ -97,12 +117,22 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const companyData: Company = {
-        ...company,
+      const companyData = {
         id: company.id || crypto.randomUUID(),
-        createdAt: company.createdAt ? new Date(company.createdAt) : new Date(),
-        updatedAt: new Date(),
-      } as Company;
+        business_name: company.businessName,
+        address_line1: company.address?.line1 || '',
+        address_line2: company.address?.line2 || '',
+        city: company.address?.city || '',
+        state: company.address?.state || '',
+        pincode: company.address?.pincode || '',
+        gstin: company.gstin || '',
+        phone: company.contact?.phone || '',
+        email: company.contact?.email || '',
+        website: company.contact?.website || '',
+        logo: company.logo || '',
+        created_at: company.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
       const { error } = await supabase
         .from('companies')
