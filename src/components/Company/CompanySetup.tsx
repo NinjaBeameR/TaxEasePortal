@@ -37,7 +37,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
   const loadExistingCompany = async () => {
     try {
       const { data, error } = await supabase
-        .from('companies')
+        .from('companies') // Make sure your table is named 'companies'
         .select('*')
         .limit(1);
 
@@ -100,8 +100,8 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
       const companyData: Company = {
         ...company,
         id: company.id || crypto.randomUUID(),
-        createdAt: company.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        createdAt: company.createdAt ? new Date(company.createdAt) : new Date(),
+        updatedAt: new Date(),
       } as Company;
 
       const { error } = await supabase
@@ -110,7 +110,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
       if (error) {
         console.error('Error saving company:', error);
-        setErrors({ submit: error.message });
+        setErrors({ submit: error.message || JSON.stringify(error) });
         return;
       }
       onComplete();
