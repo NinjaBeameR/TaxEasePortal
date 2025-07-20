@@ -38,22 +38,17 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     try {
       const user = await supabase.auth.getUser();
       const userId = user?.data?.user?.id;
-      if (!userId) {
-        // Handle not logged in
-        return;
-      }
+      if (!userId) return;
       const { data, error } = await supabase
         .from('companies')
         .select('*')
         .eq('user_id', userId)
         .limit(1);
-
       if (error) {
         console.error('Error loading company:', error);
         return;
       }
       if (data && data.length > 0) {
-        // Map flat fields back to your form structure
         setCompany({
           id: data[0].id,
           businessName: data[0].business_name,

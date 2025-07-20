@@ -1,6 +1,6 @@
 //import React from 'react';
 import { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient';
+import { supabase } from './services/supabase';
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import CompanySetup from './components/Company/CompanySetup';
@@ -13,7 +13,7 @@ import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import AuthPage from './components/Auth/AuthPage';
 import { Customer, Product, Invoice } from './types';
-import { db } from './services/database';
+// import { db } from './services/database'; // Remove if not used, Supabase replaces local db
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -25,7 +25,9 @@ function App() {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    initializeApp();
+    // If you still use local db for some features, keep this. Otherwise, remove.
+    // initializeApp();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -42,17 +44,18 @@ function App() {
     };
   }, []);
 
-  const initializeApp = async () => {
-    try {
-      await db.init();
-      const company = await db.getCompany();
-      setCompanySetupComplete(!!company);
-    } catch (error) {
-      console.error('Error initializing app:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Remove initializeApp if you are not using local db anymore
+  // const initializeApp = async () => {
+  //   try {
+  //     await db.init();
+  //     const company = await db.getCompany();
+  //     setCompanySetupComplete(!!company);
+  //   } catch (error) {
+  //     console.error('Error initializing app:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
