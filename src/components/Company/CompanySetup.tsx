@@ -111,6 +111,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     }
 
     setErrors(newErrors);
+    console.log('Validation errors:', newErrors); // <-- Add this
     return Object.keys(newErrors).length === 0;
   };
 
