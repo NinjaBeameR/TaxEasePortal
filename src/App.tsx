@@ -108,6 +108,12 @@ function App() {
     );
   }
 
+  // *** AUTH CHECK SHOULD COME FIRST ***
+  if (!session) {
+    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
+  }
+
+  // *** THEN SHOW COMPANY SETUP IF NEEDED ***
   if (!companySetupComplete) {
     return (
       <div className="min-h-screen bg-gray-100 py-8">
@@ -214,10 +220,6 @@ function App() {
         return <Dashboard onNavigate={handleNavigate} />;
     }
   };
-
-  if (!session) {
-    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-100">

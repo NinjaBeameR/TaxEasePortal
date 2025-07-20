@@ -125,9 +125,11 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('Supabase user:', user);
       if (!user || !user.id) {
         setErrors({ submit: 'User not authenticated.' });
         setLoading(false);
+        console.error('User not authenticated');
         return;
       }
       const companyData = {
