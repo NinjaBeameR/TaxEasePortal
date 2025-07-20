@@ -36,9 +36,21 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const loadExistingCompany = async () => {
     try {
-      const existingCompany = await db.getCompany();
-      if (existingCompany) {
-        setCompany(existingCompany);
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*')
+        .limit(1)
+        .single(); // This throws if no rows
+
+      if (error && error.code === 'PGRST116') {
+        // No company found, do nothing
+        setIsEdit(false);
+        return;
+      }
+      if (error) throw error;
+
+      if (data) {
+        setCompany(data);
         setIsEdit(true);
       }
     } catch (error) {
