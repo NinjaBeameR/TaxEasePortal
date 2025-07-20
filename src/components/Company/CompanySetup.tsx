@@ -148,10 +148,10 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
         user_id: user.id,
       };
 
+      console.log('Saving to Supabase:', companyData);
       const { error } = await supabase
         .from('companies')
         .upsert([companyData]);
-
       if (error) {
         console.error('Error saving company:', error);
         setErrors({ submit: error.message || JSON.stringify(error) });
@@ -159,7 +159,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
       }
       onComplete();
     } catch (error) {
-      console.error('Error saving company:', error);
+      console.error('Unexpected error:', error);
       setErrors({ submit: 'Unexpected error saving company.' });
     } finally {
       setLoading(false);
