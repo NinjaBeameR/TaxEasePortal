@@ -80,38 +80,19 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-
-    if (!company.businessName?.trim()) {
-      newErrors.businessName = 'Business name is required';
-    }
-    if (!company.address?.line1?.trim()) {
-      newErrors.line1 = 'Address Line 1 is required';
-    }
-    if (!company.address?.city?.trim()) {
-      newErrors.city = 'City is required';
-    }
-    if (!company.address?.state) {
-      newErrors.state = 'State is required';
-    }
+    if (!company.businessName?.trim()) newErrors.businessName = 'Business name is required';
+    if (!company.address?.line1?.trim()) newErrors.line1 = 'Address Line 1 is required';
+    if (!company.address?.city?.trim()) newErrors.city = 'City is required';
+    if (!company.address?.state) newErrors.state = 'State is required';
     const pincodeValidation = validatePincode(company.address?.pincode || '');
-    if (!pincodeValidation.isValid) {
-      newErrors.pincode = pincodeValidation.error || '';
-    }
+    if (!pincodeValidation.isValid) newErrors.pincode = pincodeValidation.error || '';
     const gstinValidation = validateGSTIN(company.gstin || '');
-    if (!gstinValidation.isValid) {
-      newErrors.gstin = gstinValidation.error || '';
-    }
+    if (!gstinValidation.isValid) newErrors.gstin = gstinValidation.error || '';
     const phoneValidation = validatePhone(company.contact?.phone || '');
-    if (!phoneValidation.isValid) {
-      newErrors.phone = phoneValidation.error || '';
-    }
+    if (!phoneValidation.isValid) newErrors.phone = phoneValidation.error || '';
     const emailValidation = validateEmail(company.contact?.email || '');
-    if (!emailValidation.isValid) {
-      newErrors.email = emailValidation.error || '';
-    }
-
+    if (!emailValidation.isValid) newErrors.email = emailValidation.error || '';
     setErrors(newErrors);
-    console.log('Validation errors:', newErrors); // <-- Add this
     return Object.keys(newErrors).length === 0;
   };
 

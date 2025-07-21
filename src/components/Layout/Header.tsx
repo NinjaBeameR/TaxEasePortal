@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileText, Users, Package, Building2, Settings } from 'lucide-react';
+import { supabase } from './services/supabase';
 
 interface HeaderProps {
   currentPage: string;
@@ -83,6 +84,17 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
             );
           })}
         </div>
+      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <button
+          className="ml-4 px-4 py-2 bg-red-600 text-white rounded"
+          onClick={async () => {
+            await supabase.auth.signOut();
+            window.location.reload();
+          }}
+        >
+          Logout
+        </button>
       </div>
     </header>
   );
