@@ -25,7 +25,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
 
   const unitOptions = [
     'PCS', 'KG', 'GRAM', 'LITRE', 'METER', 'FEET', 'INCH', 'SQM', 'SQF',
-    'HOUR', 'DAY', 'MONTH', 'YEAR', 'BOX', 'PACKET', 'BOTTLE', 'BAG'
+    'HOUR', 'DAY', 'MONTH', 'YEAR', 'BOX', 'PACKET', 'BOTTLE', 'BAG', 'CUBICFT'
   ];
 
   useEffect(() => {

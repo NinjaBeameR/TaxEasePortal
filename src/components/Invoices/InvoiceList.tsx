@@ -95,6 +95,18 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
     }
   };
 
+  const handleEdit = async (invoice: Invoice) => {
+    try {
+      const fullInvoice = await db.getInvoice(invoice.id); // Fetch full invoice with items
+      if (fullInvoice) {
+        onEdit(fullInvoice); // Pass full invoice to InvoiceForm
+      }
+    } catch (error) {
+      console.error('Error loading invoice for edit:', error);
+      alert('Could not load invoice details for editing.');
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PAID':
@@ -261,7 +273,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => onEdit(invoice)}
+                          onClick={() => handleEdit(invoice)}
                           className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
                           title="Edit invoice"
                         >
