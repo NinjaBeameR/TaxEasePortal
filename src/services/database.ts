@@ -309,6 +309,7 @@ class DatabaseService {
     const itemsData = invoice.items.map(item => ({
       id: item.id,
       invoice_id: invoice.id,
+      user_id: user.id, // <-- Add this if your policy requires it!
       product_id: item.productId || null,
       product_name: item.productName,
       hsn_sac_code: item.hsnSacCode,
