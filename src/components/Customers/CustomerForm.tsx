@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, User, Building } from 'lucide-react';
 import { Customer, INDIAN_STATES } from '../../types';
 import { validateGSTIN, validateEmail, validatePhone, validatePincode } from '../../utils/validation';
-import { db } from '../../services/database';
 import { supabase } from '../../services/supabase';
 
 interface CustomerFormProps {
@@ -121,7 +120,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -131,9 +130,24 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !user.id) throw new Error('User not authenticated');
       const customerData = {
-        ...formData,
+        id: customer?.id || crypto.randomUUID(),
+        name: formData.name,
+        type: formData.type,
+        gstin: formData.gstin,
+        billing_address_line1: formData.billingAddress?.line1 || '',
+        billing_address_line2: formData.billingAddress?.line2 || '',
+        billing_city: formData.billingAddress?.city || '',
+        billing_state: formData.billingAddress?.state || '',
+        billing_pincode: formData.billingAddress?.pincode || '',
+        shipping_address_line1: formData.shippingAddress?.line1 || '',
+        shipping_address_line2: formData.shippingAddress?.line2 || '',
+        shipping_city: formData.shippingAddress?.city || '',
+        shipping_state: formData.shippingAddress?.state || '',
+        shipping_pincode: formData.shippingAddress?.pincode || '',
+        phone: formData.contact?.phone || '',
+        email: formData.contact?.email || '',
         user_id: user.id,
-        created_at: new Date().toISOString(),
+        created_at: customer?.createdAt || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
       await supabase.from('customers').upsert([customerData]);

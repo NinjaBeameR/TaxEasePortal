@@ -13,8 +13,8 @@ import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import AuthPage from './components/Auth/AuthPage';
 import { Customer, Product, Invoice } from './types';
-import LoadingSpinner from './components/UI/LoadingSpinner'; // Import the loading spinner component
-// import { db } from './services/database'; // Remove if not used, Supabase replaces local db
+import LoadingSpinner from './components/UI/LoadingSpinner';
+import { Session } from '@supabase/supabase-js'; // Add this import
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -22,22 +22,53 @@ function App() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [navigationData, setNavigationData] = useState<any>(null);
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
+  const [ setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState(null);
+  const [session, setSession] = useState<Session | null>(null); // Fix type here
 
+  // Fetch session and company info
   useEffect(() => {
-    // If you still use local db for some features, keep this. Otherwise, remove.
-    // initializeApp();
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }: { data: { session: any } }) => {
+    const fetchSessionAndCompany = async () => {
+      setLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-    });
+
+      if (session && session.user) {
+        // Fetch company for this user
+        const { data: companyData } = await supabase
+          .from('companies')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .single();
+        setCompany(companyData);
+        setCompanySetupComplete(!!companyData);
+      } else {
+        setCompany(null);
+        setCompanySetupComplete(false);
+      }
+      setLoading(false);
+    };
+
+    fetchSessionAndCompany();
+
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         setSession(session);
+        // Refetch company on auth change
+        if (session && session.user) {
+          supabase
+            .from('companies')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single()
+            .then(({ data: companyData }) => {
+              setCompany(companyData);
+              setCompanySetupComplete(!!companyData);
+            });
+        } else {
+          setCompany(null);
+          setCompanySetupComplete(false);
+        }
       }
     );
     return () => {
@@ -45,18 +76,21 @@ function App() {
     };
   }, []);
 
-  // Remove initializeApp if you are not using local db anymore
-  // const initializeApp = async () => {
-  //   try {
-  //     await db.init();
-  //     const company = await db.getCompany();
-  //     setCompanySetupComplete(!!company);
-  //   } catch (error) {
-  //     console.error('Error initializing app:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleCompanySetupComplete = () => {
+    setCompanySetupComplete(true);
+    setCurrentPage('dashboard');
+    // Refetch company info after setup
+    if (session && session.user) {
+      supabase
+        .from('companies')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single()
+        .then(({ data: companyData }) => {
+          setCompany(companyData);
+        });
+    }
+  };
 
   const handlePageChange = (page: string) => {
     setCurrentPage(page);
@@ -81,11 +115,6 @@ function App() {
     }
   };
 
-  const handleCompanySetupComplete = () => {
-    setCompanySetupComplete(true);
-    setCurrentPage('dashboard');
-  };
-
   const handleBack = () => {
     setCurrentView('list');
     setSelectedItem(null);
@@ -108,7 +137,7 @@ function App() {
     return <AuthPage onAuthSuccess={() => window.location.reload()} />;
   }
 
-  // 3. Show company setup if company not set up
+  // Only show company setup if company is NOT set up
   if (!companySetupComplete) {
     return <CompanySetup onComplete={handleCompanySetupComplete} />;
   }
