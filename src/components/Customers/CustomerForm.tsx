@@ -129,23 +129,14 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user || !user.id) {
-        throw new Error('User not authenticated');
-      }
+      if (!user || !user.id) throw new Error('User not authenticated');
       const customerData = {
-        id: customer?.id || crypto.randomUUID(),
-        name: formData.name!,
-        type: formData.type!,
-        gstin: formData.type === 'B2B' ? formData.gstin : undefined,
-        billingAddress: formData.billingAddress!,
-        shippingAddress: sameAsBilling ? formData.billingAddress! : formData.shippingAddress!,
-        contact: formData.contact!,
-        createdAt: customer?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        user_id: user.id, // <-- add this
+        ...formData,
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
-
-      await db.saveCustomer(customerData);
+      await supabase.from('customers').upsert([customerData]);
       onSave();
     } catch (error) {
       console.error('Error saving customer:', error);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Download, Printer, Mail, Edit } from 'lucide-react';
 import { Invoice, Company } from '../../types';
 import { db } from '../../services/database';
-import { formatCurrency, formatIndianNumber } from '../../utils/calculations';
+import { formatIndianNumber } from '../../utils/calculations';
 
 interface InvoiceViewProps {
   invoice: Invoice;

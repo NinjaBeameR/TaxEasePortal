@@ -134,7 +134,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
       console.log('Saving to Supabase:', companyData);
       const { error } = await supabase
         .from('companies')
-        .upsert([companyData]);
+        .upsert([companyData], { onConflict: 'user_id' });
       if (error) {
         console.error('Error saving company:', error);
         setErrors({ submit: error.message || JSON.stringify(error) });
