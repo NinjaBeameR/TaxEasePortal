@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Plus, Trash2, User, Calculator } from 'lucide-react';
 import { InvoiceItem, Customer, Product, Company } from '../../types';
+import { supabase } from '../../supabaseClient';
 // Use local Invoice type override to fix date fields
 type Invoice = {
   id: string;
@@ -270,38 +271,45 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
     try {
-      const invoiceData: Invoice = {
-        id: invoice?.id || crypto.randomUUID(),
-        invoiceNumber: formData.invoiceNumber!,
-        date: formData.date || new Date().toISOString().split('T')[0],
-        customerId: formData.customerId!,
-        customerName: formData.customerName!,
-        customerGstin: formData.customerGstin,
-        customerAddress: formData.customerAddress!,
-        items: formData.items!,
-        subtotal: calculations.subtotal,
-        totalTaxableValue: calculations.totalTaxableValue,
-        totalCgst: calculations.totalCgst,
-        totalSgst: calculations.totalSgst,
-        totalIgst: calculations.totalIgst,
-        totalAmount: calculations.totalAmount,
-        amountInWords: convertToWords(calculations.totalAmount),
-        notes: formData.notes,
-        status: formData.status!,
-        createdAt: invoice?.createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.id) throw new Error('User not authenticated');
+
+      const invoiceData: Invoice & { user_id: string } = {
+        ...{
+          id: invoice?.id || crypto.randomUUID(),
+          invoiceNumber: formData.invoiceNumber!,
+          date: formData.date || new Date().toISOString().split('T')[0],
+          customerId: formData.customerId!,
+          customerName: formData.customerName!,
+          customerGstin: formData.customerGstin,
+          customerAddress: formData.customerAddress!,
+          items: formData.items!,
+          subtotal: calculations.subtotal,
+          totalTaxableValue: calculations.totalTaxableValue,
+          totalCgst: calculations.totalCgst,
+          totalSgst: calculations.totalSgst,
+          totalIgst: calculations.totalIgst,
+          totalAmount: calculations.totalAmount,
+          amountInWords: convertToWords(calculations.totalAmount),
+          notes: formData.notes,
+          status: formData.status!,
+          createdAt: invoice?.createdAt || new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        user_id: user.id, // <-- Add this line!
       };
 
       // Save invoice data to the database
       await db.saveInvoice(invoiceData);
-      onSave(); // This should trigger a reload of the invoice list
+      onSave();
     } catch (error) {
       console.error('Error saving invoice:', error);
     } finally {
