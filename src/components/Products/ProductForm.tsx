@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Package, Tag } from 'lucide-react';
 import { Product, GST_RATES } from '../../types';
 import { validateHSNSACCode, validateAmount } from '../../utils/validation';
-import { db } from '../../services/database';
+import { supabase } from '../../services/supabase';
 
 interface ProductFormProps {
   product?: Product;
@@ -61,27 +61,24 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
     setLoading(true);
     try {
-      const productData: Product = {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.id) throw new Error('User not authenticated');
+      const productData = {
         id: product?.id || crypto.randomUUID(),
-        name: formData.name!,
-        description: formData.description,
-        hsnSacCode: formData.hsnSacCode!,
-        gstRate: formData.gstRate!,
-        unitOfMeasurement: formData.unitOfMeasurement!,
-        price: formData.price!,
-        type: formData.type!,
-        createdAt: product?.createdAt || new Date(),
-        updatedAt: new Date(),
+        user_id: user.id,
+        name: formData.name,
+        description: formData.description || '',
+        hsn_sac_code: formData.hsnSacCode,
+        price: formData.price,
+        gst_rate: formData.gstRate,
+        unit_of_measurement: formData.unitOfMeasurement,
+        type: formData.type,
+        created_at: product?.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
-
-      await db.saveProduct(productData);
+      await supabase.from('products').upsert([productData]);
       onSave();
     } catch (error) {
       console.error('Error saving product:', error);
