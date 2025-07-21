@@ -1,4 +1,4 @@
-import { Company, Customer, Product, Invoice, InvoiceItem } from '../types';
+import { Company, Customer, Product, Invoice } from '../types';
 import { supabase } from './supabase';
 
 // Supabase database service
@@ -60,8 +60,8 @@ class DatabaseService {
         website: data.website || '',
       },
       logo: data.logo,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
@@ -125,8 +125,8 @@ class DatabaseService {
         phone: row.phone || '',
         email: row.email || '',
       },
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     }));
   }
 
@@ -136,7 +136,6 @@ class DatabaseService {
       .select('*')
       .eq('id', id)
       .single();
-
     if (error && error.code !== 'PGRST116') throw error;
     if (!data) return null;
 
@@ -163,8 +162,8 @@ class DatabaseService {
         phone: data.phone || '',
         email: data.email || '',
       },
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
@@ -215,8 +214,8 @@ class DatabaseService {
       unitOfMeasurement: row.unit_of_measurement,
       price: row.price,
       type: row.type as 'GOODS' | 'SERVICES',
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at),
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     }));
   }
 
@@ -239,8 +238,8 @@ class DatabaseService {
       unitOfMeasurement: data.unit_of_measurement,
       price: data.price,
       type: data.type as 'GOODS' | 'SERVICES',
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      createdAt: data.created_at,
+      updatedAt: data.updated_at,
     };
   }
 
@@ -259,7 +258,7 @@ class DatabaseService {
     const invoiceData = {
       id: invoice.id,
       invoice_number: invoice.invoiceNumber,
-      date: invoice.date.toISOString().split('T')[0],
+      date: invoice.date, // Use as-is, it's already a string
       customer_id: invoice.customerId,
       customer_name: invoice.customerName,
       customer_gstin: invoice.customerGstin || null,
@@ -358,7 +357,7 @@ class DatabaseService {
       return {
         id: invoice.id,
         invoiceNumber: invoice.invoice_number,
-        date: new Date(invoice.date),
+        date: invoice.date,
         customerId: invoice.customer_id,
         customerName: invoice.customer_name,
         customerGstin: invoice.customer_gstin,
@@ -379,8 +378,8 @@ class DatabaseService {
         amountInWords: invoice.amount_in_words,
         notes: invoice.notes,
         status: invoice.status as 'DRAFT' | 'SENT' | 'PAID',
-        createdAt: new Date(invoice.created_at),
-        updatedAt: new Date(invoice.updated_at),
+        createdAt: invoice.created_at,
+        updatedAt: invoice.updated_at,
       };
     });
   }
@@ -422,7 +421,7 @@ class DatabaseService {
     return {
       id: invoiceData.id,
       invoiceNumber: invoiceData.invoice_number,
-      date: new Date(invoiceData.date),
+      date: invoiceData.date,
       customerId: invoiceData.customer_id,
       customerName: invoiceData.customer_name,
       customerGstin: invoiceData.customer_gstin,
@@ -443,8 +442,8 @@ class DatabaseService {
       amountInWords: invoiceData.amount_in_words,
       notes: invoiceData.notes,
       status: invoiceData.status as 'DRAFT' | 'SENT' | 'PAID',
-      createdAt: new Date(invoiceData.created_at),
-      updatedAt: new Date(invoiceData.updated_at),
+      createdAt: invoiceData.created_at,
+      updatedAt: invoiceData.updated_at,
     };
   }
 
@@ -476,11 +475,14 @@ class DatabaseService {
   async saveSetting(key: string, value: any): Promise<void> {
     // For now, we'll skip settings as they're not critical for the core functionality
     // In a real implementation, you might create a settings table
+    void key;
+    void value;
     return Promise.resolve();
   }
 
   async getSetting(key: string): Promise<any> {
     // For now, we'll skip settings as they're not critical for the core functionality
+    void key;
     return Promise.resolve(null);
   }
 }
