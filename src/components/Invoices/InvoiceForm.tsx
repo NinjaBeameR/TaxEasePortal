@@ -280,7 +280,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const invoiceData: Invoice = {
         id: invoice?.id || crypto.randomUUID(),
         invoiceNumber: formData.invoiceNumber!,
-        date: formData.date!, // ISO string
+        date: formData.date || new Date().toISOString().split('T')[0],
         customerId: formData.customerId!,
         customerName: formData.customerName!,
         customerGstin: formData.customerGstin,
