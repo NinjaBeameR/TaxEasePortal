@@ -3,6 +3,7 @@ import { Save, ArrowLeft, User, Building } from 'lucide-react';
 import { Customer, INDIAN_STATES } from '../../types';
 import { validateGSTIN, validateEmail, validatePhone, validatePincode } from '../../utils/validation';
 import { db } from '../../services/database';
+import { supabase } from '../../services/supabase';
 
 interface CustomerFormProps {
   customer?: Customer;
@@ -127,7 +128,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
 
     setLoading(true);
     try {
-      const customerData: Customer = {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.id) {
+        throw new Error('User not authenticated');
+      }
+      const customerData = {
         id: customer?.id || crypto.randomUUID(),
         name: formData.name!,
         type: formData.type!,
@@ -135,8 +140,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
         billingAddress: formData.billingAddress!,
         shippingAddress: sameAsBilling ? formData.billingAddress! : formData.shippingAddress!,
         contact: formData.contact!,
-        createdAt: customer?.createdAt || new Date(),
-        updatedAt: new Date(),
+        createdAt: customer?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        user_id: user.id, // <-- add this
       };
 
       await db.saveCustomer(customerData);

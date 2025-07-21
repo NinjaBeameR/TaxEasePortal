@@ -17,8 +17,8 @@ export interface Company {
     website?: string;
   };
   logo?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // was Date
+  updatedAt: string; // was Date
 }
 
 export interface Customer {
@@ -32,8 +32,8 @@ export interface Customer {
     phone?: string;
     email?: string;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // was Date
+  updatedAt: string; // was Date
 }
 
 export interface Address {
@@ -53,8 +53,8 @@ export interface Product {
   unitOfMeasurement: string;
   price: number;
   type: 'GOODS' | 'SERVICES';
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // was Date
+  updatedAt: string; // was Date
 }
 
 export interface InvoiceItem {
@@ -76,11 +76,17 @@ export interface InvoiceItem {
 export interface Invoice {
   id: string;
   invoiceNumber: string;
-  date: Date;
+  date: string; // was Date
   customerId: string;
   customerName: string;
   customerGstin?: string;
-  customerAddress: Address;
+  customerAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
   items: InvoiceItem[];
   subtotal: number;
   totalTaxableValue: number;
@@ -90,9 +96,9 @@ export interface Invoice {
   totalAmount: number;
   amountInWords: string;
   notes?: string;
-  status: 'DRAFT' | 'SENT' | 'PAID';
-  createdAt: Date;
-  updatedAt: Date;
+  status: string;
+  createdAt: string; // was Date
+  updatedAt: string; // was Date
 }
 
 export interface TaxCalculation {

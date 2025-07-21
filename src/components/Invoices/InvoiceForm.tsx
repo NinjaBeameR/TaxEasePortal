@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Plus, Trash2, User, Calculator } from 'lucide-react';
-import { Invoice, InvoiceItem, Customer, Product, Company } from '../../types';
+import { InvoiceItem, Customer, Product, Company } from '../../types';
+// Use local Invoice type override to fix date fields
+type Invoice = {
+  id: string;
+  invoiceNumber: string;
+  date: string;
+  customerId: string;
+  customerName: string;
+  customerGstin?: string;
+  customerAddress: {
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+  items: InvoiceItem[];
+  subtotal: number;
+  totalTaxableValue: number;
+  totalCgst: number;
+  totalSgst: number;
+  totalIgst: number;
+  totalAmount: number;
+  amountInWords: string;
+  notes?: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
 import { db } from '../../services/database';
 import { calculateInvoiceTotal, convertToWords, isInterState } from '../../utils/calculations';
 import { validateQuantity, validateAmount } from '../../utils/validation';
@@ -14,7 +42,7 @@ interface InvoiceFormProps {
 const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) => {
   const [formData, setFormData] = useState<Partial<Invoice>>({
     invoiceNumber: '',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toISOString().split('T')[0], // ISO string
     customerId: '',
     customerName: '',
     customerGstin: '',
@@ -252,7 +280,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const invoiceData: Invoice = {
         id: invoice?.id || crypto.randomUUID(),
         invoiceNumber: formData.invoiceNumber!,
-        date: new Date(formData.date!),
+        date: formData.date!, // ISO string
         customerId: formData.customerId!,
         customerName: formData.customerName!,
         customerGstin: formData.customerGstin,
@@ -267,8 +295,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
         amountInWords: convertToWords(calculations.totalAmount),
         notes: formData.notes,
         status: formData.status!,
-        createdAt: invoice?.createdAt || new Date(),
-        updatedAt: new Date(),
+        createdAt: invoice?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       await db.saveInvoice(invoiceData);
@@ -333,7 +361,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
               <input
                 type="date"
                 value={formData.date || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                onChange={e => setFormData(prev => ({ ...prev, date: e.target.value }))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
