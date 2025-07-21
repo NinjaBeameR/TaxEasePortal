@@ -333,9 +333,15 @@ class DatabaseService {
   }
 
   async getInvoices(): Promise<Invoice[]> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !user.id) return [];
+
+    // Only fetch invoices for current user
     const { data: invoicesData, error: invoicesError } = await supabase
       .from('invoices')
       .select('*')
+      .eq('user_id', user.id) // <-- This line filters invoices by user
       .order('date', { ascending: false });
 
     if (invoicesError) throw invoicesError;

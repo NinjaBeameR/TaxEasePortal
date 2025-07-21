@@ -299,8 +299,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
         updatedAt: new Date().toISOString(),
       };
 
+      // Save invoice data to the database
       await db.saveInvoice(invoiceData);
-      onSave();
+      onSave(); // This should trigger a reload of the invoice list
     } catch (error) {
       console.error('Error saving invoice:', error);
     } finally {
