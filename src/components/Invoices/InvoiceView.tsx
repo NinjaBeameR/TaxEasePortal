@@ -111,7 +111,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
       </div>
 
       {/* Invoice Document */}
-      <div id="invoice-print-area" className="bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none">
+      <div id="invoice-print-area" className="print-invoice bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none">
         <div className="p-8 print:p-6">
           {/* Header */}
           <div className="border-b-2 border-gray-200 pb-6 mb-6">

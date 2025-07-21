@@ -15,6 +15,7 @@ import AuthPage from './components/Auth/AuthPage';
 import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import { Session } from '@supabase/supabase-js'; // Add this import
+import './print.css';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
