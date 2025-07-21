@@ -22,7 +22,7 @@ function App() {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [navigationData, setNavigationData] = useState<any>(null);
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
-  const [ setCompany] = useState<any>(null);
+  const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null); // Fix type here
 
