@@ -254,11 +254,16 @@ class DatabaseService {
 
   // Invoice operations
   async saveInvoice(invoice: Invoice): Promise<void> {
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !user.id) throw new Error('User not authenticated');
+
     // Save invoice header
     const invoiceData = {
       id: invoice.id,
+      user_id: user.id, // <-- Add this line!
       invoice_number: invoice.invoiceNumber,
-      date: invoice.date, // Use as-is, it's already a string
+      date: invoice.date,
       customer_id: invoice.customerId,
       customer_name: invoice.customerName,
       customer_gstin: invoice.customerGstin || null,
