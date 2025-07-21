@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Users, Package, Building2, Settings } from 'lucide-react';
-import { supabase } from './services/supabase';
+import { supabase } from '../../services/supabase';
 
 interface HeaderProps {
   currentPage: string;
