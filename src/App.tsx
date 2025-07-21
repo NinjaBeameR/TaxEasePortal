@@ -13,6 +13,7 @@ import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import AuthPage from './components/Auth/AuthPage';
 import { Customer, Product, Invoice } from './types';
+import LoadingSpinner from './components/UI/LoadingSpinner'; // Import the loading spinner component
 // import { db } from './services/database'; // Remove if not used, Supabase replaces local db
 
 function App() {
@@ -97,23 +98,19 @@ function App() {
     setNavigationData(null);
   };
 
+  // 1. Show loading spinner if loading
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading GST Billing Application...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
+  // 2. Show login/register if not authenticated
+  if (!session) {
+    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
+  }
+
+  // 3. Show company setup if company not set up
   if (!companySetupComplete) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8">
-        <CompanySetup onComplete={handleCompanySetupComplete} />
-      </div>
-    );
+    return <CompanySetup onComplete={handleCompanySetupComplete} />;
   }
 
   const renderContent = () => {
@@ -214,10 +211,6 @@ function App() {
         return <Dashboard onNavigate={handleNavigate} />;
     }
   };
-
-  if (!session) {
-    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
-  }
 
   return (
     <div className="min-h-screen bg-gray-100">
