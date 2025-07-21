@@ -254,6 +254,7 @@ class DatabaseService {
 
   // Invoice operations
   async saveInvoice(invoice: Invoice): Promise<void> {
+    // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !user.id) throw new Error('User not authenticated');
 
@@ -265,9 +266,11 @@ class DatabaseService {
       .single();
     if (!companyData || !companyData.id) throw new Error('Company not found for user');
 
+    // Prepare invoice data
     const invoiceData = {
       id: invoice.id,
-      company_id: companyData.id, // <-- Add this line!
+      user_id: user.id, // Required for RLS!
+      company_id: companyData.id,
       invoice_number: invoice.invoiceNumber,
       date: invoice.date,
       customer_id: invoice.customerId,
@@ -290,6 +293,7 @@ class DatabaseService {
       updated_at: new Date().toISOString(),
     };
 
+    // Save invoice
     const { error: invoiceError } = await supabase
       .from('invoices')
       .upsert(invoiceData);
@@ -304,7 +308,7 @@ class DatabaseService {
 
     if (deleteError) throw deleteError;
 
-    // Insert invoice items
+    // Prepare invoice items
     const itemsData = invoice.items.map(item => ({
       id: item.id,
       invoice_id: invoice.id,

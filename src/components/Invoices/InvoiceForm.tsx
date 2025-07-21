@@ -304,7 +304,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
           createdAt: invoice?.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
-        user_id: user.id, // <-- Add this line!
+        user_id: user.id,
       };
 
       // Save invoice data to the database
