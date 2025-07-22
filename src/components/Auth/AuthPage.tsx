@@ -47,6 +47,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
+          autoComplete="current-password"
         />
         {error && <div className="text-red-500">{error}</div>}
         <button
