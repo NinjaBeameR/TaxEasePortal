@@ -506,6 +506,13 @@ class DatabaseService {
     void key;
     return Promise.resolve(null);
   }
+
+  async deleteInvoice(invoiceId: string): Promise<void> {
+    // Delete invoice items first (to avoid foreign key constraint)
+    await supabase.from('invoice_items').delete().eq('invoice_id', invoiceId);
+    // Then delete the invoice
+    await supabase.from('invoices').delete().eq('id', invoiceId);
+  }
 }
 
 export const db = new DatabaseService();

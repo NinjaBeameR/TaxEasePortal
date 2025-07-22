@@ -82,16 +82,19 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
     setFilteredInvoices(filtered);
   };
 
-  const handleDelete = async (invoice: Invoice) => {
-    if (window.confirm(`Are you sure you want to delete invoice ${invoice.invoiceNumber}?`)) {
-      try {
-        // Note: In a real application, you might want to implement soft delete
-        // or prevent deletion of sent/paid invoices
-        alert('Delete functionality would be implemented here');
-      } catch (error) {
-        console.error('Error deleting invoice:', error);
-        alert('Error deleting invoice. Please try again.');
-      }
+  const handleDelete = async (invoiceId: string) => {
+    if (!window.confirm('Are you sure you want to delete this invoice?')) return;
+    try {
+      setLoading(true);
+      // Delete invoice and its items
+      await db.deleteInvoice(invoiceId);
+      // Reload invoices
+      await loadInvoices();
+    } catch (error) {
+      alert('Failed to delete invoice.');
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -287,7 +290,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                           <Download className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(invoice)}
+                          onClick={() => handleDelete(invoice.id)}
                           className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
                           title="Delete invoice"
                         >
