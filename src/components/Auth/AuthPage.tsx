@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { supabase } from '../../services/supabase';
 
+function getFriendlyErrorMessage(error: string) {
+  if (!error) return '';
+  if (error.includes('invalid email')) return 'Please enter a valid email address.';
+  if (error.includes('password')) return 'Password must be at least 6 characters.';
+  if (error.includes('already registered')) return 'This email is already registered. Please login.';
+  if (error.includes('Failed to fetch')) return 'Network error. Please check your connection.';
+  if (error.includes('rate limit')) return 'Too many attempts. Please try again later.';
+  if (error.includes('server error')) return 'Server error. Please try again later.';
+  return error;
+}
+
 const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +32,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
     }
 
     if (result.error) {
-      setError(result.error.message);
+      setError(getFriendlyErrorMessage(result.error.message));
     } else {
       onAuthSuccess();
     }
@@ -39,6 +50,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
           value={email}
           onChange={e => setEmail(e.target.value)}
           required
+          autoComplete="username"
         />
         <input
           type="password"
@@ -49,7 +61,11 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
           required
           autoComplete="current-password"
         />
-        {error && <div className="text-red-500">{error}</div>}
+        {error && (
+          <div className="text-red-500 border border-red-200 bg-red-50 rounded px-3 py-2 mb-2">
+            {getFriendlyErrorMessage(error)}
+          </div>
+        )}
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded"
