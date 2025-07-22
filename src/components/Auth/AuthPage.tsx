@@ -24,6 +24,13 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
     setLoading(true);
     setError(null);
 
+    // Extra validation before calling Supabase
+    if (!email || !password || password.length < 6) {
+      setError('Please enter a valid email and a password with at least 6 characters.');
+      setLoading(false);
+      return;
+    }
+
     let result;
     if (isLogin) {
       result = await supabase.auth.signInWithPassword({ email, password });
