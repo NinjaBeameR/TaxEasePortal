@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 import { ArrowLeft, Download, Printer, Mail, Edit } from 'lucide-react';
 import { Invoice, Company } from '../../types';
 import { db } from '../../services/database';
@@ -34,8 +36,22 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
   };
 
   const handleDownloadPDF = () => {
-    // PDF generation would be implemented here
-    alert('PDF download functionality would be implemented here using jsPDF');
+    const invoiceArea = document.getElementById('invoice-print-area');
+    if (!invoiceArea) {
+      alert('Invoice area not found!');
+      return;
+    }
+    html2canvas(invoiceArea, { scale: 2 }).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Calculate image dimensions to fit A4
+      const imgWidth = pageWidth - 40;
+      const imgHeight = canvas.height * (imgWidth / canvas.width);
+      pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+      pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+    });
   };
 
   const handleSendEmail = () => {
