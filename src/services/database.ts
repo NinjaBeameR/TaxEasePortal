@@ -469,27 +469,18 @@ class DatabaseService {
   }
 
   async getNextInvoiceNumber(): Promise<string> {
-    const currentYear = new Date().getFullYear();
-    const prefix = `INV/${currentYear}/`;
-    
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('invoice_number')
-      .like('invoice_number', `${prefix}%`)
-      .order('invoice_number', { ascending: false })
-      .limit(1);
-
-    if (error) throw error;
-    
-    if (!data || data.length === 0) {
-      return `${prefix}001`;
-    }
-    
-    const lastInvoiceNumber = data[0].invoice_number;
-    const numPart = lastInvoiceNumber.split('/').pop();
-    const lastNumber = parseInt(numPart || '0');
-    
-    return `${prefix}${String(lastNumber + 1).padStart(3, '0')}`;
+    // Your logic to fetch company and generate next invoice number
+    // Example:
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user || !user.id) throw new Error('User not authenticated');
+    const { data } = await supabase
+      .from('companies')
+      .select('invoice_prefix, last_invoice_number')
+      .eq('user_id', user.id)
+      .single();
+    const prefix = data?.invoice_prefix || 'INV-';
+    const nextNumber = (data?.last_invoice_number || 1000) + 1;
+    return `${prefix}${nextNumber}`;
   }
 
   // Settings operations
