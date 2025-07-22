@@ -3,6 +3,9 @@ import { Plus, Search, Eye, Edit, Trash2, FileText, Download, Calendar } from 'l
 import { Invoice } from '../../types';
 import { db } from '../../services/database';
 import { formatCurrency } from '../../utils/calculations';
+import InvoiceView from './InvoiceView';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface InvoiceListProps {
   onView: (invoice: Invoice) => void;
@@ -18,6 +21,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'DRAFT' | 'SENT' | 'PAID'>('ALL');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [loading, setLoading] = useState(true);
+
+  // Add these states for PDF download
+  const [showHiddenInvoice, setShowHiddenInvoice] = useState(false);
+  const [invoiceToDownload, setInvoiceToDownload] = useState<Invoice | null>(null);
 
   useEffect(() => {
     loadInvoices();
@@ -121,6 +128,36 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // PDF download handler
+  const handleDownloadPDF = async (invoice: Invoice) => {
+    // Fetch full invoice with items if needed
+    const fullInvoice = await db.getInvoice(invoice.id);
+    setInvoiceToDownload(fullInvoice || invoice);
+    setShowHiddenInvoice(true);
+
+    // Wait for hidden InvoiceView to render
+    setTimeout(() => {
+      const invoiceArea = document.getElementById('invoice-print-area');
+      if (invoiceArea) {
+        html2canvas(invoiceArea, { scale: 2 }).then(canvas => {
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const imgWidth = pageWidth - 40;
+          const imgHeight = canvas.height * (imgWidth / canvas.width);
+          pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
+          pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
+          setShowHiddenInvoice(false);
+          setInvoiceToDownload(null);
+        });
+      } else {
+        alert('Invoice area not found!');
+        setShowHiddenInvoice(false);
+        setInvoiceToDownload(null);
+      }
+    }, 500); // Wait for DOM update
   };
 
   if (loading) {
@@ -283,7 +320,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => alert('PDF download would be implemented here')}
+                          onClick={() => handleDownloadPDF(invoice)}
                           className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50"
                           title="Download PDF"
                         >
@@ -305,6 +342,13 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
           </div>
         )}
       </div>
+
+      {/* Hidden InvoiceView for PDF generation */}
+      {showHiddenInvoice && invoiceToDownload && (
+        <div style={{ position: 'absolute', left: '-9999px', top: 0, zIndex: -1 }}>
+          <InvoiceView invoice={invoiceToDownload} onEdit={() => {}} onBack={() => {}} />
+        </div>
+      )}
 
       {/* Summary */}
       {filteredInvoices.length > 0 && (

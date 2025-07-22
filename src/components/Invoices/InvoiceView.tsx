@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { ArrowLeft, Download, Printer, Mail, Edit } from 'lucide-react';
+import { ArrowLeft, Download, Printer, Edit } from 'lucide-react';
 import { Invoice, Company } from '../../types';
 import { db } from '../../services/database';
 import { formatIndianNumber } from '../../utils/calculations';
@@ -45,18 +45,12 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
       const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
       // Calculate image dimensions to fit A4
       const imgWidth = pageWidth - 40;
       const imgHeight = canvas.height * (imgWidth / canvas.width);
       pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
       pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
     });
-  };
-
-  const handleSendEmail = () => {
-    // Email functionality would be implemented here
-    alert('Email functionality would be implemented here');
   };
 
   if (loading) {
@@ -114,13 +108,6 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
             >
               <Download className="h-4 w-4" />
               <span>PDF</span>
-            </button>
-            <button
-              onClick={handleSendEmail}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center space-x-2"
-            >
-              <Mail className="h-4 w-4" />
-              <span>Email</span>
             </button>
           </div>
         </div>
