@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Users, Package, Building2, Settings } from 'lucide-react';
+import { FileText, Users, Package, Building2, Settings, LogOut } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 
 interface HeaderProps {
@@ -15,6 +15,11 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
     { id: 'products', label: 'Products', icon: Package },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -87,13 +92,12 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <button
-          className="ml-4 px-4 py-2 bg-red-600 text-white rounded"
-          onClick={async () => {
-            await supabase.auth.signOut();
-            window.location.reload();
-          }}
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-3 py-1 border border-gray-300 rounded text-gray-700 bg-white hover:bg-gray-100 transition print:hidden"
+          title="Logout"
         >
-          Logout
+          <LogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Logout</span>
         </button>
       </div>
     </header>
