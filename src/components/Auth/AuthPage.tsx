@@ -45,7 +45,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Enter your Email"
           className="w-full px-3 py-2 border rounded"
           value={email}
           onChange={e => setEmail(e.target.value)}
@@ -54,7 +54,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
         />
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Set a Password"
           className="w-full px-3 py-2 border rounded"
           value={password}
           onChange={e => setPassword(e.target.value)}
