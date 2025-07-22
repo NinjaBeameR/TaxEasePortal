@@ -41,7 +41,7 @@ class DatabaseService {
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
-    if (!data) return null;
+    if (!data) return null; // or return [] for arrays
 
     return {
       id: data.id,
@@ -101,6 +101,7 @@ class DatabaseService {
       .order('name');
 
     if (error) throw error;
+    if (!data || !Array.isArray(data)) return [];
 
     return data.map(row => ({
       id: row.id,
@@ -137,7 +138,7 @@ class DatabaseService {
       .eq('id', id)
       .single();
     if (error && error.code !== 'PGRST116') throw error;
-    if (!data) return null;
+    if (!data) return null; // or return [] for arrays
 
     return {
       id: data.id,
@@ -204,6 +205,7 @@ class DatabaseService {
       .order('name');
 
     if (error) throw error;
+    if (!data || !Array.isArray(data)) return [];
 
     return data.map(row => ({
       id: row.id,
@@ -227,7 +229,7 @@ class DatabaseService {
       .single();
 
     if (error && error.code !== 'PGRST116') throw error;
-    if (!data) return null;
+    if (!data) return null; // or return [] for arrays
 
     return {
       id: data.id,
@@ -348,6 +350,7 @@ class DatabaseService {
       .order('date', { ascending: false });
 
     if (invoicesError) throw invoicesError;
+    if (!invoicesData || !Array.isArray(invoicesData)) return [];
 
     const { data: itemsData, error: itemsError } = await supabase
       .from('invoice_items')
@@ -355,6 +358,33 @@ class DatabaseService {
       .order('created_at');
 
     if (itemsError) throw itemsError;
+    if (!itemsData || !Array.isArray(itemsData)) return invoicesData.map(invoice => ({
+      id: invoice.id,
+      invoiceNumber: invoice.invoice_number,
+      date: invoice.date,
+      customerId: invoice.customer_id,
+      customerName: invoice.customer_name,
+      customerGstin: invoice.customer_gstin,
+      customerAddress: {
+        line1: invoice.customer_address_line1,
+        line2: invoice.customer_address_line2 || '',
+        city: invoice.customer_city,
+        state: invoice.customer_state,
+        pincode: invoice.customer_pincode,
+      },
+      items: [],
+      subtotal: invoice.subtotal,
+      totalTaxableValue: invoice.total_taxable_value,
+      totalCgst: invoice.total_cgst,
+      totalSgst: invoice.total_sgst,
+      totalIgst: invoice.total_igst,
+      totalAmount: invoice.total_amount,
+      amountInWords: invoice.amount_in_words,
+      notes: invoice.notes,
+      status: invoice.status as 'DRAFT' | 'SENT' | 'PAID',
+      createdAt: invoice.created_at,
+      updatedAt: invoice.updated_at,
+    }));
 
     return invoicesData.map(invoice => {
       const items = itemsData
@@ -422,6 +452,33 @@ class DatabaseService {
       .order('created_at');
 
     if (itemsError) throw itemsError;
+    if (!itemsData || !Array.isArray(itemsData)) return {
+      id: invoiceData.id,
+      invoiceNumber: invoiceData.invoice_number,
+      date: invoiceData.date,
+      customerId: invoiceData.customer_id,
+      customerName: invoiceData.customer_name,
+      customerGstin: invoiceData.customer_gstin,
+      customerAddress: {
+        line1: invoiceData.customer_address_line1,
+        line2: invoiceData.customer_address_line2 || '',
+        city: invoiceData.customer_city,
+        state: invoiceData.customer_state,
+        pincode: invoiceData.customer_pincode,
+      },
+      items: [],
+      subtotal: invoiceData.subtotal,
+      totalTaxableValue: invoiceData.total_taxable_value,
+      totalCgst: invoiceData.total_cgst,
+      totalSgst: invoiceData.total_sgst,
+      totalIgst: invoiceData.total_igst,
+      totalAmount: invoiceData.total_amount,
+      amountInWords: invoiceData.amount_in_words,
+      notes: invoiceData.notes,
+      status: invoiceData.status as 'DRAFT' | 'SENT' | 'PAID',
+      createdAt: invoiceData.created_at,
+      updatedAt: invoiceData.updated_at,
+    };
 
     const items = itemsData.map(item => ({
       id: item.id,
