@@ -84,6 +84,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
   useEffect(() => {
     if (invoice) {
       setFormData(invoice);
+      setInvoiceNumber(invoice.invoiceNumber);
       loadCustomerById(invoice.customerId);
     } else {
       generateInvoiceNumber();
@@ -394,7 +395,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
                 type="text"
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                 value={invoiceNumber}
-                onChange={e => setInvoiceNumber(e.target.value)}
+                onChange={e => {
+                  setInvoiceNumber(e.target.value);
+                  setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }));
+                }}
                 required
                 placeholder={`${autoPrefix}${autoNumber}`}
               />
