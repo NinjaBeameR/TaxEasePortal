@@ -116,9 +116,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
   const loadInitialData = async () => {
     try {
       const [customerList, productList, companyData] = await Promise.all([
-        db.getCustomers(),
-        db.getProducts(),
-        db.getCompany(),
+        db.getCustomers(),    // ✅ This calls the function
+        db.getProducts(),     // ✅
+        db.getCompany(),      // ✅
       ]);
       setCustomers(customerList);
       setProducts(productList);
