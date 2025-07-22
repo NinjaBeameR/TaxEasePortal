@@ -73,6 +73,9 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
     totalIgst: 0,
     totalAmount: 0,
   });
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+  const [autoPrefix, setAutoPrefix] = useState('INV-');
+  const [autoNumber, setAutoNumber] = useState(1001);
 
   useEffect(() => {
     loadInitialData();
@@ -90,6 +93,24 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
   useEffect(() => {
     calculateTotals();
   }, [formData.items, company, selectedCustomer]);
+
+  useEffect(() => {
+    async function fetchCompanyInvoiceSettings() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !user.id) return;
+      const { data } = await supabase
+        .from('companies')
+        .select('invoice_prefix, last_invoice_number')
+        .eq('user_id', user.id)
+        .single();
+      if (data) {
+        setAutoPrefix(data.invoice_prefix || 'INV-');
+        setAutoNumber((data.last_invoice_number || 1000) + 1);
+        setInvoiceNumber(`${data.invoice_prefix || 'INV-'}${(data.last_invoice_number || 1000) + 1}`);
+      }
+    }
+    fetchCompanyInvoiceSettings();
+  }, []);
 
   const loadInitialData = async () => {
     try {
@@ -309,6 +330,21 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
 
       // Save invoice data to the database
       await db.saveInvoice(invoiceData);
+      
+      // After successfully saving the invoice:
+      const match = invoiceNumber.match(/^([A-Za-z\-]+)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const number = parseInt(match[2], 10);
+        await supabase
+          .from('companies')
+          .update({
+            invoice_prefix: prefix,
+            last_invoice_number: number
+          })
+          .eq('user_id', user.id);
+      }
+
       onSave();
     } catch (error) {
       console.error('Error saving invoice:', error);
@@ -356,11 +392,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
               </label>
               <input
                 type="text"
-                value={formData.invoiceNumber || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, invoiceNumber: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                readOnly
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                value={invoiceNumber}
+                onChange={e => setInvoiceNumber(e.target.value)}
+                required
+                placeholder={`${autoPrefix}${autoNumber}`}
               />
+              <small className="text-gray-500">
+                Leave as is for auto-increment, or enter your own format.
+              </small>
             </div>
 
             <div>
