@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-blue-600">GST Billing</h1>
+              <h1 className="text-2xl font-bold text-blue-600">TAX EASE PORTAL</h1>
             </div>
           </div>
           
