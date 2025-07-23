@@ -9,7 +9,7 @@ const AdminPanel = () => {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
-    const res = await fetch('/api/create-user', {
+    const res = await fetch('/.netlify/functions/create-user', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, companyName }),
