@@ -38,6 +38,9 @@ const AdminPanel = () => {
   const [website, setWebsite] = useState('');
   const [logo, setLogo] = useState('');
 
+  const [company, setCompany] = useState<any>(null);
+  const [loadingCompany, setLoadingCompany] = useState(true);
+
   // Fetch users and companies
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +54,34 @@ const AdminPanel = () => {
     };
     fetchData();
   }, [modalOpen, message]); // refetch after modal closes or message changes
+
+  // Fetch company data
+  useEffect(() => {
+    const fetchCompany = async () => {
+      setLoadingCompany(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setCompany(null);
+        setLoadingCompany(false);
+        return;
+      }
+      const { data: companyData } = await supabase
+        .from('companies')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      setCompany(companyData);
+      setLoadingCompany(false);
+    };
+    fetchCompany();
+  }, []);
+
+  // Log the logged-in user's UID
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      console.log('Logged-in user UID:', data.user?.id);
+    });
+  }, []);
 
   // Create user handler
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -135,6 +166,13 @@ const AdminPanel = () => {
     await supabase.auth.signOut();
     window.location.reload();
   };
+
+  if (loadingCompany) return <div>Loading...</div>;
+  if (!company || company.role !== 'admin') {
+    return <div className="max-w-2xl mx-auto mt-10 bg-white p-8 rounded shadow text-center text-red-600 font-bold">
+      Access Denied: You are not an admin.
+    </div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto mt-10 bg-white p-8 rounded shadow">
