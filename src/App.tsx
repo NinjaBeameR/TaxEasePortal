@@ -37,15 +37,27 @@ function App() {
       setSession(session);
 
       if (session && session.user) {
-        // Fetch company for this user and get role
-        const { data: companyData } = await supabase
-          .from('companies')
+        // Fetch user info from users table
+        const { data: userData } = await supabase
+          .from('users')
           .select('*')
           .eq('user_id', session.user.id)
           .single();
-        setCompany(companyData);
-        setCompanySetupComplete(!!companyData);
-        setUserRole(companyData?.role || 'user');
+        setUserRole(userData?.role || 'user');
+
+        // Fetch company info using company_id
+        if (userData?.company_id) {
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('id', userData.company_id)
+            .single();
+          setCompany(companyData);
+          setCompanySetupComplete(!!companyData);
+        } else {
+          setCompany(null);
+          setCompanySetupComplete(false);
+        }
       } else {
         setCompany(null);
         setCompanySetupComplete(false);
@@ -59,17 +71,27 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         setSession(session);
-        // Refetch company and role on auth change
+        // Refetch user and company info on auth change
         if (session && session.user) {
           supabase
-            .from('companies')
+            .from('users')
             .select('*')
             .eq('user_id', session.user.id)
             .single()
-            .then(({ data: companyData }) => {
-              setCompany(companyData);
-              setCompanySetupComplete(!!companyData);
-              setUserRole(companyData?.role || 'user');
+            .then(async ({ data: userData }) => {
+              setUserRole(userData?.role || 'user');
+              if (userData?.company_id) {
+                const { data: companyData } = await supabase
+                  .from('companies')
+                  .select('*')
+                  .eq('id', userData.company_id)
+                  .single();
+                setCompany(companyData);
+                setCompanySetupComplete(!!companyData);
+              } else {
+                setCompany(null);
+                setCompanySetupComplete(false);
+              }
             });
         } else {
           setCompany(null);
@@ -86,15 +108,22 @@ function App() {
   const handleCompanySetupComplete = () => {
     setCompanySetupComplete(true);
     setCurrentPage('dashboard');
-    // Refetch company info after setup
+    // Refetch user and company info after setup
     if (session && session.user) {
       supabase
-        .from('companies')
+        .from('users')
         .select('*')
         .eq('user_id', session.user.id)
         .single()
-        .then(({ data: companyData }) => {
-          setCompany(companyData);
+        .then(async ({ data: userData }) => {
+          if (userData?.company_id) {
+            const { data: companyData } = await supabase
+              .from('companies')
+              .select('*')
+              .eq('id', userData.company_id)
+              .single();
+            setCompany(companyData);
+          }
         });
     }
   };

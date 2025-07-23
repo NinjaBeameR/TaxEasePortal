@@ -39,7 +39,7 @@ exports.handler = async function(event, context) {
       pincode,
       gstin,
       phone,
-      email: company_email, // company email, not user login email
+      email: company_email,
       website,
       logo
     }])
@@ -51,14 +51,14 @@ exports.handler = async function(event, context) {
   }
 
   // Insert user info into users table
-  const { error: userError } = await supabase.from('users').insert([
+  const { data: userRow, error: userError } = await supabase.from('users').insert([
     {
       user_id: data.user.id,
       email: email,
       role: 'user',
       company_id: companyData.id,
     }
-  ]);
+  ]).select().single();
 
   if (userError) {
     return { statusCode: 400, body: JSON.stringify({ error: userError.message }) };
@@ -66,6 +66,15 @@ exports.handler = async function(event, context) {
 
   return {
     statusCode: 200,
-    body: JSON.stringify({ success: true })
+    body: JSON.stringify({
+      success: true,
+      user: {
+        user_id: data.user.id,
+        email: email,
+        company_id: companyData.id,
+        company: companyData,
+        user_row: userRow
+      }
+    })
   };
 };
