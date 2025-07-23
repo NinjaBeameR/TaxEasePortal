@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { supabase } from '../../services/supabase';
 
 const AdminPanel = () => {
   const [email, setEmail] = useState('');
@@ -7,33 +6,23 @@ const AdminPanel = () => {
   const [companyName, setCompanyName] = useState('');
   const [message, setMessage] = useState('');
 
-  // Create a new user and company
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
-    // Create user using Supabase Admin API
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { role: 'user' }
+    const res = await fetch('/api/create-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, companyName }),
     });
-    if (error) {
-      setMessage('Error creating user: ' + error.message);
-      return;
+    const data = await res.json();
+    if (data.error) {
+      setMessage('Error: ' + data.error);
+    } else {
+      setMessage('User created! Share these credentials with the user.');
+      setEmail('');
+      setPassword('');
+      setCompanyName('');
     }
-    // Insert company details (optional, adjust as needed)
-    await supabase.from('companies').insert([
-      {
-        user_id: data.user?.id,
-        name: companyName,
-        // ...other company fields...
-      }
-    ]);
-    setMessage('User and company created! Share these credentials with the user.');
-    setEmail('');
-    setPassword('');
-    setCompanyName('');
   };
 
   return (
