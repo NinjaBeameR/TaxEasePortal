@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../services/supabase';
 
 function getFriendlyErrorMessage(error: string) {
@@ -18,6 +18,19 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [makeAdmin, setMakeAdmin] = useState(false);
+  const [adminExists, setAdminExists] = useState(false);
+
+  useEffect(() => {
+    // Check if any admin exists
+    supabase
+      .from('companies')
+      .select('id')
+      .eq('role', 'admin')
+      .then(({ data }) => {
+        setAdminExists(!!(data && data.length > 0));
+      });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +49,19 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
       result = await supabase.auth.signInWithPassword({ email, password });
     } else {
       result = await supabase.auth.signUp({ email, password });
+      // After successful signUp, call backend to create company row
+      if (!result.error && result.data?.user?.id) {
+        await fetch('/.netlify/functions/create-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            password,
+            // Add other company fields here if needed
+            role: makeAdmin ? 'admin' : 'user'
+          })
+        });
+      }
     }
 
     if (result.error) {
@@ -68,6 +94,17 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
           required
           autoComplete="current-password"
         />
+        {/* Show admin checkbox only if registering and no admin exists */}
+        {!isLogin && !adminExists && (
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={makeAdmin}
+              onChange={e => setMakeAdmin(e.target.checked)}
+            />
+            <span>Make this an admin account</span>
+          </label>
+        )}
         {error && (
           <div className="text-red-500 border border-red-200 bg-red-50 rounded px-3 py-2 mb-2">
             {getFriendlyErrorMessage(error)}
