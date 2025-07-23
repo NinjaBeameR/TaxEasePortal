@@ -26,8 +26,9 @@ function App() {
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null); // <-- Add this
+  const [session, setSession] = useState<any>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null); // <-- Add this
 
   // Fetch session, company info, and user role
   useEffect(() => {
@@ -43,6 +44,7 @@ function App() {
           .select('*')
           .eq('user_id', session.user.id)
           .single();
+        setUser(userData); // <-- Store full user object
         setUserRole(userData?.role || 'user');
 
         // Fetch company info using company_id
@@ -59,9 +61,10 @@ function App() {
           setCompanySetupComplete(false);
         }
       } else {
+        setUser(null);
+        setUserRole(null);
         setCompany(null);
         setCompanySetupComplete(false);
-        setUserRole(null);
       }
       setLoading(false);
     };
@@ -79,6 +82,7 @@ function App() {
             .eq('user_id', session.user.id)
             .single()
             .then(async ({ data: userData }) => {
+              setUser(userData); // <-- Store full user object
               setUserRole(userData?.role || 'user');
               if (userData?.company_id) {
                 const { data: companyData } = await supabase
@@ -180,7 +184,7 @@ function App() {
   }
 
   // Admin panel
-  if (userRole === 'admin') {
+  if (user?.role === 'admin') {
     return <AdminPanel />;
   }
 
