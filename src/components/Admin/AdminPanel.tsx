@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { supabase } from '../utils/supabaseClient'; // Adjust the import based on your project structure
 
 // Helper modal component
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
@@ -132,16 +133,30 @@ const AdminPanel = () => {
     }
   };
 
+  // Logout handler
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
+
   return (
     <div className="max-w-6xl mx-auto mt-10 bg-white p-8 rounded shadow">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Admin Dashboard</h2>
-        <button
-          onClick={() => setModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + Create New User
-        </button>
+        <div>
+          <button
+            onClick={() => setModalOpen(true)}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            + Create New User
+          </button>
+          <button
+            onClick={handleLogout}
+            className="bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 ml-4"
+          >
+            Logout
+          </button>
+        </div>
       </div>
       {message && <div className="mb-4 text-green-600">{message}</div>}
       {loading ? (
