@@ -29,6 +29,7 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null); // <-- Add this
+  const [showAdminPanel, setShowAdminPanel] = useState(false); // <-- Add this
 
   // Fetch session, company info, and user role
   useEffect(() => {
@@ -46,9 +47,17 @@ function App() {
           .single();
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
+
+        // Check for admin role and show admin panel
+        if (companyData?.role === 'admin') {
+          setShowAdminPanel(true);
+        } else {
+          setShowAdminPanel(false);
+        }
       } else {
         setCompany(null);
         setCompanySetupComplete(false);
+        setShowAdminPanel(false);
       }
       setLoading(false);
     };
@@ -68,10 +77,16 @@ function App() {
             .then(({ data: companyData }) => {
               setCompany(companyData);
               setCompanySetupComplete(!!companyData);
+              if (companyData?.role === 'admin') {
+                setShowAdminPanel(true);
+              } else {
+                setShowAdminPanel(false);
+              }
             });
         } else {
           setCompany(null);
           setCompanySetupComplete(false);
+          setShowAdminPanel(false);
         }
       }
     );
@@ -155,7 +170,7 @@ function App() {
   }
 
   // Admin panel
-  if (user?.role === 'admin') {
+  if (showAdminPanel) {
     return <AdminPanel />;
   }
 
