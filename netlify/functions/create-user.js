@@ -57,8 +57,11 @@ exports.handler = async function(event, context) {
       email: email,
       role: 'user',
       company_id: companyData.id,
+      // Add other required fields here
     }
   ]).select().single();
+
+  console.log('User insert result:', userRow, userError); // <-- Add this
 
   if (userError) {
     return { statusCode: 400, body: JSON.stringify({ error: userError.message }) };
