@@ -37,15 +37,7 @@ function App() {
       setSession(session);
 
       if (session && session.user) {
-        // Fetch user role from profiles table
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-        setUserRole(profile?.role || 'user');
-
-        // Fetch company for this user
+        // Fetch company for this user and get role
         const { data: companyData } = await supabase
           .from('companies')
           .select('*')
