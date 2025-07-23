@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../utils/supabaseClient'; // Adjust the import based on your project structure
+import { supabase } from '../../supabaseClient';
 
 // Helper modal component
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
