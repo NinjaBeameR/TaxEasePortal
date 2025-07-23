@@ -13,7 +13,7 @@ exports.handler = async function(event, context) {
   const {
     email, password,
     business_name, address_line1, address_line2, city, state, pincode,
-    gstin, phone, company_email, website, logo
+    gstin, phone, company_email, website, logo, role
   } = JSON.parse(event.body);
 
   // Create user in Supabase Auth
@@ -22,8 +22,8 @@ exports.handler = async function(event, context) {
     password,
     email_confirm: true,
   });
-  if (error) {
-    return { statusCode: 400, body: JSON.stringify({ error: error.message }) };
+  if (error || !data?.user?.id) {
+    return { statusCode: 400, body: JSON.stringify({ error: error?.message || 'User creation failed' }) };
   }
 
   // Insert company and link to user
@@ -41,7 +41,8 @@ exports.handler = async function(event, context) {
       email: company_email,
       website,
       logo,
-      user_id: data.user.id // <-- Link company to user
+      user_id: data.user.id,
+      role: role || 'user'
     }])
     .select()
     .single();

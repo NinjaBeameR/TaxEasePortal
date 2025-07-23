@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 
-// Helper modal component
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
@@ -15,13 +14,11 @@ function Modal({ open, onClose, children }: { open: boolean, onClose: () => void
 }
 
 const AdminPanel = () => {
-  const [users, setUsers] = useState<any[]>([]);
-  const [companies, setCompanies] = useState<{ [key: string]: any }>({});
+  const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [createdCredentials, setCreatedCredentials] = useState<{ email: string; password: string } | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<{ userId: string, email: string } | null>(null);
 
   // Form states for modal
   const [email, setEmail] = useState('');
@@ -41,21 +38,21 @@ const AdminPanel = () => {
   const [company, setCompany] = useState<any>(null);
   const [loadingCompany, setLoadingCompany] = useState(true);
 
-  // Fetch users and companies
+  // Fetch all companies for the admin table
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCompanies = async () => {
       setLoading(true);
-      // Fetch all companies
-      const { data: companies, error } = await supabase
+      const { data, error } = await supabase
         .from('companies')
-        .select('*');
-      setCompanies(companies || []);
+        .select('*')
+        .order('created_at', { ascending: false });
+      setCompanies(data || []);
       setLoading(false);
     };
-    fetchData();
+    fetchCompanies();
   }, [modalOpen, message]); // refetch after modal closes or message changes
 
-  // Fetch company data
+  // Fetch logged-in admin's company info
   useEffect(() => {
     const fetchCompany = async () => {
       setLoadingCompany(true);
@@ -74,13 +71,6 @@ const AdminPanel = () => {
       setLoadingCompany(false);
     };
     fetchCompany();
-  }, []);
-
-  // Log the logged-in user's UID
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      console.log('Logged-in user UID:', data.user?.id);
-    });
   }, []);
 
   // Create user handler
@@ -120,39 +110,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Reset password handler
-  const handleResetPassword = async (email: string) => {
-    setMessage('');
-    const res = await fetch('/.netlify/functions/reset-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (data.error) {
-      setMessage('Error: ' + data.error);
-    } else {
-      setMessage('Password reset email sent!');
-    }
-  };
-
-  // Delete user handler
-  const handleDeleteUser = async (userId: string) => {
-    setMessage('');
-    setConfirmDelete(null);
-    const res = await fetch('/.netlify/functions/delete-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId }),
-    });
-    const data = await res.json();
-    if (data.error) {
-      setMessage('Error: ' + data.error);
-    } else {
-      setMessage('User deleted!');
-    }
-  };
-
   const handleCopy = () => {
     if (createdCredentials) {
       const text = `Email: ${createdCredentials.email}\nPassword: ${createdCredentials.password}`;
@@ -161,7 +118,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Logout handler
   const handleLogout = async () => {
     await supabase.auth.signOut();
     window.location.reload();
@@ -206,36 +162,18 @@ const AdminPanel = () => {
                 <th className="px-4 py-2">Company</th>
                 <th className="px-4 py-2">GSTIN</th>
                 <th className="px-4 py-2">Created At</th>
-                <th className="px-4 py-2">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {users.map(user => {
-                const company = companies[user.company_id] || {};
-                return (
-                  <tr key={user.id} className="border-t">
-                    <td className="px-4 py-2">{user.email}</td>
-                    <td className="px-4 py-2">{user.role}</td>
-                    <td className="px-4 py-2">{company.business_name || '-'}</td>
-                    <td className="px-4 py-2">{company.gstin || '-'}</td>
-                    <td className="px-4 py-2">{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td className="px-4 py-2 space-x-2">
-                      <button
-                        onClick={() => handleResetPassword(user.email)}
-                        className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
-                      >
-                        Reset Password
-                      </button>
-                      <button
-                        onClick={() => setConfirmDelete({ userId: user.user_id, email: user.email })}
-                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {companies.map(cmp => (
+                <tr key={cmp.id} className="border-t">
+                  <td className="px-4 py-2">{cmp.email}</td>
+                  <td className="px-4 py-2">{cmp.role}</td>
+                  <td className="px-4 py-2">{cmp.business_name}</td>
+                  <td className="px-4 py-2">{cmp.gstin}</td>
+                  <td className="px-4 py-2">{new Date(cmp.created_at).toLocaleDateString()}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -316,26 +254,6 @@ const AdminPanel = () => {
             </button>
           </div>
         )}
-      </Modal>
-
-      {/* Delete confirmation modal */}
-      <Modal open={!!confirmDelete} onClose={() => setConfirmDelete(null)}>
-        <div className="text-lg font-semibold mb-4">Delete User</div>
-        <div className="mb-4">Are you sure you want to delete user <span className="font-bold">{confirmDelete?.email}</span>? This cannot be undone.</div>
-        <div className="flex gap-4">
-          <button
-            onClick={() => confirmDelete && handleDeleteUser(confirmDelete.userId)}
-            className="bg-red-600 text-white px-4 py-2 rounded"
-          >
-            Delete
-          </button>
-          <button
-            onClick={() => setConfirmDelete(null)}
-            className="bg-gray-300 px-4 py-2 rounded"
-          >
-            Cancel
-          </button>
-        </div>
       </Modal>
     </div>
   );
