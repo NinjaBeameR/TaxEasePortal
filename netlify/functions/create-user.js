@@ -1,8 +1,8 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
+  process.env.SUPABASE_URL,        // <-- NOT VITE_
+  process.env.SUPABASE_ANON_KEY    // <-- NOT VITE_
 );
 
 exports.handler = async function(event, context) {
@@ -10,7 +10,6 @@ exports.handler = async function(event, context) {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
-  // Destructure all company fields from the request body
   const {
     email, password,
     business_name, address_line1, address_line2, city, state, pincode,
@@ -27,7 +26,7 @@ exports.handler = async function(event, context) {
     return { statusCode: 400, body: JSON.stringify({ error: error.message }) };
   }
 
-  // Insert company and get its id
+  // Insert company and link to user
   const { data: companyData, error: companyError } = await supabase
     .from('companies')
     .insert([{
@@ -41,7 +40,8 @@ exports.handler = async function(event, context) {
       phone,
       email: company_email,
       website,
-      logo
+      logo,
+      user_id: data.user.id // <-- Link company to user
     }])
     .select()
     .single();
@@ -50,34 +50,11 @@ exports.handler = async function(event, context) {
     return { statusCode: 400, body: JSON.stringify({ error: companyError.message }) };
   }
 
-  // Insert user info into users table
-  const { data: userRow, error: userError } = await supabase.from('users').insert([
-    {
-      user_id: data.user.id,
-      email: email,
-      role: 'user',
-      company_id: companyData.id,
-      // Add other required fields here
-    }
-  ]).select().single();
-
-  console.log('User insert result:', userRow, userError); // <-- Add this
-
-  if (userError) {
-    return { statusCode: 400, body: JSON.stringify({ error: userError.message }) };
-  }
-
   return {
     statusCode: 200,
     body: JSON.stringify({
       success: true,
-      user: {
-        user_id: data.user.id,
-        email: email,
-        company_id: companyData.id,
-        company: companyData,
-        user_row: userRow
-      }
+      company: companyData
     })
   };
 };

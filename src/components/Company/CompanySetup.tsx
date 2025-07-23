@@ -98,23 +98,15 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting...');
-    if (!validateForm()) {
-      console.log('Validation failed', errors);
-      return;
-    }
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      console.log('Supabase user:', user);
       if (!user || !user.id) {
         setErrors({ submit: 'User not authenticated.' });
         setLoading(false);
-        console.error('User not authenticated');
         return;
       }
       const companyData = {
-        id: company.id || crypto.randomUUID(),
         business_name: company.businessName,
         address_line1: company.address?.line1 || '',
         address_line2: company.address?.line2 || '',
@@ -126,23 +118,18 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
         email: company.contact?.email || '',
         website: company.contact?.website || '',
         logo: company.logo || '',
-        created_at: company.createdAt || new Date().toISOString(),
-        updated_at: new Date().toISOString(),
         user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
-
-      console.log('Saving to Supabase:', companyData);
-      const { error } = await supabase
-        .from('companies')
-        .upsert([companyData], { onConflict: 'user_id' });
+      const { error } = await supabase.from('companies').upsert([companyData], { onConflict: 'user_id' });
       if (error) {
-        console.error('Error saving company:', error);
         setErrors({ submit: error.message || JSON.stringify(error) });
+        setLoading(false);
         return;
       }
       onComplete();
     } catch (error) {
-      console.error('Unexpected error:', error);
       setErrors({ submit: 'Unexpected error saving company.' });
     } finally {
       setLoading(false);

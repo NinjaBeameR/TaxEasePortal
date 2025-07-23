@@ -38,31 +38,15 @@ function App() {
       setSession(session);
 
       if (session && session.user) {
-        // Fetch user info from users table
-        const { data: userData } = await supabase
-          .from('users')
+        // Fetch company info using user_id
+        const { data: companyData } = await supabase
+          .from('companies')
           .select('*')
           .eq('user_id', session.user.id)
           .single();
-        setUser(userData); // <-- Store full user object
-        setUserRole(userData?.role || 'user');
-
-        // Fetch company info using company_id
-        if (userData?.company_id) {
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('id', userData.company_id)
-            .single();
-          setCompany(companyData);
-          setCompanySetupComplete(!!companyData);
-        } else {
-          setCompany(null);
-          setCompanySetupComplete(false);
-        }
+        setCompany(companyData);
+        setCompanySetupComplete(!!companyData);
       } else {
-        setUser(null);
-        setUserRole(null);
         setCompany(null);
         setCompanySetupComplete(false);
       }
@@ -74,33 +58,20 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         setSession(session);
-        // Refetch user and company info on auth change
+        // Refetch company info on auth change
         if (session && session.user) {
           supabase
-            .from('users')
+            .from('companies')
             .select('*')
             .eq('user_id', session.user.id)
             .single()
-            .then(async ({ data: userData }) => {
-              setUser(userData); // <-- Store full user object
-              setUserRole(userData?.role || 'user');
-              if (userData?.company_id) {
-                const { data: companyData } = await supabase
-                  .from('companies')
-                  .select('*')
-                  .eq('id', userData.company_id)
-                  .single();
-                setCompany(companyData);
-                setCompanySetupComplete(!!companyData);
-              } else {
-                setCompany(null);
-                setCompanySetupComplete(false);
-              }
+            .then(({ data: companyData }) => {
+              setCompany(companyData);
+              setCompanySetupComplete(!!companyData);
             });
         } else {
           setCompany(null);
           setCompanySetupComplete(false);
-          setUserRole(null);
         }
       }
     );

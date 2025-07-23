@@ -42,14 +42,11 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      // Fetch users
-      const usersRes = await fetch('/.netlify/functions/get-users');
-      const usersData = await usersRes.json();
-      setUsers(usersData.users || []);
-      // Build company map for quick lookup
-      const companyMap: { [key: string]: any } = {};
-      (usersData.companies || []).forEach((c: any) => { companyMap[c.id] = c; });
-      setCompanies(companyMap);
+      // Fetch all companies
+      const { data: companies, error } = await supabase
+        .from('companies')
+        .select('*');
+      setCompanies(companies || []);
       setLoading(false);
     };
     fetchData();
