@@ -12,9 +12,10 @@ import InvoiceList from './components/Invoices/InvoiceList';
 import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import AuthPage from './components/Auth/AuthPage';
+import AdminPanel from './components/Admin/AdminPanel'; // <-- Add this import
 import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
-import { Session } from '@supabase/supabase-js'; // Add this import
+import { Session } from '@supabase/supabase-js';
 import './print.css';
 
 function App() {
@@ -25,9 +26,10 @@ function App() {
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<Session | null>(null); // Fix type here
+  const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null); // <-- Add this
 
-  // Fetch session and company info
+  // Fetch session, company info, and user role
   useEffect(() => {
     const fetchSessionAndCompany = async () => {
       setLoading(true);
@@ -35,6 +37,14 @@ function App() {
       setSession(session);
 
       if (session && session.user) {
+        // Fetch user role from profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .single();
+        setUserRole(profile?.role || 'user');
+
         // Fetch company for this user
         const { data: companyData } = await supabase
           .from('companies')
@@ -43,9 +53,11 @@ function App() {
           .single();
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
+        setUserRole(companyData?.role || 'user');
       } else {
         setCompany(null);
         setCompanySetupComplete(false);
+        setUserRole(null);
       }
       setLoading(false);
     };
@@ -55,7 +67,7 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         setSession(session);
-        // Refetch company on auth change
+        // Refetch company and role on auth change
         if (session && session.user) {
           supabase
             .from('companies')
@@ -65,10 +77,12 @@ function App() {
             .then(({ data: companyData }) => {
               setCompany(companyData);
               setCompanySetupComplete(!!companyData);
+              setUserRole(companyData?.role || 'user');
             });
         } else {
           setCompany(null);
           setCompanySetupComplete(false);
+          setUserRole(null);
         }
       }
     );
@@ -110,6 +124,12 @@ function App() {
     } else if (data?.action === 'edit' || data?.action === 'view') {
       setCurrentView(data.action === 'edit' ? 'form' : 'view');
       setSelectedItem(data.customer || data.product || data.invoice);
+   
+      setCurrentView('form');
+      setSelectedItem(null);
+    } else if (data?.action === 'edit' || data?.action === 'view') {
+      setCurrentView(data.action === 'edit' ? 'form' : 'view');
+      setSelectedItem(data.customer || data.product || data.invoice);
     } else {
       setCurrentView('list');
       setSelectedItem(null);
@@ -136,6 +156,11 @@ function App() {
   // 2. Show login/register if not authenticated
   if (!session) {
     return <AuthPage onAuthSuccess={() => window.location.reload()} />;
+  }
+
+  // Admin panel
+  if (userRole === 'admin') {
+    return <AdminPanel />;
   }
 
   // Only show company setup if company is NOT set up
