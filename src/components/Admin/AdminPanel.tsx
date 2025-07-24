@@ -41,6 +41,7 @@ const AdminPanel: React.FC = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      console.log('Logged in user email:', user?.email); // Debug log
       if (!user) {
         setIsAdmin(false);
         return;
@@ -51,6 +52,7 @@ const AdminPanel: React.FC = () => {
         .select('*')
         .eq('email', user.email)
         .single();
+      console.log('Admin table lookup:', adminData); // Debug log
       setIsAdmin(!!adminData);
     };
     checkAdmin();
