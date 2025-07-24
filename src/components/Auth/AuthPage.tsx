@@ -66,30 +66,46 @@ const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
   };
 
   return (
-    <form onSubmit={handleSignIn}>
-      <select value={role} onChange={e => setRole(e.target.value as 'user' | 'admin')}>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-      <input
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      {error && <div style={{ color: 'red' }}>{error}</div>}
-      <button type="submit" disabled={loading}>
-        {loading ? 'Logging in...' : 'Login'}
-      </button>
-    </form>
+    <div className="flex items-center justify-center min-h-[70vh]">
+      <form
+        onSubmit={handleSignIn}
+        className="bg-white p-8 rounded shadow max-w-sm w-full flex flex-col gap-4"
+      >
+        <h2 className="text-2xl font-bold mb-2 text-center">Login</h2>
+        <select
+          value={role}
+          onChange={e => setRole(e.target.value as 'user' | 'admin')}
+          className="border rounded px-3 py-2"
+        >
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+        <input
+          type="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+          className="border rounded px-3 py-2"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+          className="border rounded px-3 py-2"
+        />
+        {error && <div className="text-red-600 text-center">{error}</div>}
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+    </div>
   );
 };
 
