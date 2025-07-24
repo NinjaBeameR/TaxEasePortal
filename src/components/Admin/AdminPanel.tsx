@@ -60,7 +60,7 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchCompanies = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('companies')
         .select('*')
         .order('created_at', { ascending: false });

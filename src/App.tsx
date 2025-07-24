@@ -15,7 +15,6 @@ import AuthPage from './components/Auth/AuthPage';
 import AdminPanel from './components/Admin/AdminPanel'; // <-- Add this import
 import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
-import { Session } from '@supabase/supabase-js';
 import './print.css';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -28,8 +27,6 @@ function App() {
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null); // <-- Add this
   const [showAdminPanel, setShowAdminPanel] = useState(false); // <-- Add this
 
   // Fetch session, company info, and user role
@@ -295,6 +292,7 @@ function App() {
           )}
         </main>
       </div>
+      {/* Remove <Routes> and <Route path="/admin" ... /> */}
     </BrowserRouter>
   );
 }
