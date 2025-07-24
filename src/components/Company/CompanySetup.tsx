@@ -174,11 +174,11 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-2xl shadow-md p-8 mb-8 max-w-xl mx-auto">
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center">
             <Building2 className="h-6 w-6 text-blue-600 mr-3" />
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               {isEdit ? 'Edit Company Details' : 'Company Setup'}
             </h2>
           </div>
@@ -189,15 +189,15 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Business Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-6">
+            <label className="block text-gray-700 font-semibold mb-2">
               Business Name *
             </label>
             <input
               type="text"
               value={company.businessName || ''}
               onChange={(e) => handleInputChange('businessName', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.businessName ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter your business name"
@@ -208,15 +208,15 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
           </div>
 
           {/* GSTIN */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="mb-6">
+            <label className="block text-gray-700 font-semibold mb-2">
               GSTIN *
             </label>
             <input
               type="text"
               value={company.gstin || ''}
               onChange={(e) => handleInputChange('gstin', e.target.value.toUpperCase())}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.gstin ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="22AAAAA0000A1Z5"
@@ -231,18 +231,18 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
           </div>
 
           {/* Address */}
-          <div className="space-y-4">
+          <div className="space-y-4 mb-6">
             <h3 className="text-lg font-medium text-gray-900">Business Address</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Address Line 1 *
               </label>
               <input
                 type="text"
                 value={company.address?.line1 || ''}
                 onChange={(e) => handleInputChange('address.line1', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.line1 ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Building, Street"
@@ -253,28 +253,28 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Address Line 2
               </label>
               <input
                 type="text"
                 value={company.address?.line2 || ''}
                 onChange={(e) => handleInputChange('address.line2', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Area, Landmark (Optional)"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2">
                   City *
                 </label>
                 <input
                   type="text"
                   value={company.address?.city || ''}
                   onChange={(e) => handleInputChange('address.city', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.city ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="City"
@@ -285,13 +285,13 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2">
                   State *
                 </label>
                 <select
                   value={company.address?.state || ''}
                   onChange={(e) => handleInputChange('address.state', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.state ? 'border-red-300' : 'border-gray-300'
                   }`}
                 >
@@ -310,14 +310,14 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2">
                   Pincode *
                 </label>
                 <input
                   type="text"
                   value={company.address?.pincode || ''}
                   onChange={(e) => handleInputChange('address.pincode', e.target.value.replace(/\D/g, ''))}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.pincode ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="400001"
@@ -331,19 +331,19 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-4">
+          <div className="space-y-4 mb-6">
             <h3 className="text-lg font-medium text-gray-900">Contact Information</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2">
                   Phone Number
                 </label>
                 <input
                   type="tel"
                   value={company.contact?.phone || ''}
                   onChange={(e) => handleInputChange('contact.phone', e.target.value.replace(/\D/g, ''))}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.phone ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="9876543210"
@@ -355,14 +355,14 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-gray-700 font-semibold mb-2">
                   Email
                 </label>
                 <input
                   type="email"
                   value={company.contact?.email || ''}
                   onChange={(e) => handleInputChange('contact.email', e.target.value)}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.email ? 'border-red-300' : 'border-gray-300'
                   }`}
                   placeholder="business@example.com"
@@ -374,14 +374,14 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-gray-700 font-semibold mb-2">
                 Website
               </label>
               <input
                 type="url"
                 value={company.contact?.website || ''}
                 onChange={(e) => handleInputChange('contact.website', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="https://www.example.com (Optional)"
               />
             </div>
@@ -392,7 +392,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

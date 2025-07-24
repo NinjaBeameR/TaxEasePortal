@@ -78,17 +78,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     onClick?: () => void;
   }> = ({ title, value, icon: Icon, color, onClick }) => (
     <div
-      className={`bg-white rounded-xl shadow-sm p-6 flex items-center gap-4 mb-4 h-32 ${
-        onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
+      className={`bg-white rounded-2xl shadow-md p-6 flex items-center gap-4 mb-4 h-32 ${
+        onClick ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''
       }`}
       onClick={onClick}
     >
       <div className={`flex-shrink-0 p-3 rounded-lg ${color}`}>
-        <Icon className="h-6 w-6 text-white" />
+        <Icon className="h-7 w-7 text-white" />
       </div>
       <div>
-        <div className="font-semibold text-base">{title}</div>
-        <div className="text-3xl">{value}</div>
+        <div className="font-semibold text-base text-gray-700">{title}</div>
+        <div className="text-3xl font-bold text-gray-900">{value}</div>
       </div>
     </div>
   );
@@ -102,20 +102,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+    <div className="space-y-10">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-4 sm:mb-0">Dashboard</h1>
         <button
           onClick={() => onNavigate('invoices', { action: 'create' })}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          className="bg-blue-600 text-white px-5 py-2 rounded-xl font-semibold shadow hover:bg-blue-700 transition-colors flex items-center space-x-2"
         >
-          <FileText className="h-4 w-4" />
+          <FileText className="h-5 w-5" />
           <span>New Invoice</span>
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         <StatCard
           title="Total Invoices"
           value={stats.totalInvoices}
@@ -146,8 +146,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </div>
 
       {/* Monthly Stats & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
           <div className="flex items-center mb-4">
             <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
             <h3 className="text-lg font-semibold text-gray-900">This Month</h3>
@@ -160,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
+        <div className="bg-white rounded-2xl shadow-md p-6 mb-4">
           <div className="flex items-center mb-4">
             <Calendar className="h-5 w-5 text-blue-500 mr-2" />
             <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
@@ -168,19 +168,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <div className="flex flex-col gap-2">
             <button
               onClick={() => onNavigate('invoices', { action: 'create' })}
-              className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-blue-700 font-semibold hover:bg-blue-50 rounded-md transition-colors"
             >
               Create New Invoice
             </button>
             <button
               onClick={() => onNavigate('customers', { action: 'create' })}
-              className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-md transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-green-700 font-semibold hover:bg-green-50 rounded-md transition-colors"
             >
               Add New Customer
             </button>
             <button
               onClick={() => onNavigate('products', { action: 'create' })}
-              className="w-full text-left px-3 py-2 text-sm text-purple-600 hover:bg-purple-50 rounded-md transition-colors"
+              className="w-full text-left px-3 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 rounded-md transition-colors"
             >
               Add New Product
             </button>
@@ -189,7 +189,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </div>
 
       {/* Recent Invoices */}
-      <div className="bg-white rounded-xl shadow-sm">
+      <div className="bg-white rounded-2xl shadow-md">
         <div className="px-6 py-4 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
         </div>
@@ -197,19 +197,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           <table className="min-w-full divide-y divide-gray-100">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Invoice Number
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
               </tr>
@@ -220,7 +220,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                   <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center">
                       <FileText className="h-10 w-10 text-gray-300 mb-2" />
-                      <span>No invoices found. Create your first invoice to get started.</span>
+                      <span className="font-medium text-gray-600">No invoices found. Create your first invoice to get started.</span>
                     </div>
                   </td>
                 </tr>
@@ -231,7 +231,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => onNavigate('invoices', { action: 'view', invoice })}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-700">
                       {invoice.invoiceNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
@@ -240,7 +240,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(invoice.date).toLocaleDateString('en-IN')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
                       {formatCurrency(invoice.totalAmount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
