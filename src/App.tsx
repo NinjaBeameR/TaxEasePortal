@@ -189,6 +189,11 @@ function App() {
     setNavigationData(null);
   };
 
+  const handleLogout = () => {
+    // Add your logout logic here (e.g., clear tokens, redirect, etc.)
+    alert('Logged out!');
+  }
+
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
@@ -293,7 +298,11 @@ function App() {
       <div className="min-h-screen bg-gray-100">
         {/* Only show header if logged in */}
         {session && (
-          <Header currentPage={currentPage} onPageChange={handlePageChange} />
+          <Header
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+            onLogout={handleLogout}
+          />
         )}
         <main>
           <Routes>
