@@ -40,7 +40,20 @@ function App() {
       setSession(session);
 
       if (session && session.user) {
-        // Fetch company info using user_id
+        // Check for admin in the admin table
+        const { data: adminData } = await supabase
+          .from('admin')
+          .select('*')
+          .eq('email', session.user.email)
+          .single();
+
+        if (adminData) {
+          setShowAdminPanel(true);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch company info using user_id for normal users
         const { data: companyData } = await supabase
           .from('companies')
           .select('*')
@@ -48,13 +61,7 @@ function App() {
           .single();
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
-
-        // Check for admin role and show admin panel
-        if (companyData?.role === 'admin') {
-          setShowAdminPanel(true);
-        } else {
-          setShowAdminPanel(false);
-        }
+        setShowAdminPanel(false);
       } else {
         setCompany(null);
         setCompanySetupComplete(false);
@@ -68,21 +75,29 @@ function App() {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event: any, session: any) => {
         setSession(session);
-        // Refetch company info on auth change
+        // Check for admin in the admin table
         if (session && session.user) {
           supabase
-            .from('companies')
+            .from('admin')
             .select('*')
-            .eq('user_id', session.user.id)
+            .eq('email', session.user.email)
             .single()
-            .then(({ data: companyData }) => {
-              setCompany(companyData);
-              setCompanySetupComplete(!!companyData);
-              if (companyData?.role === 'admin') {
+            .then(({ data: adminData }) => {
+              if (adminData) {
                 setShowAdminPanel(true);
-              } else {
-                setShowAdminPanel(false);
+                return;
               }
+              // Fetch company info for normal users
+              supabase
+                .from('companies')
+                .select('*')
+                .eq('user_id', session.user.id)
+                .single()
+                .then(({ data: companyData }) => {
+                  setCompany(companyData);
+                  setCompanySetupComplete(!!companyData);
+                  setShowAdminPanel(false);
+                });
             });
         } else {
           setCompany(null);
