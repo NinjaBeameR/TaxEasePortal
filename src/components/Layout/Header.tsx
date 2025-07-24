@@ -29,6 +29,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange, onLogout }) 
         <button
           className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors"
           onClick={onLogout}
+          disabled={!onLogout}
         >
           Logout
         </button>
