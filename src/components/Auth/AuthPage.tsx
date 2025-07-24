@@ -42,16 +42,12 @@ const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
         .single();
 
       if (!adminData) {
-        console.log('No admin found for email:', email);
         setError('Invalid admin credentials');
         setLoading(false);
         return;
       }
-      console.log('Admin row:', adminData);
-
       // Compare hashed password
       const passwordMatch = await bcrypt.compare(password, adminData.password);
-      console.log('Password match:', passwordMatch);
 
       if (!passwordMatch) {
         setError('Invalid admin credentials');
@@ -59,7 +55,16 @@ const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
         return;
       }
 
-      // FIX: Set admin panel state before navigating
+      // Log in with Supabase Auth so session is set
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) {
+        setError('Supabase login failed');
+        setLoading(false);
+        return;
+      }
       setShowAdminPanel(true);
       navigate('/admin');
       setLoading(false);
