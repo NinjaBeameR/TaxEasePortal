@@ -12,11 +12,11 @@ import InvoiceList from './components/Invoices/InvoiceList';
 import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import AuthPage from './components/Auth/AuthPage';
-import AdminPanel from './components/Admin/AdminPanel'; // <-- Add this import
+import AdminPanel from './components/Admin/AdminPanel';
 import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import './print.css';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -27,7 +27,7 @@ function App() {
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
-  const [showAdminPanel, setShowAdminPanel] = useState(false); // <-- Add this
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Fetch session, company info, and user role
   useEffect(() => {
@@ -279,20 +279,37 @@ function App() {
           <Header currentPage={currentPage} onPageChange={handlePageChange} />
         )}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {loading ? (
-            <LoadingSpinner />
-          ) : !session ? (
-            <AuthPage onAuthSuccess={() => window.location.reload()} />
-          ) : showAdminPanel ? (
-            <AdminPanel />
-          ) : !companySetupComplete ? (
-            <CompanySetup onComplete={handleCompanySetupComplete} />
-          ) : (
-            renderContent()
-          )}
+          <Routes>
+            <Route
+              path="/admin"
+              element={
+                showAdminPanel ? (
+                  <AdminPanel />
+                ) : (
+                  <div className="text-center text-red-600 font-bold">
+                    Access Denied: You are not an admin.
+                  </div>
+                )
+              }
+            />
+            {/* Add other routes here */}
+            <Route
+              path="/"
+              element={
+                loading ? (
+                  <LoadingSpinner />
+                ) : !session ? (
+                  <AuthPage onAuthSuccess={() => window.location.reload()} />
+                ) : !companySetupComplete ? (
+                  <CompanySetup onComplete={handleCompanySetupComplete} />
+                ) : (
+                  renderContent()
+                )
+              }
+            />
+          </Routes>
         </main>
       </div>
-      {/* Remove <Routes> and <Route path="/admin" ... /> */}
     </BrowserRouter>
   );
 }
