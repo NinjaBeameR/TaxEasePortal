@@ -36,12 +36,12 @@ function App() {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
 
-      if (session && session.user) {
+      if (session && session.user && session.user.email) {
         // Check for admin in the admin table
         const { data: adminData } = await supabase
           .from('admin')
           .select('*')
-          .eq('email', session.user.email)
+          .ilike('email', session.user.email.trim())
           .single();
 
         if (adminData) {
@@ -73,11 +73,11 @@ function App() {
       (_event: any, session: any) => {
         setSession(session);
         // Check for admin in the admin table
-        if (session && session.user) {
+        if (session && session.user && session.user.email) {
           supabase
             .from('admin')
             .select('*')
-            .eq('email', session.user.email)
+            .ilike('email', session.user.email.trim())
             .single()
             .then(({ data: adminData }) => {
               if (adminData) {
@@ -111,11 +111,11 @@ function App() {
   useEffect(() => {
     const checkAdmin = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user) {
+      if (session && session.user && session.user.email) {
         const { data: adminData } = await supabase
           .from('admin')
           .select('*')
-          .eq('email', session.user.email)
+          .ilike('email', session.user.email.trim())
           .single();
         setShowAdminPanel(!!adminData);
       } else {
