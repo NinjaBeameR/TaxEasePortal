@@ -33,15 +33,15 @@ function App() {
   useEffect(() => {
     const fetchSessionAndCompany = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
+      const { data: { user } } = await supabase.auth.getUser();
+      setSession(user ? { user } : null);
 
-      if (session && session.user && session.user.email) {
+      if (user && user.email) {
         // Check for admin in the admin table
         const { data: adminData } = await supabase
           .from('admin')
           .select('*')
-          .ilike('email', session.user.email.trim())
+          .ilike('email', user.email.trim())
           .single();
 
         if (adminData) {
@@ -54,7 +54,7 @@ function App() {
         const { data: companyData } = await supabase
           .from('companies')
           .select('*')
-          .eq('user_id', session.user.id)
+          .eq('user_id', user.id)
           .single();
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
@@ -70,33 +70,29 @@ function App() {
     fetchSessionAndCompany();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event: any, session: any) => {
-        setSession(session);
-        // Check for admin in the admin table
+      async (_event: any, session: any) => {
         if (session && session.user && session.user.email) {
-          supabase
+          setSession(session);
+          const { data: adminData } = await supabase
             .from('admin')
             .select('*')
             .ilike('email', session.user.email.trim())
-            .single()
-            .then(({ data: adminData }) => {
-              if (adminData) {
-                setShowAdminPanel(true);
-                return;
-              }
-              // Fetch company info for normal users
-              supabase
-                .from('companies')
-                .select('*')
-                .eq('user_id', session.user.id)
-                .single()
-                .then(({ data: companyData }) => {
-                  setCompany(companyData);
-                  setCompanySetupComplete(!!companyData);
-                  setShowAdminPanel(false);
-                });
-            });
+            .single();
+          if (adminData) {
+            setShowAdminPanel(true);
+            return;
+          }
+          // Fetch company info for normal users
+          const { data: companyData } = await supabase
+            .from('companies')
+            .select('*')
+            .eq('user_id', session.user.id)
+            .single();
+          setCompany(companyData);
+          setCompanySetupComplete(!!companyData);
+          setShowAdminPanel(false);
         } else {
+          setSession(null);
           setCompany(null);
           setCompanySetupComplete(false);
           setShowAdminPanel(false);
@@ -110,12 +106,12 @@ function App() {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && session.user && session.user.email) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && user.email) {
         const { data: adminData } = await supabase
           .from('admin')
           .select('*')
-          .ilike('email', session.user.email.trim())
+          .ilike('email', user.email.trim())
           .single();
         setShowAdminPanel(!!adminData);
       } else {
