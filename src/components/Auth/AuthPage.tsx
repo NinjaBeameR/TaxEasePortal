@@ -14,7 +14,12 @@ function getFriendlyErrorMessage(error: string) {
   return error;
 }
 
-const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
+interface AuthPageProps {
+  onAuthSuccess: () => void;
+  setShowAdminPanel: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);

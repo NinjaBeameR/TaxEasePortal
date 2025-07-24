@@ -278,35 +278,22 @@ function App() {
         {session && (
           <Header currentPage={currentPage} onPageChange={handlePageChange} />
         )}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main>
           <Routes>
-            <Route
-              path="/admin"
-              element={
-                showAdminPanel ? (
-                  <AdminPanel />
-                ) : (
-                  <div className="text-center text-red-600 font-bold">
-                    Access Denied: You are not an admin.
-                  </div>
-                )
-              }
-            />
-            {/* Add other routes here */}
-            <Route
-              path="/"
-              element={
-                loading ? (
-                  <LoadingSpinner />
-                ) : !session ? (
-                  <AuthPage onAuthSuccess={() => window.location.reload()} />
-                ) : !companySetupComplete ? (
-                  <CompanySetup onComplete={handleCompanySetupComplete} />
-                ) : (
-                  renderContent()
-                )
-              }
-            />
+            <Route path="/dashboard" element={renderContent()} />
+            <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <div className="text-center text-red-600 font-bold">Access Denied: You are not an admin.</div>} />
+            {/* Add other routes as needed */}
+            <Route path="/" element={
+              loading ? (
+                <LoadingSpinner />
+              ) : !session ? (
+                <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />
+              ) : !companySetupComplete ? (
+                <CompanySetup onComplete={handleCompanySetupComplete} />
+              ) : (
+                renderContent()
+              )
+            } />
           </Routes>
         </main>
       </div>
