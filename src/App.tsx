@@ -292,19 +292,18 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
-        {/* Only show header if logged in */}
-        {session && (
-          <Header
-            currentPage={currentPage}
-            onPageChange={handlePageChange}
-            onLogout={handleLogout}
-          />
-        )}
+        <Header
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          onLogout={() => {
+            localStorage.removeItem('isAdmin');
+            setShowAdminPanel(false);
+            window.location.href = '/';
+          }}
+        />
         <main>
           <Routes>
-            <Route path="/dashboard" element={renderContent()} />
             <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <div className="text-center text-red-600 font-bold">Access Denied: You are not an admin.</div>} />
-            {/* Add other routes as needed */}
             <Route path="/" element={
               loading ? (
                 <LoadingSpinner />

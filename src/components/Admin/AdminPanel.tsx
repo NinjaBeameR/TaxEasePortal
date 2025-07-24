@@ -37,24 +37,9 @@ const AdminPanel: React.FC = () => {
 
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
-  // Check if logged-in user is an admin
+  // Only check localStorage for admin flag
   useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('Logged in user email:', user?.email); // Debug log
-      if (!user || !user.email) {
-        setIsAdmin(false);
-        return;
-      }
-      // Case-insensitive and trimmed email match
-      const { data: adminData } = await supabase
-        .from('admin')
-        .select('*')
-        .ilike('email', user.email.trim());
-      console.log('Admin table lookup:', adminData); // Debug log
-      setIsAdmin(adminData && adminData.length > 0);
-    };
-    checkAdmin();
+    setIsAdmin(localStorage.getItem('isAdmin') === 'true');
   }, []);
 
   // Fetch all companies for the admin table
@@ -116,9 +101,9 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.reload();
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    window.location.href = '/';
   };
 
   if (isAdmin === null) return <div>Loading...</div>;
