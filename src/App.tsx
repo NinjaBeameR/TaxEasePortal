@@ -277,10 +277,11 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
-        {/* Always show header */}
-        <Header currentPage={currentPage} onPageChange={handlePageChange} />
+        {/* Only show header if logged in */}
+        {session && (
+          <Header currentPage={currentPage} onPageChange={handlePageChange} />
+        )}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Conditional rendering inside BrowserRouter */}
           {loading ? (
             <LoadingSpinner />
           ) : !session ? (
