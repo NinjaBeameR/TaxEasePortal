@@ -175,26 +175,6 @@ function App() {
     setNavigationData(null);
   };
 
-  // 1. Show loading spinner if loading
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  // 2. Show login/register if not authenticated
-  if (!session) {
-    return <AuthPage onAuthSuccess={() => window.location.reload()} />;
-  }
-
-  // Admin panel
-  if (showAdminPanel) {
-    return <AdminPanel />;
-  }
-
-  // Only show company setup if company is NOT set up
-  if (!companySetupComplete) {
-    return <CompanySetup onComplete={handleCompanySetupComplete} />;
-  }
-
   const renderContent = () => {
     switch (currentPage) {
       case 'dashboard':
@@ -297,9 +277,21 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
+        {/* Always show header */}
         <Header currentPage={currentPage} onPageChange={handlePageChange} />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {renderContent()}
+          {/* Conditional rendering inside BrowserRouter */}
+          {loading ? (
+            <LoadingSpinner />
+          ) : !session ? (
+            <AuthPage onAuthSuccess={() => window.location.reload()} />
+          ) : showAdminPanel ? (
+            <AdminPanel />
+          ) : !companySetupComplete ? (
+            <CompanySetup onComplete={handleCompanySetupComplete} />
+          ) : (
+            renderContent()
+          )}
         </main>
       </div>
     </BrowserRouter>
