@@ -42,18 +42,17 @@ const AdminPanel: React.FC = () => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       console.log('Logged in user email:', user?.email); // Debug log
-      if (!user) {
+      if (!user || !user.email) {
         setIsAdmin(false);
         return;
       }
-      // Check if user's email exists in admin table
+      // Case-insensitive and trimmed email match
       const { data: adminData } = await supabase
         .from('admin')
         .select('*')
-        .eq('email', user.email)
-        .single();
+        .ilike('email', user.email.trim());
       console.log('Admin table lookup:', adminData); // Debug log
-      setIsAdmin(!!adminData);
+      setIsAdmin(adminData && adminData.length > 0);
     };
     checkAdmin();
   }, []);
