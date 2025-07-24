@@ -190,8 +190,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Recent Invoices */}
       <div className="bg-white rounded-2xl shadow-md">
-        <div className="px-6 py-4 border-b border-gray-100">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
+          <button
+            onClick={() => onNavigate('invoices', { action: 'create' })}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+          >
+            <FileText className="h-5 w-5" />
+            New Invoice
+          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-100">

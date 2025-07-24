@@ -78,14 +78,14 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Customers</h1>
         <button
           onClick={onCreate}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
         >
-          <Plus className="h-4 w-4" />
-          <span>Add Customer</span>
+          <Plus className="h-5 w-5" />
+          Add Customer
         </button>
       </div>
 
