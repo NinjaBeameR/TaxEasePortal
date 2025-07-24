@@ -35,8 +35,26 @@ const AdminPanel = () => {
   const [website, setWebsite] = useState('');
   const [logo, setLogo] = useState('');
 
-  const [company, setCompany] = useState<any>(null);
-  const [loadingCompany, setLoadingCompany] = useState(true);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  // Check if logged-in user is an admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+      // Check if user's email exists in admin table
+      const { data: adminData } = await supabase
+        .from('admin')
+        .select('*')
+        .eq('email', email)
+        .single();
+      setIsAdmin(!!adminData);
+    };
+    checkAdmin();
+  }, []);
 
   // Fetch all companies for the admin table
   useEffect(() => {
@@ -51,27 +69,6 @@ const AdminPanel = () => {
     };
     fetchCompanies();
   }, [modalOpen, message]); // refetch after modal closes or message changes
-
-  // Fetch logged-in admin's company info
-  useEffect(() => {
-    const fetchCompany = async () => {
-      setLoadingCompany(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setCompany(null);
-        setLoadingCompany(false);
-        return;
-      }
-      const { data: companyData } = await supabase
-        .from('companies')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-      setCompany(companyData);
-      setLoadingCompany(false);
-    };
-    fetchCompany();
-  }, []);
 
   // Create user handler
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -123,8 +120,8 @@ const AdminPanel = () => {
     window.location.reload();
   };
 
-  if (loadingCompany) return <div>Loading...</div>;
-  if (!company || company.role !== 'admin') {
+  if (isAdmin === null) return <div>Loading...</div>;
+  if (!isAdmin) {
     return <div className="max-w-2xl mx-auto mt-10 bg-white p-8 rounded shadow text-center text-red-600 font-bold">
       Access Denied: You are not an admin.
     </div>;

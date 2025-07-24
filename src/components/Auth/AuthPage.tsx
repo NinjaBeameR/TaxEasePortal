@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '../../services/supabase';
+import { useNavigate } from 'react-router-dom';
 
 function getFriendlyErrorMessage(error: string) {
   if (!error) return '';
@@ -18,50 +19,80 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [makeAdmin, setMakeAdmin] = useState(false);
-  const [adminExists, setAdminExists] = useState(false);
+  const [role, setRole] = useState<'user' | 'admin'>('user'); // <-- Add role state
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Check if any admin exists
-    supabase
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    if (role === 'admin') {
+      // Check admin table for credentials
+      const { data: adminData } = await supabase
+        .from('admin')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (!adminData || adminData.password !== password) {
+        setError('Invalid admin credentials');
+        setLoading(false);
+        return;
+      }
+      navigate('/admin');
+      setLoading(false);
+      return;
+    }
+
+    // User login flow
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError || !data.user) {
+      setError('Invalid credentials');
+      setLoading(false);
+      return;
+    }
+    // Check if user exists in companies table
+    const { data: company } = await supabase
       .from('companies')
-      .select('id')
-      .eq('role', 'admin')
-      .then(({ data }) => {
-        setAdminExists(!!(data && data.length > 0));
-      });
-  }, []);
+      .select('*')
+      .eq('user_id', data.user.id)
+      .single();
+
+    if (!company) {
+      setError('No company found for this user.');
+      setLoading(false);
+      return;
+    }
+    navigate('/dashboard');
+    setLoading(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    // Extra validation before calling Supabase
+    // Registration only for users, not admins
     if (!email || !password || password.length < 6) {
       setError('Please enter a valid email and a password with at least 6 characters.');
       setLoading(false);
       return;
     }
 
-    let result;
-    if (isLogin) {
-      result = await supabase.auth.signInWithPassword({ email, password });
-    } else {
-      result = await supabase.auth.signUp({ email, password });
-      // After successful signUp, call backend to create company row
-      if (!result.error && result.data?.user?.id) {
-        await fetch('/.netlify/functions/create-user', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            password,
-            // Add other company fields here if needed
-            role: makeAdmin ? 'admin' : 'user'
-          })
-        });
-      }
+    const result = await supabase.auth.signUp({ email, password });
+    // After successful signUp, call backend to create company row
+    if (!result.error && result.data?.user?.id) {
+      await fetch('/.netlify/functions/create-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          // Add other company fields here if needed
+          role: 'user'
+        })
+      });
     }
 
     if (result.error) {
@@ -75,36 +106,44 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
   return (
     <div className="max-w-md mx-auto mt-20 bg-white p-8 rounded shadow">
       <h2 className="text-2xl font-bold mb-4">{isLogin ? 'Login' : 'Register'}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Enter your Email"
-          className="w-full px-3 py-2 border rounded"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          autoComplete="username"
-        />
-        <input
-          type="password"
-          placeholder="Set a Password"
-          className="w-full px-3 py-2 border rounded"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          autoComplete="current-password"
-        />
-        {/* Show admin checkbox only if registering and no admin exists */}
-        {!isLogin && !adminExists && (
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={makeAdmin}
-              onChange={e => setMakeAdmin(e.target.checked)}
-            />
-            <span>Make this an admin account</span>
-          </label>
+      <form onSubmit={isLogin ? handleSignIn : handleSubmit} className="space-y-4">
+        {isLogin && (
+          <div>
+            <label className="block font-medium mb-1">Login As</label>
+            <select
+              value={role}
+              onChange={e => setRole(e.target.value as 'user' | 'admin')}
+              className="border rounded px-3 py-2 w-full"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
         )}
+        <div>
+          <label className="block font-medium mb-1">Email</label>
+          <input
+            type="email"
+            placeholder="Enter your Email"
+            className="border rounded px-3 py-2 w-full"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            required
+            autoComplete="username"
+          />
+        </div>
+        <div>
+          <label className="block font-medium mb-1">Password</label>
+          <input
+            type="password"
+            placeholder="Set a Password"
+            className="border rounded px-3 py-2 w-full"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
+        </div>
         {error && (
           <div className="text-red-500 border border-red-200 bg-red-50 rounded px-3 py-2 mb-2">
             {getFriendlyErrorMessage(error)}
@@ -112,7 +151,7 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
         )}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded w-full"
           disabled={loading}
         >
           {loading ? 'Processing...' : isLogin ? 'Login' : 'Register'}
