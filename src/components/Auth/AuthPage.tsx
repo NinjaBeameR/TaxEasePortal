@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../../services/supabase';
 import { useNavigate } from 'react-router-dom';
-import bcrypt from 'bcryptjs';
 
 function getFriendlyErrorMessage(error: string) {
   if (!error) return '';
@@ -46,25 +45,15 @@ const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
         setLoading(false);
         return;
       }
-      // Compare hashed password
-      const passwordMatch = await bcrypt.compare(password, adminData.password);
 
-      if (!passwordMatch) {
+      // Plain text password check
+      if (password !== adminData.password) {
         setError('Invalid admin credentials');
         setLoading(false);
         return;
       }
 
-      // Log in with Supabase Auth so session is set
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError('Supabase login failed');
-        setLoading(false);
-        return;
-      }
+      // Successful admin login (no Supabase Auth)
       setShowAdminPanel(true);
       navigate('/admin');
       setLoading(false);
