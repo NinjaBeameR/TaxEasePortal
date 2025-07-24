@@ -37,13 +37,17 @@ const AuthPage = ({ onAuthSuccess }: { onAuthSuccess: () => void }) => {
         .single();
 
       if (!adminData) {
+        console.log('No admin found for email:', email);
         setError('Invalid admin credentials');
         setLoading(false);
         return;
       }
+      console.log('Admin row:', adminData);
 
       // Compare hashed password
       const passwordMatch = await bcrypt.compare(password, adminData.password);
+      console.log('Password match:', passwordMatch);
+
       if (!passwordMatch) {
         setError('Invalid admin credentials');
         setLoading(false);
