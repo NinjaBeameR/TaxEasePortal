@@ -234,64 +234,58 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-2xl shadow-md p-8 mb-8 max-w-xl mx-auto">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={onCancel}
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-              <h2 className="text-xl font-semibold text-gray-900">
-                {customer ? 'Edit Customer' : 'Add New Customer'}
-              </h2>
-            </div>
-          </div>
+    <div className="max-w-2xl mx-auto px-4">
+      <div className="bg-white rounded-xl shadow p-6 mb-6">
+        <div className="flex items-center mb-4">
+          <button
+            onClick={onCancel}
+            className="mr-3 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h2 className="text-lg font-bold text-gray-900">
+            {customer ? 'Edit Customer' : 'Add New Customer'}
+          </h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Customer Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-base font-medium text-gray-700 mb-2">
               Customer Type *
             </label>
-            <div className="flex space-x-4">
+            <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => handleTypeChange('B2C')}
-                className={`flex-1 p-4 border rounded-lg text-center transition-colors ${
+                className={`flex-1 p-3 border rounded-lg text-center transition-colors ${
                   formData.type === 'B2C'
                     ? 'border-green-500 bg-green-50 text-green-700'
                     : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <User className="h-6 w-6 mx-auto mb-2" />
-                <div className="font-medium">B2C Customer</div>
-                <div className="text-xs text-gray-500">Individual consumer</div>
+                <User className="h-5 w-5 mx-auto mb-1" />
+                <div className="font-medium">B2C</div>
               </button>
               <button
                 type="button"
                 onClick={() => handleTypeChange('B2B')}
-                className={`flex-1 p-4 border rounded-lg text-center transition-colors ${
+                className={`flex-1 p-3 border rounded-lg text-center transition-colors ${
                   formData.type === 'B2B'
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <Building className="h-6 w-6 mx-auto mb-2" />
-                <div className="font-medium">B2B Customer</div>
-                <div className="text-xs text-gray-500">Business with GSTIN</div>
+                <Building className="h-5 w-5 mx-auto mb-1" />
+                <div className="font-medium">B2B</div>
               </button>
             </div>
           </div>
 
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 Customer Name *
               </label>
               <input
@@ -307,10 +301,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 <p className="mt-1 text-sm text-red-600">{errors.name}</p>
               )}
             </div>
-
             {formData.type === 'B2B' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   GSTIN
                 </label>
                 <input
@@ -331,11 +324,11 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Contact Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 mb-2">Contact Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   Phone Number
                 </label>
                 <input
@@ -352,9 +345,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                   <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
                 )}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   Email
                 </label>
                 <input
@@ -374,11 +366,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           {/* Billing Address */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Billing Address</h3>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900 mb-2">Billing Address</h3>
+            <div className="mb-2">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 Address Line 1 *
               </label>
               <input
@@ -394,9 +385,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 <p className="mt-1 text-sm text-red-600">{errors.billingLine1}</p>
               )}
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+            <div className="mb-2">
+              <label className="block text-base font-medium text-gray-700 mb-1">
                 Address Line 2
               </label>
               <input
@@ -407,10 +397,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 placeholder="Area, Landmark (Optional)"
               />
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   City *
                 </label>
                 <input
@@ -426,9 +415,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                   <p className="mt-1 text-sm text-red-600">{errors.billingCity}</p>
                 )}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   State *
                 </label>
                 <select
@@ -449,9 +437,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                   <p className="mt-1 text-sm text-red-600">{errors.billingState}</p>
                 )}
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-base font-medium text-gray-700 mb-1">
                   Pincode *
                 </label>
                 <input
@@ -472,10 +459,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           {/* Shipping Address */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <h3 className="text-lg font-medium text-gray-900">Shipping Address</h3>
-              <label className="flex items-center space-x-2">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-base font-semibold text-gray-900">Shipping Address</h3>
+              <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   checked={sameAsBilling}
@@ -485,11 +472,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                 <span className="text-sm text-gray-600">Same as billing address</span>
               </label>
             </div>
-
             {!sameAsBilling && (
               <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-2">
+                  <label className="block text-base font-medium text-gray-700 mb-1">
                     Address Line 1 *
                   </label>
                   <input
@@ -505,9 +491,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                     <p className="mt-1 text-sm text-red-600">{errors.shippingLine1}</p>
                   )}
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div className="mb-2">
+                  <label className="block text-base font-medium text-gray-700 mb-1">
                     Address Line 2
                   </label>
                   <input
@@ -518,10 +503,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                     placeholder="Area, Landmark (Optional)"
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-base font-medium text-gray-700 mb-1">
                       City *
                     </label>
                     <input
@@ -537,9 +521,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                       <p className="mt-1 text-sm text-red-600">{errors.shippingCity}</p>
                     )}
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-base font-medium text-gray-700 mb-1">
                       State *
                     </label>
                     <select
@@ -560,9 +543,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
                       <p className="mt-1 text-sm text-red-600">{errors.shippingState}</p>
                     )}
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-base font-medium text-gray-700 mb-1">
                       Pincode *
                     </label>
                     <input
@@ -585,18 +567,18 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

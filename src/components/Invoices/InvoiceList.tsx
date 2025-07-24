@@ -169,10 +169,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-900">Invoices</h1>
+        <h1 className="text-xl font-bold text-gray-900">Invoices</h1>
         <button
           onClick={onCreate}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
