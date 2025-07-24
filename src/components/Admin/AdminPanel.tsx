@@ -49,7 +49,7 @@ const AdminPanel = () => {
       const { data: adminData } = await supabase
         .from('admin')
         .select('*')
-        .eq('email', email)
+        .eq('email', user.email)
         .single();
       setIsAdmin(!!adminData);
     };

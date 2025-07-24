@@ -17,6 +17,7 @@ import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import { Session } from '@supabase/supabase-js';
 import './print.css';
+import { BrowserRouter } from 'react-router-dom';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -279,12 +280,14 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Header currentPage={currentPage} onPageChange={handlePageChange} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {renderContent()}
-      </main>
-    </div>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-100">
+        <Header currentPage={currentPage} onPageChange={handlePageChange} />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {renderContent()}
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 
