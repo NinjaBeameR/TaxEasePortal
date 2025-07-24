@@ -189,10 +189,10 @@ function App() {
     setNavigationData(null);
   };
 
-  const handleLogout = () => {
-    // Add your logout logic here (e.g., clear tokens, redirect, etc.)
-    alert('Logged out!');
-  }
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload(); // Optionally reload or redirect after logout
+  };
 
   const renderContent = () => {
     switch (currentPage) {
