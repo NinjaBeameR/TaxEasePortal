@@ -59,6 +59,8 @@ const AuthPage = ({ onAuthSuccess, setShowAdminPanel }: AuthPageProps) => {
         return;
       }
 
+      // FIX: Set admin panel state before navigating
+      setShowAdminPanel(true);
       navigate('/admin');
       setLoading(false);
       return;

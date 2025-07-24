@@ -108,6 +108,23 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        const { data: adminData } = await supabase
+          .from('admin')
+          .select('*')
+          .eq('email', session.user.email)
+          .single();
+        setShowAdminPanel(!!adminData);
+      } else {
+        setShowAdminPanel(false);
+      }
+    };
+    checkAdmin();
+  }, []);
+
   const handleCompanySetupComplete = () => {
     setCompanySetupComplete(true);
     setCurrentPage('dashboard');

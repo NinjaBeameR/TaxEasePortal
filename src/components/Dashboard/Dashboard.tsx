@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Users, Package, TrendingUp, Calendar, IndianRupee } from 'lucide-react';
 import { db } from '../../services/database';
-import { Invoice, Customer, Product } from '../../types';
+import { Invoice } from '../../types';
 import { formatCurrency } from '../../utils/calculations';
 
 interface DashboardStats {
@@ -41,7 +41,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       ]);
 
       const totalRevenue = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
-      
+
       const currentMonth = new Date().getMonth();
       const currentYear = new Date().getFullYear();
       const monthlyRevenue = invoices
@@ -78,19 +78,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     onClick?: () => void;
   }> = ({ title, value, icon: Icon, color, onClick }) => (
     <div
-      className={`bg-white p-6 rounded-lg shadow-sm border border-gray-200 ${
+      className={`bg-white rounded-xl shadow-sm p-6 flex items-center gap-4 mb-4 h-32 ${
         onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
       }`}
       onClick={onClick}
     >
-      <div className="flex items-center">
-        <div className={`flex-shrink-0 p-3 rounded-lg ${color}`}>
-          <Icon className="h-6 w-6 text-white" />
-        </div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
-        </div>
+      <div className={`flex-shrink-0 p-3 rounded-lg ${color}`}>
+        <Icon className="h-6 w-6 text-white" />
+      </div>
+      <div>
+        <div className="font-semibold text-base">{title}</div>
+        <div className="text-3xl">{value}</div>
       </div>
     </div>
   );
@@ -104,8 +102,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-8">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <button
           onClick={() => onNavigate('invoices', { action: 'create' })}
@@ -147,9 +145,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         />
       </div>
 
-      {/* Monthly Stats */}
+      {/* Monthly Stats & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
           <div className="flex items-center mb-4">
             <TrendingUp className="h-5 w-5 text-green-500 mr-2" />
             <h3 className="text-lg font-semibold text-gray-900">This Month</h3>
@@ -162,12 +160,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-4">
           <div className="flex items-center mb-4">
             <Calendar className="h-5 w-5 text-blue-500 mr-2" />
             <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <button
               onClick={() => onNavigate('invoices', { action: 'create' })}
               className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
@@ -191,12 +189,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       </div>
 
       {/* Recent Invoices */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm">
+        <div className="px-6 py-4 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900">Recent Invoices</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-100">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -216,11 +214,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-gray-100">
               {stats.recentInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    No invoices found. Create your first invoice to get started.
+                  <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FileText className="h-10 w-10 text-gray-300 mb-2" />
+                      <span>No invoices found. Create your first invoice to get started.</span>
+                    </div>
                   </td>
                 </tr>
               ) : (
