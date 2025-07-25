@@ -154,7 +154,13 @@ function App() {
     setCurrentView('list');
     setSelectedItem(null);
     setNavigationData(null);
-    window.location.replace('/');
+    // Instead of window.location.replace, use navigate to '/'
+    // and let the router logic show the login page
+    window.history.replaceState({}, '', '/');
+    // Optionally, force a re-render
+    setTimeout(() => {
+      window.location.reload();
+    }, 0);
   };
 
   const renderContent = () => {
@@ -263,32 +269,75 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
-        <Header
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          onLogout={handleLogout}
-        />
-        <main>
-          <Routes>
-            <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <Navigate to="/" />} />
-            <Route path="/dashboard" element={
-              session ? <Dashboard onNavigate={handleNavigate} /> : <Navigate to="/" />
-            } />
-            <Route path="/" element={
+        <Routes>
+          <Route
+            path="/admin"
+            element={
+              showAdminPanel ? (
+                <>
+                  <Header
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onLogout={handleLogout}
+                  />
+                  <AdminPanel />
+                </>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              session ? (
+                <>
+                  <Header
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onLogout={handleLogout}
+                  />
+                  <Dashboard onNavigate={handleNavigate} />
+                </>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/"
+            element={
               loading ? (
                 <LoadingSpinner />
               ) : showAdminPanel ? (
                 <Navigate to="/admin" />
               ) : !session ? (
-                <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />
+                <AuthPage
+                  onAuthSuccess={() => window.location.reload()}
+                  setShowAdminPanel={setShowAdminPanel}
+                />
               ) : !companySetupComplete ? (
-                <CompanySetup onComplete={handleCompanySetupComplete} />
+                <>
+                  <Header
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onLogout={handleLogout}
+                  />
+                  <CompanySetup onComplete={handleCompanySetupComplete} />
+                </>
               ) : (
-                renderContent()
+                <>
+                  <Header
+                    currentPage={currentPage}
+                    onPageChange={setCurrentPage}
+                    onLogout={handleLogout}
+                  />
+                  {renderContent()}
+                </>
               )
-            } />
-          </Routes>
-        </main>
+            }
+          />
+        </Routes>
       </div>
     </BrowserRouter>
   );
