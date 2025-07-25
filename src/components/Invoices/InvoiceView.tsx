@@ -6,6 +6,8 @@ import { Invoice, Company } from '../../types';
 import { db } from '../../services/database';
 import { formatIndianNumber } from '../../utils/calculations';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
+import { FileSpreadsheet } from 'lucide-react';
 
 interface InvoiceViewProps {
   invoice?: Invoice;
@@ -59,6 +61,41 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice }) => {
       pdf.addImage(imgData, 'PNG', 20, 20, imgWidth, imgHeight);
       pdf.save(`Invoice_${invoice.invoiceNumber}.pdf`);
     });
+  };
+
+  const handleDownloadExcel = () => {
+    if (!invoice) return;
+    const details = [
+      ['Invoice Number', invoice.invoiceNumber],
+      ['Date', new Date(invoice.date).toLocaleDateString('en-IN')],
+      ['Customer', invoice.customerName],
+      ['GSTIN', invoice.customerGstin || ''],
+      ['Status', invoice.status],
+      ['Total Amount', invoice.totalAmount],
+    ];
+    const itemsHeader = [
+      'Description', 'HSN/SAC', 'Qty', 'Rate', 'Amount', 'Discount', 'Taxable Value',
+      ...(invoice.totalCgst > 0 ? ['CGST', 'SGST'] : []),
+      ...(invoice.totalIgst > 0 ? ['IGST'] : []),
+      'Total'
+    ];
+    const items = invoice.items.map(item => [
+      item.productName,
+      item.hsnSacCode,
+      item.quantity,
+      item.rate,
+      item.quantity * item.rate,
+      item.discount || 0,
+      item.taxableValue,
+      ...(invoice.totalCgst > 0 ? [item.cgst || 0, item.sgst || 0] : []),
+      ...(invoice.totalIgst > 0 ? [item.igst || 0] : []),
+      item.totalAmount,
+    ]);
+    const data = [...details, [], itemsHeader, ...items];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoice');
+    XLSX.writeFile(wb, `Invoice_${invoice.invoiceNumber}.xlsx`);
   };
 
   if (loading) {
@@ -116,6 +153,13 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice }) => {
             >
               <Download className="h-4 w-4" />
               <span>PDF</span>
+            </button>
+            <button
+              onClick={handleDownloadExcel}
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition active:scale-95"
+            >
+              <FileSpreadsheet className="h-5 w-5" />
+              Excel
             </button>
           </div>
         </div>

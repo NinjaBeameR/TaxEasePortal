@@ -6,6 +6,7 @@ import { formatCurrency } from '../../utils/calculations';
 import InvoiceView from './InvoiceView';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
 
 interface InvoiceListProps {
   onView: (invoice: Invoice) => void;
@@ -171,6 +172,27 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
     }, 500);
   };
 
+  // Excel export handler
+  const handleExportExcel = () => {
+    // Prepare data: one row per invoice
+    const data = filteredInvoices.map(inv => ({
+      'Invoice Number': inv.invoiceNumber,
+      'Date': new Date(inv.date).toLocaleDateString('en-IN'),
+      'Customer': inv.customerName,
+      'GSTIN': inv.customerGstin || '',
+      'Amount': inv.totalAmount,
+      'Status': inv.status,
+    }));
+
+    // Create worksheet and workbook
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoices');
+
+    // Download
+    XLSX.writeFile(wb, 'All_Invoices.xlsx');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -184,13 +206,23 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Invoices</h1>
-        <button
-          onClick={onCreate}
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition active:scale-95"
-        >
-          <Plus className="h-5 w-5" />
-          Create Invoice
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportExcel}
+            className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition active:scale-95"
+            title="Download all invoices as Excel"
+          >
+            <Download className="h-5 w-5" />
+            Export Excel
+          </button>
+          <button
+            onClick={onCreate}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition active:scale-95"
+          >
+            <Plus className="h-5 w-5" />
+            Create Invoice
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -295,8 +327,15 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                     role="button"
                   >
                     <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
-                      {invoice.invoiceNumber}
-                      <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
+                      <button
+                        onClick={() => onView(invoice)}
+                        className="text-blue-700 hover:underline flex items-center gap-2 focus:outline-none"
+                        style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer' }}
+                        title="View invoice"
+                      >
+                        {invoice.invoiceNumber}
+                        <ArrowRight className="h-4 w-4 text-blue-300" />
+                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{invoice.customerName}</div>
@@ -318,7 +357,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <button
-                          onClick={() => onView(invoice)}
+                          onClick={e => { e.stopPropagation(); onView(invoice); }}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
                           title="View invoice"
                         >

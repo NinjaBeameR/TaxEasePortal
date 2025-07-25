@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, Package, Tag } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Package, Tag, FileSpreadsheet } from 'lucide-react';
 import { Product, GST_RATES } from '../../types';
 import { db } from '../../services/database';
 import { formatCurrency } from '../../utils/calculations';
+import * as XLSX from 'xlsx';
 
 interface ProductListProps {
   onEdit: (product: Product) => void;
@@ -71,6 +72,42 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
         alert('Error deleting product. Please try again.');
       }
     }
+  };
+
+  const handleExportProductInvoices = async (product: Product) => {
+    // Fetch all invoices containing this product
+    const allInvoices = await db.getInvoices();
+    const productInvoices = allInvoices.filter(inv =>
+      inv.items.some(item => item.productId === product.id)
+    );
+    if (productInvoices.length === 0) {
+      alert('No invoices found for this product.');
+      return;
+    }
+    // Flatten each invoice's relevant items
+    const data: any[] = [];
+    productInvoices.forEach(inv => {
+      inv.items
+        .filter(item => item.productId === product.id)
+        .forEach(item => {
+          // Calculate total tax for the item
+          const totalTax = (item.cgst || 0) + (item.sgst || 0) + (item.igst || 0);
+          data.push({
+            'Invoice Number': inv.invoiceNumber,
+            'Date': new Date(inv.date).toLocaleDateString('en-IN'),
+            'Customer': inv.customerName,
+            'Qty': item.quantity,
+            'Rate': item.rate,
+            'Tax': totalTax,
+            'Total': item.totalAmount,
+            'Status': inv.status,
+          });
+        });
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoices');
+    XLSX.writeFile(wb, `Invoices_${product.name.replace(/\s+/g, '_')}.xlsx`);
   };
 
   if (loading) {
@@ -252,6 +289,13 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
                           title="Delete product"
                         >
                           <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleExportProductInvoices(product); }}
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
+                          title="Export invoices as Excel"
+                        >
+                          <FileSpreadsheet className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, User, Building, ArrowRight } from 'lucide-react';
 import { Customer } from '../../types';
 import { db } from '../../services/database';
+import * as XLSX from 'xlsx';
+import { FileSpreadsheet } from 'lucide-react';
 
 interface CustomerListProps {
   onEdit: (customer: Customer) => void;
@@ -60,6 +62,26 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
         alert('Error deleting customer. Please try again.');
       }
     }
+  };
+
+  const handleExportCustomerInvoices = async (customer: Customer) => {
+    // Fetch all invoices for this customer
+    const allInvoices = await db.getInvoices();
+    const customerInvoices = allInvoices.filter(inv => inv.customerName === customer.name);
+    if (customerInvoices.length === 0) {
+      alert('No invoices found for this customer.');
+      return;
+    }
+    const data = customerInvoices.map(inv => ({
+      'Invoice Number': inv.invoiceNumber,
+      'Date': new Date(inv.date).toLocaleDateString('en-IN'),
+      'Amount': inv.totalAmount,
+      'Status': inv.status,
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Invoices');
+    XLSX.writeFile(wb, `Invoices_${customer.name.replace(/\s+/g, '_')}.xlsx`);
   };
 
   if (loading) {
@@ -217,6 +239,13 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
                           title="Delete customer"
                         >
                           <Trash2 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleExportCustomerInvoices(customer); }}
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
+                          title="Export invoices as Excel"
+                        >
+                          <FileSpreadsheet className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
