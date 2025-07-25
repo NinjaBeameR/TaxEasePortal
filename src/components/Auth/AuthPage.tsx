@@ -11,10 +11,12 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess(null);
     setLoading(true);
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
     if (authError || !data.user) {
@@ -28,59 +30,69 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess(null);
     setLoading(true);
     const { error: signUpError } = await supabase.auth.signUp({ email, password });
     if (signUpError) {
       setError(signUpError.message || 'Registration failed.');
     } else {
       setError(null);
+      setSuccess('Account created! Please check your email to confirm and then log in.');
       setIsRegister(false);
       setEmail('');
       setPassword('');
-      alert('Account created! Please check your email to confirm and then log in.');
     }
     setLoading(false);
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <form
-        onSubmit={isRegister ? handleRegister : handleSignIn}
-        className="bg-white p-8 rounded shadow max-w-sm w-full flex flex-col gap-4"
-      >
-        <h2 className="text-2xl font-bold mb-2 text-center">{isRegister ? 'Create Account' : 'Login'}</h2>
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          placeholder="Email"
-          required
-          className="border rounded px-3 py-2"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Password"
-          required
-          className="border rounded px-3 py-2"
-        />
-        {error && <div className="text-red-600 text-center">{error}</div>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-2xl flex flex-col items-center">
+        {/* Logo or App Title */}
+        <div className="mb-6 flex flex-col items-center">
+          <img src="/logo192.png" alt="Logo" className="w-16 h-16 mb-2" />
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-1">GST Billing Portal</h1>
+          <span className="text-gray-500 text-sm">Sign in to your account</span>
+        </div>
+        <form
+          onSubmit={isRegister ? handleRegister : handleSignIn}
+          className="w-full flex flex-col gap-4"
         >
-          {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
-        </button>
-        <button
-          type="button"
-          className="text-blue-600 underline mt-2"
-          onClick={() => { setIsRegister(!isRegister); setError(null); }}
-        >
-          {isRegister ? 'Back to Login' : 'Create new account'}
-        </button>
-      </form>
+          <h2 className="text-xl font-bold mb-2 text-center">{isRegister ? 'Create Account' : 'Login'}</h2>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email"
+            required
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+          {success && <div className="text-green-700 text-center font-medium bg-green-50 border border-green-200 rounded p-2">{success}</div>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold transition disabled:opacity-60"
+          >
+            {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
+          </button>
+          <button
+            type="button"
+            className="text-blue-600 underline mt-2"
+            onClick={() => { setIsRegister(!isRegister); setError(null); setSuccess(null); }}
+          >
+            {isRegister ? 'Back to Login' : 'Create new account'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
