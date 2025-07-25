@@ -5,14 +5,18 @@ import { ArrowLeft, Download, Printer, Edit } from 'lucide-react';
 import { Invoice, Company } from '../../types';
 import { db } from '../../services/database';
 import { formatIndianNumber } from '../../utils/calculations';
+import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
-interface InvoiceViewProps {
-  invoice: Invoice;
-  onEdit: () => void;
-  onBack: () => void;
-}
+const InvoiceView: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const invoice = location.state?.invoice as Invoice | undefined;
 
-const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) => {
+  // Redirect if invoice is missing
+  if (!invoice) {
+    return <Navigate to="/invoices" replace />;
+  }
+
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -68,7 +72,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
         <div className="px-6 py-4 flex justify-between items-center">
           <div className="flex items-center">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/invoices')}
               className="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -89,7 +93,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice, onEdit, onBack }) =>
           
           <div className="flex gap-2 mb-4 print:hidden">
             <button
-              onClick={onEdit}
+              onClick={() => navigate('/invoices/edit', { state: { invoice } })}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Edit className="h-4 w-4" />

@@ -21,10 +21,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
   const [customerToEdit, setCustomerToEdit] = useState<Customer | undefined>(undefined);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
-
-  // Invoice state
   const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
-  const [invoiceToView, setInvoiceToView] = useState<Invoice | null>(null);
 
   const handleAuthSuccess = () => {
     setLoggedIn(true);
@@ -64,7 +61,7 @@ function App() {
           element={
             <InvoiceList
               onView={invoice => {
-                setInvoiceToView(invoice);
+                setInvoiceToEdit(invoice);
                 navigate('/invoices/view');
               }}
               onEdit={invoice => {
@@ -105,24 +102,7 @@ function App() {
         />
         <Route
           path="/invoices/view"
-          element={
-            invoiceToView ? (
-              <InvoiceView
-                invoice={invoiceToView}
-                onEdit={() => {
-                  setInvoiceToEdit(invoiceToView);
-                  setInvoiceToView(null);
-                  navigate('/invoices/edit');
-                }}
-                onBack={() => {
-                  setInvoiceToView(null);
-                  navigate('/invoices');
-                }}
-              />
-            ) : (
-              <Navigate to="/invoices" />
-            )
-          }
+          element={<InvoiceView />}
         />
 
         {/* Customers List and Form */}
@@ -238,5 +218,7 @@ function App() {
     </BrowserRouter>
   );
 }
+
+// Remove InvoiceViewWrapper here
 
 export default App;

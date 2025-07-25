@@ -72,9 +72,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleDownloadInvoice = (invoice) => {
+  const handleDownloadInvoice = (invoice: Invoice) => {
     // Replace with your actual download logic (PDF, print, etc.)
-    // For example, you might navigate to a print page or call a utility function
     window.open(`/invoices/download/${invoice.id}`, '_blank');
   };
 
