@@ -19,7 +19,10 @@ import LoadingSpinner from './components/UI/LoadingSpinner';
 import './print.css';
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState(() => {
+    if (localStorage.getItem('isAdmin') === 'true') return 'dashboard';
+    return 'login';
+  });
   const [currentView, setCurrentView] = useState<string>('list');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [navigationData, setNavigationData] = useState<any>(null);
@@ -147,16 +150,16 @@ function App() {
     setSession(null);
     setCompany(null);
     setCompanySetupComplete(false);
-    setCurrentPage('dashboard');
+    setCurrentPage('login');
     setCurrentView('list');
     setSelectedItem(null);
     setNavigationData(null);
-    window.location.replace('/'); // Use replace to prevent back navigation
+    window.location.replace('/');
   };
 
   const renderContent = () => {
     if (!session && !showAdminPanel) {
-      return <Navigate to="/" />;
+      return <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />;
     }
 
     switch (currentPage) {
@@ -253,7 +256,7 @@ function App() {
         );
       
       default:
-        return <Dashboard onNavigate={handleNavigate} />;
+        return null;
     }
   };
 
