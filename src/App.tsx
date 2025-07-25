@@ -1,6 +1,7 @@
 //import React from 'react';
 import { useState, useEffect } from 'react';
 import { supabase } from './services/supabase';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import CompanySetup from './components/Company/CompanySetup';
@@ -16,7 +17,6 @@ import AdminPanel from './components/Admin/AdminPanel';
 import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import './print.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
@@ -27,7 +27,7 @@ function App() {
   const [company, setCompany] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<any>(null);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(localStorage.getItem('isAdmin') === 'true');
 
   // Fetch session, company info, and user role
   useEffect(() => {
@@ -303,7 +303,8 @@ function App() {
         />
         <main>
           <Routes>
-            <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <div className="text-center text-red-600 font-bold">Access Denied: You are not an admin.</div>} />
+            <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <Navigate to="/" />} />
+            <Route path="/dashboard" element={<Dashboard onNavigate={handleNavigate} />} />
             <Route path="/" element={
               loading ? (
                 <LoadingSpinner />
