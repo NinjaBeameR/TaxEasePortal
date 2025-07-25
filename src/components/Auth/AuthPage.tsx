@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '../../services/supabase';
 
@@ -11,6 +10,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isRegister, setIsRegister] = useState(false);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,13 +31,44 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
     setLoading(false);
   };
 
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    // Check if email already exists
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+    if (existing) {
+      setError('Email already registered.');
+      setLoading(false);
+      return;
+    }
+    // Insert new user
+    const { error: insertError } = await supabase
+      .from('users')
+      .insert([{ email, password }]);
+    if (insertError) {
+      setError('Registration failed.');
+    } else {
+      setError(null);
+      setIsRegister(false);
+      setEmail('');
+      setPassword('');
+      alert('Account created! You can now log in.');
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen">
       <form
-        onSubmit={handleSignIn}
+        onSubmit={isRegister ? handleRegister : handleSignIn}
         className="bg-white p-8 rounded shadow max-w-sm w-full flex flex-col gap-4"
       >
-        <h2 className="text-2xl font-bold mb-2 text-center">Login</h2>
+        <h2 className="text-2xl font-bold mb-2 text-center">{isRegister ? 'Create Account' : 'Login'}</h2>
         <input
           type="email"
           value={email}
@@ -60,7 +91,14 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
+        </button>
+        <button
+          type="button"
+          className="text-blue-600 underline mt-2"
+          onClick={() => { setIsRegister(!isRegister); setError(null); }}
+        >
+          {isRegister ? 'Back to Login' : 'Create new account'}
         </button>
       </form>
     </div>
