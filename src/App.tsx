@@ -29,28 +29,21 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [showAdminPanel, setShowAdminPanel] = useState(localStorage.getItem('isAdmin') === 'true');
 
-  // Fetch session, company info, and user role
   useEffect(() => {
+    // If admin, skip Supabase Auth and stop loading
+    if (localStorage.getItem('isAdmin') === 'true') {
+      setLoading(false);
+      setSession(null);
+      return;
+    }
+    // Otherwise, check Supabase Auth for normal users
     const fetchSessionAndCompany = async () => {
       setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
       setSession(user ? { user } : null);
 
       if (user && user.email) {
-        // Check for admin in the admin table
-        const { data: adminData } = await supabase
-          .from('admin')
-          .select('*')
-          .ilike('email', user.email.trim())
-          .single();
-
-        if (adminData) {
-          setShowAdminPanel(true);
-          setLoading(false);
-          return;
-        }
-
-        // Fetch company info using user_id for normal users
+        // Fetch company info for normal users
         const { data: companyData } = await supabase
           .from('companies')
           .select('*')
@@ -58,50 +51,13 @@ function App() {
           .single();
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
-        setShowAdminPanel(false);
       } else {
         setCompany(null);
         setCompanySetupComplete(false);
-        setShowAdminPanel(false);
       }
       setLoading(false);
     };
-
     fetchSessionAndCompany();
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      async (_event: any, session: any) => {
-        if (session && session.user && session.user.email) {
-          setSession(session);
-          const { data: adminData } = await supabase
-            .from('admin')
-            .select('*')
-            .ilike('email', session.user.email.trim())
-            .single();
-          if (adminData) {
-            setShowAdminPanel(true);
-            return;
-          }
-          // Fetch company info for normal users
-          const { data: companyData } = await supabase
-            .from('companies')
-            .select('*')
-            .eq('user_id', session.user.id)
-            .single();
-          setCompany(companyData);
-          setCompanySetupComplete(!!companyData);
-          setShowAdminPanel(false);
-        } else {
-          setSession(null);
-          setCompany(null);
-          setCompanySetupComplete(false);
-          setShowAdminPanel(false);
-        }
-      }
-    );
-    return () => {
-      listener.subscription.unsubscribe();
-    };
   }, []);
 
   useEffect(() => {
@@ -298,6 +254,9 @@ function App() {
           onLogout={() => {
             localStorage.removeItem('isAdmin');
             setShowAdminPanel(false);
+            setSession(null);
+            setCompany(null);
+            setCompanySetupComplete(false);
             window.location.href = '/';
           }}
         />
@@ -308,6 +267,8 @@ function App() {
             <Route path="/" element={
               loading ? (
                 <LoadingSpinner />
+              ) : showAdminPanel ? (
+                <Navigate to="/admin" />
               ) : !session ? (
                 <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />
               ) : !companySetupComplete ? (
