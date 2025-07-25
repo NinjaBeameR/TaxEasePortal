@@ -50,13 +50,11 @@ function App() {
     );
   };
 
-  if (!loggedIn) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
-  }
+  // All navigation below uses useNavigate, not window.location.href!
+  const MainRoutes = () => {
+    const navigate = useNavigate();
 
-  return (
-    <BrowserRouter>
-      <HeaderWithRouter />
+    return (
       <Routes>
         <Route path="/dashboard" element={<Dashboard onNavigate={() => {}} />} />
 
@@ -67,15 +65,15 @@ function App() {
             <InvoiceList
               onView={invoice => {
                 setInvoiceToView(invoice);
-                window.location.href = '/invoices/view';
+                navigate('/invoices/view');
               }}
               onEdit={invoice => {
                 setInvoiceToEdit(invoice);
-                window.location.href = '/invoices/edit';
+                navigate('/invoices/edit');
               }}
               onCreate={() => {
                 setInvoiceToEdit(null);
-                window.location.href = '/invoices/new';
+                navigate('/invoices/new');
               }}
             />
           }
@@ -84,8 +82,8 @@ function App() {
           path="/invoices/new"
           element={
             <InvoiceForm
-              onSave={() => window.location.href = '/invoices'}
-              onCancel={() => window.location.href = '/invoices'}
+              onSave={() => navigate('/invoices')}
+              onCancel={() => navigate('/invoices')}
             />
           }
         />
@@ -96,11 +94,11 @@ function App() {
               invoice={invoiceToEdit!}
               onSave={() => {
                 setInvoiceToEdit(null);
-                window.location.href = '/invoices';
+                navigate('/invoices');
               }}
               onCancel={() => {
                 setInvoiceToEdit(null);
-                window.location.href = '/invoices';
+                navigate('/invoices');
               }}
             />
           }
@@ -114,11 +112,11 @@ function App() {
                 onEdit={() => {
                   setInvoiceToEdit(invoiceToView);
                   setInvoiceToView(null);
-                  window.location.href = '/invoices/edit';
+                  navigate('/invoices/edit');
                 }}
                 onBack={() => {
                   setInvoiceToView(null);
-                  window.location.href = '/invoices';
+                  navigate('/invoices');
                 }}
               />
             ) : (
@@ -134,11 +132,11 @@ function App() {
             <CustomerList
               onEdit={customer => {
                 setCustomerToEdit(customer);
-                window.location.href = '/customers/edit';
+                navigate('/customers/edit');
               }}
               onCreate={() => {
                 setCustomerToEdit(undefined);
-                window.location.href = '/customers/new';
+                navigate('/customers/new');
               }}
             />
           }
@@ -148,8 +146,8 @@ function App() {
           element={
             <CustomerForm
               customer={undefined}
-              onSave={() => window.location.href = '/customers'}
-              onCancel={() => window.location.href = '/customers'}
+              onSave={() => navigate('/customers')}
+              onCancel={() => navigate('/customers')}
             />
           }
         />
@@ -160,11 +158,11 @@ function App() {
               customer={customerToEdit}
               onSave={() => {
                 setCustomerToEdit(undefined);
-                window.location.href = '/customers';
+                navigate('/customers');
               }}
               onCancel={() => {
                 setCustomerToEdit(undefined);
-                window.location.href = '/customers';
+                navigate('/customers');
               }}
             />
           }
@@ -177,11 +175,11 @@ function App() {
             <ProductList
               onEdit={product => {
                 setProductToEdit(product);
-                window.location.href = '/products/edit';
+                navigate('/products/edit');
               }}
               onCreate={() => {
                 setProductToEdit(undefined);
-                window.location.href = '/products/new';
+                navigate('/products/new');
               }}
             />
           }
@@ -191,8 +189,8 @@ function App() {
           element={
             <ProductForm
               product={undefined}
-              onSave={() => window.location.href = '/products'}
-              onCancel={() => window.location.href = '/products'}
+              onSave={() => navigate('/products')}
+              onCancel={() => navigate('/products')}
             />
           }
         />
@@ -203,11 +201,11 @@ function App() {
               product={productToEdit}
               onSave={() => {
                 setProductToEdit(undefined);
-                window.location.href = '/products';
+                navigate('/products');
               }}
               onCancel={() => {
                 setProductToEdit(undefined);
-                window.location.href = '/products';
+                navigate('/products');
               }}
             />
           }
@@ -218,7 +216,7 @@ function App() {
           path="/settings"
           element={
             <CompanySetup
-              onComplete={() => window.location.href = '/dashboard'}
+              onComplete={() => navigate('/dashboard')}
             />
           }
         />
@@ -226,6 +224,17 @@ function App() {
         {/* Default route */}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
+    );
+  };
+
+  if (!loggedIn) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  return (
+    <BrowserRouter>
+      <HeaderWithRouter />
+      <MainRoutes />
     </BrowserRouter>
   );
 }
