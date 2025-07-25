@@ -141,9 +141,13 @@ function App() {
     setNavigationData(null);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    window.location.reload(); // Optionally reload or redirect after logout
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    setShowAdminPanel(false);
+    setSession(null);
+    setCompany(null);
+    setCompanySetupComplete(false);
+    window.location.href = '/';
   };
 
   const renderContent = () => {
@@ -251,14 +255,7 @@ function App() {
         <Header
           currentPage={currentPage}
           onPageChange={setCurrentPage}
-          onLogout={() => {
-            localStorage.removeItem('isAdmin');
-            setShowAdminPanel(false);
-            setSession(null);
-            setCompany(null);
-            setCompanySetupComplete(false);
-            window.location.href = '/';
-          }}
+          onLogout={handleLogout}
         />
         <main>
           <Routes>
