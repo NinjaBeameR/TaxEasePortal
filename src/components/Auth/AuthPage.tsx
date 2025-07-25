@@ -16,17 +16,11 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    // Simple login: check companies table for email/password
-    const { data } = await supabase
-      .from('companies')
-      .select('*')
-      .eq('email', email)
-      .eq('password', password)
-      .single();
-    if (data) {
-      onAuthSuccess();
-    } else {
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    if (authError || !data.user) {
       setError('Invalid credentials');
+    } else {
+      onAuthSuccess();
     }
     setLoading(false);
   };
@@ -35,29 +29,15 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    // Check if email already exists
-    const { data: existing } = await supabase
-      .from('companies')
-      .select('id')
-      .eq('email', email)
-      .single();
-    if (existing) {
-      setError('Email already registered.');
-      setLoading(false);
-      return;
-    }
-    // Insert new company (user)
-    const { error: insertError } = await supabase
-      .from('companies')
-      .insert([{ email, password }]);
-    if (insertError) {
-      setError('Registration failed.');
+    const { error: signUpError } = await supabase.auth.signUp({ email, password });
+    if (signUpError) {
+      setError(signUpError.message || 'Registration failed.');
     } else {
       setError(null);
       setIsRegister(false);
       setEmail('');
       setPassword('');
-      alert('Account created! You can now log in.');
+      alert('Account created! Please check your email to confirm and then log in.');
     }
     setLoading(false);
   };
