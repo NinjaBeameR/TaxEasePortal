@@ -147,10 +147,18 @@ function App() {
     setSession(null);
     setCompany(null);
     setCompanySetupComplete(false);
-    window.location.href = '/';
+    setCurrentPage('dashboard');
+    setCurrentView('list');
+    setSelectedItem(null);
+    setNavigationData(null);
+    window.location.replace('/'); // Use replace to prevent back navigation
   };
 
   const renderContent = () => {
+    if (!session && !showAdminPanel) {
+      return <Navigate to="/" />;
+    }
+
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard onNavigate={handleNavigate} />;
@@ -260,7 +268,9 @@ function App() {
         <main>
           <Routes>
             <Route path="/admin" element={showAdminPanel ? <AdminPanel /> : <Navigate to="/" />} />
-            <Route path="/dashboard" element={<Dashboard onNavigate={handleNavigate} />} />
+            <Route path="/dashboard" element={
+              session ? <Dashboard onNavigate={handleNavigate} /> : <Navigate to="/" />
+            } />
             <Route path="/" element={
               loading ? (
                 <LoadingSpinner />
