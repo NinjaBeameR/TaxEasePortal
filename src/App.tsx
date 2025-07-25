@@ -1,7 +1,7 @@
 //import React from 'react';
 import { useState, useEffect } from 'react';
 import { supabase } from './services/supabase';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Header from './components/Layout/Header';
 import Dashboard from './components/Dashboard/Dashboard';
 import CompanySetup from './components/Company/CompanySetup';
@@ -18,12 +18,11 @@ import { Customer, Product, Invoice } from './types';
 import LoadingSpinner from './components/UI/LoadingSpinner';
 import './print.css';
 
+
 function App() {
-  const [currentPage, setCurrentPage] = useState(() => {
-    if (localStorage.getItem('isAdmin') === 'true') return 'dashboard';
-    return 'login';
-  });
-  const [currentView, setCurrentView] = useState<string>('list');
+  // State for navigation and data
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentView, setCurrentView] = useState<'list' | 'form' | 'view'>('list');
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [navigationData, setNavigationData] = useState<any>(null);
   const [companySetupComplete, setCompanySetupComplete] = useState(false);
@@ -32,21 +31,21 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [showAdminPanel, setShowAdminPanel] = useState(localStorage.getItem('isAdmin') === 'true');
 
+  // On mount, check if admin or user is logged in
   useEffect(() => {
-    // If admin, skip Supabase Auth and stop loading
-    if (localStorage.getItem('isAdmin') === 'true') {
-      setLoading(false);
-      setSession(null);
-      return;
-    }
-    // Otherwise, check Supabase Auth for normal users
-    const fetchSessionAndCompany = async () => {
+    const checkAuth = async () => {
       setLoading(true);
+      if (localStorage.getItem('isAdmin') === 'true') {
+        setShowAdminPanel(true);
+        setSession(null);
+        setLoading(false);
+        return;
+      }
+      // Check Supabase Auth for user
       const { data: { user } } = await supabase.auth.getUser();
-      setSession(user ? { user } : null);
-
       if (user && user.email) {
-        // Fetch company info for normal users
+        setSession({ user });
+        // Fetch company info
         const { data: companyData } = await supabase
           .from('companies')
           .select('*')
@@ -55,72 +54,38 @@ function App() {
         setCompany(companyData);
         setCompanySetupComplete(!!companyData);
       } else {
+        setSession(null);
         setCompany(null);
         setCompanySetupComplete(false);
       }
+      setShowAdminPanel(false);
       setLoading(false);
     };
-    fetchSessionAndCompany();
+    checkAuth();
   }, []);
 
-  useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && user.email) {
-        const { data: adminData } = await supabase
-          .from('admin')
-          .select('*')
-          .ilike('email', user.email.trim())
-          .single();
-        setShowAdminPanel(!!adminData);
-      } else {
-        setShowAdminPanel(false);
-      }
-    };
-    checkAdmin();
-  }, []);
-
-  const handleCompanySetupComplete = () => {
-    setCompanySetupComplete(true);
+  // Logout handler: clears all state and reloads
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    setShowAdminPanel(false);
+    setSession(null);
+    setCompany(null);
+    setCompanySetupComplete(false);
     setCurrentPage('dashboard');
-    // Refetch user and company info after setup
-    if (session && session.user) {
-      supabase
-        .from('users')
-        .select('*')
-        .eq('user_id', session.user.id)
-        .single()
-        .then(async ({ data: userData }) => {
-          if (userData?.company_id) {
-            const { data: companyData } = await supabase
-              .from('companies')
-              .select('*')
-              .eq('id', userData.company_id)
-              .single();
-            setCompany(companyData);
-          }
-        });
-    }
-  };
-
-  const handlePageChange = (page: string) => {
-    setCurrentPage(page);
     setCurrentView('list');
     setSelectedItem(null);
     setNavigationData(null);
+    window.history.replaceState({}, '', '/');
+    setTimeout(() => {
+      window.location.reload();
+    }, 0);
   };
 
+  // Navigation helpers
   const handleNavigate = (page: string, data?: any) => {
     setCurrentPage(page);
     setNavigationData(data);
-    
     if (data?.action === 'create') {
-      setCurrentView('form');
-      setSelectedItem(null);
-    } else if (data?.action === 'edit' || data?.action === 'view') {
-      setCurrentView(data.action === 'edit' ? 'form' : 'view');
-      setSelectedItem(data.customer || data.product || data.invoice);
-   
       setCurrentView('form');
       setSelectedItem(null);
     } else if (data?.action === 'edit' || data?.action === 'view') {
@@ -131,141 +96,64 @@ function App() {
       setSelectedItem(null);
     }
   };
-
   const handleBack = () => {
     setCurrentView('list');
     setSelectedItem(null);
     setNavigationData(null);
   };
-
   const handleSave = () => {
     setCurrentView('list');
     setSelectedItem(null);
     setNavigationData(null);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAdmin');
-    setShowAdminPanel(false);
-    setSession(null);
-    setCompany(null);
-    setCompanySetupComplete(false);
-    setCurrentPage('login');
-    setCurrentView('list');
-    setSelectedItem(null);
-    setNavigationData(null);
-    // Instead of window.location.replace, use navigate to '/'
-    // and let the router logic show the login page
-    window.history.replaceState({}, '', '/');
-    // Optionally, force a re-render
-    setTimeout(() => {
-      window.location.reload();
-    }, 0);
+  // Company setup completion
+  const handleCompanySetupComplete = () => {
+    setCompanySetupComplete(true);
+    setCurrentPage('dashboard');
+    // Optionally refetch company info
+    if (session && session.user) {
+      supabase
+        .from('companies')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .single()
+        .then(({ data: companyData }) => {
+          setCompany(companyData);
+        });
+    }
   };
 
+  // Main content rendering
   const renderContent = () => {
-    if (!session && !showAdminPanel) {
-      return <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />;
-    }
-
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard onNavigate={handleNavigate} />;
-      
       case 'customers':
         if (currentView === 'form') {
-          return (
-            <CustomerForm
-              customer={selectedItem}
-              onSave={handleSave}
-              onCancel={handleBack}
-            />
-          );
+          return <CustomerForm customer={selectedItem} onSave={handleSave} onCancel={handleBack} />;
         }
-        return (
-          <CustomerList
-            onEdit={(customer: Customer) => {
-              setSelectedItem(customer);
-              setCurrentView('form');
-            }}
-            onCreate={() => {
-              setSelectedItem(null);
-              setCurrentView('form');
-            }}
-          />
-        );
-      
+        return <CustomerList onEdit={(customer: Customer) => { setSelectedItem(customer); setCurrentView('form'); }} onCreate={() => { setSelectedItem(null); setCurrentView('form'); }} />;
       case 'products':
         if (currentView === 'form') {
-          return (
-            <ProductForm
-              product={selectedItem}
-              onSave={handleSave}
-              onCancel={handleBack}
-            />
-          );
+          return <ProductForm product={selectedItem} onSave={handleSave} onCancel={handleBack} />;
         }
-        return (
-          <ProductList
-            onEdit={(product: Product) => {
-              setSelectedItem(product);
-              setCurrentView('form');
-            }}
-            onCreate={() => {
-              setSelectedItem(null);
-              setCurrentView('form');
-            }}
-          />
-        );
-      
+        return <ProductList onEdit={(product: Product) => { setSelectedItem(product); setCurrentView('form'); }} onCreate={() => { setSelectedItem(null); setCurrentView('form'); }} />;
       case 'invoices':
         if (currentView === 'form') {
-          return (
-            <InvoiceForm
-              invoice={selectedItem}
-              onSave={handleSave}
-              onCancel={handleBack}
-            />
-          );
+          return <InvoiceForm invoice={selectedItem} onSave={handleSave} onCancel={handleBack} />;
         } else if (currentView === 'view') {
-          return (
-            <InvoiceView
-              invoice={selectedItem}
-              onEdit={() => setCurrentView('form')}
-              onBack={handleBack}
-            />
-          );
+          return <InvoiceView invoice={selectedItem} onEdit={() => setCurrentView('form')} onBack={handleBack} />;
         }
-        return (
-          <InvoiceList
-            onView={(invoice: Invoice) => {
-              setSelectedItem(invoice);
-              setCurrentView('view');
-            }}
-            onEdit={(invoice: Invoice) => {
-              setSelectedItem(invoice);
-              setCurrentView('form');
-            }}
-            onCreate={() => {
-              setSelectedItem(null);
-              setCurrentView('form');
-            }}
-            initialAction={navigationData}
-          />
-        );
-      
+        return <InvoiceList onView={(invoice: Invoice) => { setSelectedItem(invoice); setCurrentView('view'); }} onEdit={(invoice: Invoice) => { setSelectedItem(invoice); setCurrentView('form'); }} onCreate={() => { setSelectedItem(null); setCurrentView('form'); }} initialAction={navigationData} />;
       case 'settings':
-        return (
-          <div className="max-w-2xl mx-auto">
-            <CompanySetup onComplete={() => setCurrentPage('dashboard')} />
-          </div>
-        );
-      
+        return <div className="max-w-2xl mx-auto"><CompanySetup onComplete={handleCompanySetupComplete} /></div>;
       default:
         return null;
     }
   };
 
+  // Routing and UI
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-100">
@@ -275,11 +163,7 @@ function App() {
             element={
               showAdminPanel ? (
                 <>
-                  <Header
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                    onLogout={handleLogout}
-                  />
+                  <Header currentPage={currentPage} onPageChange={setCurrentPage} onLogout={handleLogout} />
                   <AdminPanel />
                 </>
               ) : (
@@ -292,11 +176,7 @@ function App() {
             element={
               session ? (
                 <>
-                  <Header
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                    onLogout={handleLogout}
-                  />
+                  <Header currentPage={currentPage} onPageChange={setCurrentPage} onLogout={handleLogout} />
                   <Dashboard onNavigate={handleNavigate} />
                 </>
               ) : (
@@ -312,26 +192,15 @@ function App() {
               ) : showAdminPanel ? (
                 <Navigate to="/admin" />
               ) : !session ? (
-                <AuthPage
-                  onAuthSuccess={() => window.location.reload()}
-                  setShowAdminPanel={setShowAdminPanel}
-                />
+                <AuthPage onAuthSuccess={() => window.location.reload()} setShowAdminPanel={setShowAdminPanel} />
               ) : !companySetupComplete ? (
                 <>
-                  <Header
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                    onLogout={handleLogout}
-                  />
+                  <Header currentPage={currentPage} onPageChange={setCurrentPage} onLogout={handleLogout} />
                   <CompanySetup onComplete={handleCompanySetupComplete} />
                 </>
               ) : (
                 <>
-                  <Header
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                    onLogout={handleLogout}
-                  />
+                  <Header currentPage={currentPage} onPageChange={setCurrentPage} onLogout={handleLogout} />
                   {renderContent()}
                 </>
               )
