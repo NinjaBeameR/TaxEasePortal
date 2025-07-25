@@ -72,6 +72,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleDownloadInvoice = (invoice) => {
+    // Replace with your actual download logic (PDF, print, etc.)
+    // For example, you might navigate to a print page or call a utility function
+    window.open(`/invoices/download/${invoice.id}`, '_blank');
+  };
+
   const StatCard: React.FC<{
     title: string;
     value: string | number;
@@ -214,15 +220,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
               {stats.recentInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <FileText className="h-8 w-8 text-gray-300 mb-2" />
-                      <span className="font-medium text-gray-600">No invoices found. Create your first invoice to get started.</span>
+                  <td colSpan={6} className="text-center py-8 text-gray-400">
+                    <div className="flex flex-col items-center">
+                      <span className="text-4xl mb-2">📄</span>
+                      No invoices found. Create your first invoice to get started.
                     </div>
                   </td>
                 </tr>
@@ -230,8 +239,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 stats.recentInvoices.map((invoice) => (
                   <tr
                     key={invoice.id}
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => onNavigate('invoices', { action: 'view', invoice })}
+                    className="hover:bg-blue-50 cursor-pointer transition"
+                    onClick={() => navigate(`/invoices/view`, { state: { invoice } })}
+                    tabIndex={0}
+                    role="button"
                   >
                     <td className="px-4 py-2 whitespace-nowrap text-sm font-semibold text-blue-700">
                       {invoice.invoiceNumber}
@@ -255,6 +266,18 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       }`}>
                         {invoice.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+                      <button
+                        className="text-green-600 hover:underline"
+                        onClick={e => {
+                          e.stopPropagation(); // Prevent row click when downloading
+                          handleDownloadInvoice(invoice);
+                        }}
+                        title="Download Invoice"
+                      >
+                        Download
+                      </button>
                     </td>
                   </tr>
                 ))
