@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../../services/supabase';
+import logo from '../../assets/logo.png'; // adjust path as needed
 
 interface AuthPageProps {
   onAuthSuccess: () => void;
@@ -47,11 +48,15 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-2xl flex flex-col items-center">
-        {/* Logo or App Title */}
+      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-2xl flex flex-col items-center animate-fade-in transition-all duration-500">
+        {/* Logo and App Title */}
         <div className="mb-6 flex flex-col items-center">
-          <img src="/logo192.png" alt="Logo" className="w-16 h-16 mb-2" />
-          <h1 className="text-3xl font-extrabold text-gray-800 mb-1">GST Billing Portal</h1>
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-16 h-16 mb-2 drop-shadow-lg transition-transform duration-300 hover:scale-105"
+          />
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-1">TaxEase Portal</h1>
           <span className="text-gray-500 text-sm">Sign in to your account</span>
         </div>
         <form
@@ -65,7 +70,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
             onChange={e => setEmail(e.target.value)}
             placeholder="Email"
             required
-            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
           <input
             type="password"
@@ -73,20 +78,20 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
             onChange={e => setPassword(e.target.value)}
             placeholder="Password"
             required
-            className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
           />
           {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
           {success && <div className="text-green-700 text-center font-medium bg-green-50 border border-green-200 rounded p-2">{success}</div>}
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-semibold transition disabled:opacity-60"
+            className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
           >
             {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
           </button>
           <button
             type="button"
-            className="text-blue-600 underline mt-2"
+            className="text-blue-600 underline mt-2 transition"
             onClick={() => { setIsRegister(!isRegister); setError(null); setSuccess(null); }}
           >
             {isRegister ? 'Back to Login' : 'Create new account'}

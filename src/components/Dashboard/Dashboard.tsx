@@ -3,6 +3,7 @@ import { FileText, Users, Package, TrendingUp, Calendar, IndianRupee } from 'luc
 import { db } from '../../services/database';
 import { Invoice } from '../../types';
 import { formatCurrency } from '../../utils/calculations';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardStats {
   totalInvoices: number;
@@ -27,6 +28,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     recentInvoices: [],
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadDashboardData();
@@ -186,7 +188,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
           <h3 className="text-base font-semibold text-gray-900">Recent Invoices</h3>
           <button
-            onClick={() => onNavigate('invoices', { action: 'create' })}
+            onClick={() => navigate('/invoices/new')}
             className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
           >
             <FileText className="h-5 w-5" />
