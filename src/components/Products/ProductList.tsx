@@ -82,7 +82,7 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Products & Services</h1>
@@ -159,7 +159,7 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Product/Service
@@ -186,7 +186,13 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
+                  <tr
+                    key={product.id}
+                    className="dashboard-row hover:bg-gray-50 group transition-all"
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => onEdit(product)}
+                  >
                     <td className="px-4 py-2 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
@@ -234,15 +240,15 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
                     <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <button
-                          onClick={() => onEdit(product)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          onClick={e => { e.stopPropagation(); onEdit(product); }}
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
                           title="Edit product"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(product)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          onClick={e => { e.stopPropagation(); handleDelete(product); }}
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
                           title="Delete product"
                         >
                           <Trash2 className="h-4 w-4" />

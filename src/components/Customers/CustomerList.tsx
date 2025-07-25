@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, User, Building } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, User, Building, ArrowRight } from 'lucide-react';
 import { Customer } from '../../types';
 import { db } from '../../services/database';
 
@@ -36,8 +36,6 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
 
   const filterCustomers = () => {
     let filtered = customers;
-
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(customer =>
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -46,12 +44,9 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
         customer.contact.phone?.includes(searchTerm)
       );
     }
-
-    // Filter by type
     if (filterType !== 'ALL') {
       filtered = filtered.filter(customer => customer.type === filterType);
     }
-
     setFilteredCustomers(filtered);
   };
 
@@ -76,13 +71,13 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Customers</h1>
         <button
           onClick={onCreate}
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition active:scale-95"
         >
           <Plus className="h-5 w-5" />
           Add Customer
@@ -102,7 +97,6 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
           <div className="flex space-x-2">
             {(['ALL', 'B2B', 'B2C'] as const).map((type) => (
               <button
@@ -122,7 +116,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
       </div>
 
       {/* Customer List */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
         {filteredCustomers.length === 0 ? (
           <div className="text-center py-12">
             <User className="mx-auto h-12 w-12 text-gray-400" />
@@ -146,7 +140,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Customer
@@ -170,24 +164,18 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                          customer.type === 'B2B' ? 'bg-blue-100' : 'bg-green-100'
-                        }`}>
-                          {customer.type === 'B2B' ? (
-                            <Building className="h-4 w-4 text-blue-600" />
-                          ) : (
-                            <User className="h-4 w-4 text-green-600" />
-                          )}
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {customer.name}
-                          </div>
-                        </div>
-                      </div>
+                  <tr
+                    key={customer.id}
+                    className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all dashboard-row"
+                    tabIndex={0}
+                    role="button"
+                    onClick={() => onEdit(customer)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
+                      <span>
+                        {customer.name}
+                      </span>
+                      <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
@@ -217,15 +205,15 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <button
-                          onClick={() => onEdit(customer)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          onClick={e => { e.stopPropagation(); onEdit(customer); }}
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
                           title="Edit customer"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(customer)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          onClick={e => { e.stopPropagation(); handleDelete(customer); }}
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
                           title="Delete customer"
                         >
                           <Trash2 className="h-4 w-4" />

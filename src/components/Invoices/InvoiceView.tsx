@@ -7,10 +7,14 @@ import { db } from '../../services/database';
 import { formatIndianNumber } from '../../utils/calculations';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 
-const InvoiceView: React.FC = () => {
+interface InvoiceViewProps {
+  invoice?: Invoice;
+}
+
+const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const invoice = location.state?.invoice as Invoice | undefined;
+  const invoice = propInvoice ?? (location.state?.invoice as Invoice | undefined);
 
   // Redirect if invoice is missing
   if (!invoice) {
@@ -66,7 +70,7 @@ const InvoiceView: React.FC = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Action Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 print:hidden">
         <div className="px-6 py-4 flex justify-between items-center">

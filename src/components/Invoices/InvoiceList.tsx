@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Eye, Edit, Trash2, FileText, Download, Calendar } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, FileText, Download, Calendar, ArrowRight } from 'lucide-react';
 import { Invoice } from '../../types';
 import { db } from '../../services/database';
 import { formatCurrency } from '../../utils/calculations';
@@ -14,6 +14,29 @@ interface InvoiceListProps {
   initialAction?: { action: string; invoice?: Invoice };
 }
 
+// Animated number for summary cards
+const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    let start = 0;
+    const end = value;
+    if (start === end) return;
+    let increment = end / 30;
+    let current = start;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= end) {
+        setDisplay(end);
+        clearInterval(timer);
+      } else {
+        setDisplay(Math.round(current));
+      }
+    }, 15);
+    return () => clearInterval(timer);
+  }, [value]);
+  return <span>{display}</span>;
+};
+
 const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, initialAction }) => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
@@ -22,7 +45,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [loading, setLoading] = useState(true);
 
-  // Add these states for PDF download
+  // For PDF download
   const [showHiddenInvoice, setShowHiddenInvoice] = useState(false);
   const [invoiceToDownload, setInvoiceToDownload] = useState<Invoice | null>(null);
 
@@ -45,8 +68,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   const loadInvoices = async () => {
     try {
       const invoiceList = await db.getInvoices();
-      // Sort by date (newest first)
-      const sortedInvoices = invoiceList.sort((a, b) => 
+      const sortedInvoices = invoiceList.sort((a, b) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
       );
       setInvoices(sortedInvoices);
@@ -59,8 +81,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
 
   const filterInvoices = () => {
     let filtered = invoices;
-
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(invoice =>
         invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -68,24 +88,19 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
         invoice.customerGstin?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
-    // Filter by status
     if (filterStatus !== 'ALL') {
       filtered = filtered.filter(invoice => invoice.status === filterStatus);
     }
-
-    // Filter by date range
     if (dateRange.from) {
-      filtered = filtered.filter(invoice => 
+      filtered = filtered.filter(invoice =>
         new Date(invoice.date) >= new Date(dateRange.from)
       );
     }
     if (dateRange.to) {
-      filtered = filtered.filter(invoice => 
+      filtered = filtered.filter(invoice =>
         new Date(invoice.date) <= new Date(dateRange.to)
       );
     }
-
     setFilteredInvoices(filtered);
   };
 
@@ -93,9 +108,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
     if (!window.confirm('Are you sure you want to delete this invoice?')) return;
     try {
       setLoading(true);
-      // Delete invoice and its items
       await db.deleteInvoice(invoiceId);
-      // Reload invoices
       await loadInvoices();
     } catch (error) {
       alert('Failed to delete invoice.');
@@ -107,9 +120,9 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
 
   const handleEdit = async (invoice: Invoice) => {
     try {
-      const fullInvoice = await db.getInvoice(invoice.id); // Fetch full invoice with items
+      const fullInvoice = await db.getInvoice(invoice.id);
       if (fullInvoice) {
-        onEdit(fullInvoice); // Pass full invoice to InvoiceForm
+        onEdit(fullInvoice);
       }
     } catch (error) {
       console.error('Error loading invoice for edit:', error);
@@ -132,12 +145,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
 
   // PDF download handler
   const handleDownloadPDF = async (invoice: Invoice) => {
-    // Fetch full invoice with items if needed
     const fullInvoice = await db.getInvoice(invoice.id);
     setInvoiceToDownload(fullInvoice || invoice);
     setShowHiddenInvoice(true);
 
-    // Wait for hidden InvoiceView to render
     setTimeout(() => {
       const invoiceArea = document.getElementById('invoice-print-area');
       if (invoiceArea) {
@@ -157,7 +168,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
         setShowHiddenInvoice(false);
         setInvoiceToDownload(null);
       }
-    }, 500); // Wait for DOM update
+    }, 500);
   };
 
   if (loading) {
@@ -169,13 +180,13 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Invoices</h1>
         <button
           onClick={onCreate}
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition active:scale-95"
         >
           <Plus className="h-5 w-5" />
           Create Invoice
@@ -195,7 +206,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as any)}
@@ -206,7 +216,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
             <option value="SENT">Sent</option>
             <option value="PAID">Paid</option>
           </select>
-
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -217,7 +226,6 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-
           <div className="relative">
             <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -232,7 +240,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
       </div>
 
       {/* Invoice List */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
         {filteredInvoices.length === 0 ? (
           <div className="text-center py-12">
             <FileText className="mx-auto h-12 w-12 text-gray-400" />
@@ -256,35 +264,39 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Invoice Number
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-blue-600">
-                        {invoice.invoiceNumber}
-                      </div>
+                  <tr
+                    key={invoice.id}
+                    className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all"
+                    tabIndex={0}
+                    role="button"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
+                      {invoice.invoiceNumber}
+                      <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{invoice.customerName}</div>
@@ -295,7 +307,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(invoice.date).toLocaleDateString('en-IN')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
                       {formatCurrency(invoice.totalAmount)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -307,28 +319,28 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                       <div className="flex justify-end space-x-2">
                         <button
                           onClick={() => onView(invoice)}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
                           title="View invoice"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleEdit(invoice)}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
+                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
                           title="Edit invoice"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDownloadPDF(invoice)}
-                          className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50"
+                          className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50 active:scale-95"
                           title="Download PDF"
                         >
                           <Download className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(invoice.id)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
                           title="Delete invoice"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -346,33 +358,35 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
       {/* Hidden InvoiceView for PDF generation */}
       {showHiddenInvoice && invoiceToDownload && (
         <div style={{ position: 'absolute', left: '-9999px', top: 0, zIndex: -1 }}>
-          <InvoiceView invoice={invoiceToDownload} onEdit={() => {}} onBack={() => {}} />
+          <InvoiceView invoice={invoiceToDownload} />
         </div>
       )}
 
       {/* Summary */}
       {filteredInvoices.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm animate-fade-in">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Total Invoices</div>
-            <div className="text-xl font-semibold text-gray-900">{filteredInvoices.length}</div>
+            <div className="text-xl font-semibold text-gray-900">
+              <AnimatedNumber value={filteredInvoices.length} />
+            </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Total Amount</div>
             <div className="text-xl font-semibold text-gray-900">
-              {formatCurrency(filteredInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0))}
+              <AnimatedNumber value={filteredInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0)} />
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Paid Amount</div>
             <div className="text-xl font-semibold text-green-600">
-              {formatCurrency(filteredInvoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0))}
+              <AnimatedNumber value={filteredInvoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} />
             </div>
           </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Pending Amount</div>
             <div className="text-xl font-semibold text-yellow-600">
-              {formatCurrency(filteredInvoices.filter(inv => inv.status !== 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0))}
+              <AnimatedNumber value={filteredInvoices.filter(inv => inv.status !== 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} />
             </div>
           </div>
         </div>

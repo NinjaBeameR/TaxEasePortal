@@ -234,7 +234,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
+    <div className="max-w-2xl mx-auto px-4 animate-fade-in">
       <div className="bg-white rounded-xl shadow p-6 mb-6">
         <div className="flex items-center mb-4">
           <button
