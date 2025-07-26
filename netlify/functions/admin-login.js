@@ -15,7 +15,7 @@ exports.handler = async (event) => {
   // Fetch admin by email
   const { data, error } = await supabase
     .from('admin_cred')
-    .select('*')
+    .select('password_hash')
     .eq('email', email)
     .single();
 
@@ -28,6 +28,8 @@ exports.handler = async (event) => {
   if (!valid) {
     return { statusCode: 401, body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
+
+  // Optionally, generate a session token here
 
   return { statusCode: 200, body: JSON.stringify({ success: true }) };
 };

@@ -144,6 +144,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
           <form onSubmit={handleAdminLogin} className="w-full flex flex-col gap-4">
             <input
               type="email"
+              autoComplete="username"
               value={adminEmail}
               onChange={e => setAdminEmail(e.target.value)}
               placeholder="Admin Email"
@@ -152,6 +153,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
             />
             <input
               type="password"
+              autoComplete="current-password"
               value={adminPassword}
               onChange={e => setAdminPassword(e.target.value)}
               placeholder="Admin Password"
@@ -173,6 +175,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
               <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-4">
                 <input
                   type="email"
+                  autoComplete="username"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Email"
@@ -195,6 +198,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                 <h2 className="text-xl font-bold mb-2 text-center">Set Your Password</h2>
                 <input
                   type="password"
+                  autoComplete="new-password"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="New Password"
@@ -203,6 +207,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                 />
                 <input
                   type="password"
+                  autoComplete="new-password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
@@ -224,6 +229,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
               <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
                 <input
                   type="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Password"
