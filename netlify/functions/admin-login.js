@@ -1,5 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
-const bcrypt = require('bcryptjs'); // Add bcryptjs to your dependencies
+const bcrypt = require('bcryptjs');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -28,8 +28,6 @@ exports.handler = async (event) => {
   if (!valid) {
     return { statusCode: 401, body: JSON.stringify({ error: 'Invalid credentials' }) };
   }
-
-  // Optionally, generate a JWT or session token here for extra security
 
   return { statusCode: 200, body: JSON.stringify({ success: true }) };
 };
