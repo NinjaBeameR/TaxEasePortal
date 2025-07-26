@@ -306,7 +306,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !user.id) throw new Error('User not authenticated');
 
-      const invoiceData: Invoice & { user_id: string } = {
+      const invoiceData: Invoice & { user_id: string; vehicle_id?: string } = {
         ...{
           id: invoice?.id || crypto.randomUUID(),
           invoiceNumber: formData.invoiceNumber!,
@@ -329,6 +329,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
           updatedAt: new Date().toISOString(),
         },
         user_id: user.id,
+        vehicle_id: selectedVehicleId || null, // <-- ADD THIS LINE
       };
 
       // Save invoice data to the database
