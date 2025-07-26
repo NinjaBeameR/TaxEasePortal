@@ -1,4 +1,4 @@
-import { Company, Customer, Product, Invoice } from '../types';
+import { Company, Customer, Product, Invoice, Vehicle } from '../types';
 import { supabase } from './supabase';
 
 // Supabase database service
@@ -562,6 +562,30 @@ class DatabaseService {
     await supabase.from('invoice_items').delete().eq('invoice_id', invoiceId);
     // Then delete the invoice
     await supabase.from('invoices').delete().eq('id', invoiceId);
+  }
+
+  // Vehicle operations
+  async getVehicles(): Promise<Vehicle[]> {
+    const { data, error } = await supabase
+      .from('vehicles')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data as Vehicle[];
+  }
+
+  async addVehicle(vehicle_number: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+    const { error } = await supabase.from('vehicles').insert([
+      { user_id: user.id, vehicle_number }
+    ]);
+    if (error) throw error;
+  }
+
+  async deleteVehicle(id: string): Promise<void> {
+    const { error } = await supabase.from('vehicles').delete().eq('id', id);
+    if (error) throw error;
   }
 }
 

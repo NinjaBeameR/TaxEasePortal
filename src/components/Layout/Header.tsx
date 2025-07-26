@@ -34,21 +34,66 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange, onLogout }) 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         <div className="text-2xl font-bold text-blue-700 tracking-tight">TAX EASE PORTAL</div>
         <nav className="flex gap-6">
-          {['dashboard', 'invoices', 'customers', 'products', 'settings'].map(page => (
-            <button
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
-                currentPage === page
-                  ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {page === 'settings'
-                ? 'Company Profile'
-                : page.charAt(0).toUpperCase() + page.slice(1)}
-            </button>
-          ))}
+          <button
+            onClick={() => onPageChange('dashboard')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'dashboard'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Dashboard
+          </button>
+          <button
+            onClick={() => onPageChange('invoices')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'invoices'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Invoices
+          </button>
+          <button
+            onClick={() => onPageChange('customers')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'customers'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Customers
+          </button>
+          <button
+            onClick={() => onPageChange('products')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'products'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Products
+          </button>
+          <button
+            onClick={() => onPageChange('vehicles')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'vehicles'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Vehicles
+          </button>
+          <button
+            onClick={() => onPageChange('settings')}
+            className={`font-semibold px-3 py-2 rounded-lg transition-colors ${
+              currentPage === 'settings'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Company Profile
+          </button>
           {isAdmin && (
             <button
               onClick={() => onPageChange('admin')}
@@ -67,13 +112,12 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange, onLogout }) 
           onClick={() => {
             if (onLogout) {
               onLogout();
-              // Use replace to avoid back navigation to dashboard
               window.location.replace('/');
             }
           }}
           disabled={!onLogout}
         >
-          Logout
+          Sign out
         </button>
       </div>
     </header>

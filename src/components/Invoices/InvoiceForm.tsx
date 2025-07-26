@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, ArrowLeft, Plus, Trash2, User, Calculator } from 'lucide-react';
-import { InvoiceItem, Customer, Product, Company } from '../../types';
+import { InvoiceItem, Customer, Product, Company, Vehicle } from '../../types';
 import { supabase } from '../../supabaseClient';
 // Use local Invoice type override to fix date fields
 type Invoice = {
@@ -63,6 +63,8 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
   const [products, setProducts] = useState<Product[]>([]);
   const [company, setCompany] = useState<Company | null>(null);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [calculations, setCalculations] = useState({
@@ -475,6 +477,23 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
               </div>
             </div>
           )}
+
+          {/* Vehicle Details */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Vehicle Number
+            </label>
+            <select
+              value={selectedVehicleId}
+              onChange={e => setSelectedVehicleId(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select vehicle</option>
+              {vehicles.map(v => (
+                <option key={v.id} value={v.id}>{v.vehicle_number}</option>
+              ))}
+            </select>
+          </div>
 
           {/* Invoice Items */}
           <div>

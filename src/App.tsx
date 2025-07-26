@@ -18,6 +18,7 @@ import InvoiceView from './components/Invoices/InvoiceView';
 import { Invoice, Customer, Product } from './types';
 import AdminPanel from './components/Admin/AdminPanel';
 import { supabase } from './services/supabase';
+import VehicleList from './components/Vehicles/VehicleList';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
@@ -222,6 +223,7 @@ function AppWithRouter({
         element={<CompanySetup onComplete={() => navigate('/dashboard')} />}
       />
       <Route path="/admin" element={<AdminPanel />} />
+      <Route path="/vehicles" element={<VehicleList />} />
       <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
