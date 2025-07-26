@@ -356,6 +356,18 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
     }
   };
 
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        const data = await db.getVehicles();
+        setVehicles(data);
+      } catch (e) {
+        setVehicles([]);
+      }
+    };
+    loadVehicles();
+  }, []);
+
   return (
     <div className="max-w-6xl mx-auto animate-fade-in">
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
