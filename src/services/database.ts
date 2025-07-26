@@ -295,6 +295,7 @@ class DatabaseService {
       notes: invoice.notes || null,
       status: invoice.status,
       updated_at: new Date().toISOString(),
+      vehicle_id: invoice.vehicle_id || null, // <-- ADD THIS LINE
     };
 
     // Save invoice
@@ -433,6 +434,7 @@ class DatabaseService {
         status: invoice.status as 'DRAFT' | 'SENT' | 'PAID',
         createdAt: invoice.created_at,
         updatedAt: invoice.updated_at,
+        vehicle_id: invoice.vehicle_id || '', // <-- ADD THIS LINE
       };
     });
   }
@@ -524,6 +526,7 @@ class DatabaseService {
       status: invoiceData.status as 'DRAFT' | 'SENT' | 'PAID',
       createdAt: invoiceData.created_at,
       updatedAt: invoiceData.updated_at,
+      vehicle_id: invoiceData.vehicle_id || '', // <-- ADD THIS LINE
     };
   }
 
