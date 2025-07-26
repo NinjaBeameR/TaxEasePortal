@@ -325,10 +325,14 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                     className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all"
                     tabIndex={0}
                     role="button"
+                    onClick={() => onView(invoice)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
                       <button
-                        onClick={() => onView(invoice)}
+                        onClick={e => {
+                          e.stopPropagation();
+                          onView(invoice);
+                        }}
                         className="text-blue-700 hover:underline flex items-center gap-2 focus:outline-none"
                         style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer' }}
                         title="View invoice"
@@ -357,7 +361,10 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end space-x-2">
                         <button
-                          onClick={e => { e.stopPropagation(); onView(invoice); }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            onView(invoice);
+                          }}
                           className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
                           title="View invoice"
                         >

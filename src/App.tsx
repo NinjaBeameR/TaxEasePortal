@@ -133,7 +133,7 @@ function AppWithRouter({
       />
       <Route
         path="/invoices/view"
-        element={<InvoiceView setInvoiceToEdit={setInvoiceToEdit} />}
+        element={<InvoiceView invoice={invoiceToEdit} setInvoiceToEdit={setInvoiceToEdit} />}
       />
       <Route
         path="/customers"
