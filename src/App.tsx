@@ -1,7 +1,7 @@
 //import React from 'react';
 
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard/Dashboard';
 import AuthPage from './components/Auth/AuthPage';
 import Header from './components/Layout/Header';
@@ -16,6 +16,8 @@ import InvoiceList from './components/Invoices/InvoiceList';
 import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import { Invoice, Customer, Product } from './types';
+import AdminPanel from './components/Admin/AdminPanel'; // <-- Add this import
+import { supabase } from './services/supabase';
 
 function App() {
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
@@ -201,6 +203,9 @@ function App() {
           }
         />
 
+        {/* Admin Panel */}
+        <Route path="/admin" element={<AdminPanel />} />
+
         {/* Default route */}
         <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
@@ -219,6 +224,22 @@ function App() {
   );
 }
 
-// Remove InvoiceViewWrapper here
+function useSupabaseUser() {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data?.user ?? null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  return user;
+}
 
 export default App;

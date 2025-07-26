@@ -1,61 +1,31 @@
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
-
-exports.handler = async function(event, context) {
+exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
+  const { email, password } = JSON.parse(event.body);
 
-  const {
-    email, password,
-    business_name, address_line1, address_line2, city, state, pincode,
-    gstin, phone, company_email, website, logo, role
-  } = JSON.parse(event.body);
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
 
-  // Create user in Supabase Auth
+  // Create user with must_set_password flag
   const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
+    user_metadata: { role: 'admin' } // or 'user'
   });
-  if (error || !data?.user?.id) {
-    return { statusCode: 400, body: JSON.stringify({ error: error?.message || 'User creation failed' }) };
+
+  if (error) {
+    return { statusCode: 400, body: JSON.stringify({ error: error.message }) };
   }
 
-  // Insert company and link to user
-  const { data: companyData, error: companyError } = await supabase
-    .from('companies')
-    .insert([{
-      business_name,
-      address_line1,
-      address_line2,
-      city,
-      state,
-      pincode,
-      gstin,
-      phone,
-      email: company_email,
-      website,
-      logo,
-      user_id: data.user.id,
-      role: role || 'user'
-    }])
-    .select()
-    .single();
+  const { data: userData } = await supabase.auth.getUser();
 
-  if (companyError) {
-    return { statusCode: 400, body: JSON.stringify({ error: companyError.message }) };
-  }
+  // Optionally, create company record here using other fields from event.body
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({
-      success: true,
-      company: companyData
-    })
-  };
+  return { statusCode: 200, body: JSON.stringify({ user: userData.user }) };
 };

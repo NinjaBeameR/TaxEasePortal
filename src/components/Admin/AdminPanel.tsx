@@ -1,6 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 
+function useSupabaseUser() {
+  // Custom hook to fetch the Supabase user
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data?.user ?? null);
+      setLoading(false);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
+
+  return user;
+}
+
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
@@ -14,6 +36,7 @@ function Modal({ open, onClose, children }: { open: boolean, onClose: () => void
 }
 
 const AdminPanel: React.FC = () => {
+  const user = useSupabaseUser();
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -35,11 +58,9 @@ const AdminPanel: React.FC = () => {
   const [website, setWebsite] = useState('');
   const [logo, setLogo] = useState('');
 
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
   // Only check localStorage for admin flag
   useEffect(() => {
-    setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+    // setIsAdmin(localStorage.getItem('isAdmin') === 'true');
   }, []);
 
   // Fetch all companies for the admin table
@@ -106,11 +127,9 @@ const AdminPanel: React.FC = () => {
     window.location.href = '/';
   };
 
-  if (isAdmin === null) return <div>Loading...</div>;
-  if (!isAdmin) {
-    return <div className="max-w-2xl mx-auto mt-10 bg-white p-8 rounded shadow text-center text-red-600 font-bold">
-      Access Denied: You are not an admin.
-    </div>;
+  if (user === null) return <div>Loading...</div>;
+  if (user?.user_metadata?.role !== 'admin') {
+    return <div>Access Denied: You are not an admin.</div>;
   }
 
   return (

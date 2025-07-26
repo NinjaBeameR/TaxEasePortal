@@ -1,49 +1,73 @@
 import { useState } from 'react';
 import { supabase } from '../../services/supabase';
-import logo from '../../assets/logo.png'; // adjust path as needed
+import logo from '../../assets/logo.png';
 
 interface AuthPageProps {
   onAuthSuccess: () => void;
 }
 
 const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
+  const [step, setStep] = useState<'email' | 'setPassword' | 'login'>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isRegister, setIsRegister] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSignIn = async (e: React.FormEvent) => {
+  // Step 1: User enters email
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess(null);
+    setError(null);
+    setLoading(true);
+
+    setLoading(false);
+    setStep('setPassword');
+  };
+
+  // Step 2: User sets password (first time)
+  const handleSetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!newPassword || newPassword.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setLoading(true);
+    const res = await fetch('/.netlify/functions/set-user-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: newPassword }),
+    });
+    setLoading(false);
+
+    if (res.ok) {
+      setStep('login');
+      setError('Password set! Please log in.');
+    } else {
+      const msg = await res.text();
+      setError(msg || 'Failed to set password. Contact admin.');
+    }
+  };
+
+  // Step 3: Normal login
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
     setLoading(true);
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+    setLoading(false);
     if (authError || !data.user) {
       setError('Invalid credentials');
     } else {
       onAuthSuccess();
     }
-    setLoading(false);
-  };
-
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(null);
-    setLoading(true);
-    const { error: signUpError } = await supabase.auth.signUp({ email, password });
-    if (signUpError) {
-      setError(signUpError.message || 'Registration failed.');
-    } else {
-      setError(null);
-      setSuccess('Account created! Please check your email to confirm and then log in.');
-      setIsRegister(false);
-      setEmail('');
-      setPassword('');
-    }
-    setLoading(false);
   };
 
   return (
@@ -59,44 +83,78 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
           <h1 className="text-3xl font-extrabold text-gray-800 mb-1">TaxEase Portal</h1>
           <span className="text-gray-500 text-sm">Sign in to your account</span>
         </div>
-        <form
-          onSubmit={isRegister ? handleRegister : handleSignIn}
-          className="w-full flex flex-col gap-4"
-        >
-          <h2 className="text-xl font-bold mb-2 text-center">{isRegister ? 'Create Account' : 'Login'}</h2>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="Email"
-            required
-            className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-            className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-          />
-          {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
-          {success && <div className="text-green-700 text-center font-medium bg-green-50 border border-green-200 rounded p-2">{success}</div>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
-          >
-            {loading ? (isRegister ? 'Registering...' : 'Logging in...') : (isRegister ? 'Register' : 'Login')}
-          </button>
-          <button
-            type="button"
-            className="text-blue-600 underline mt-2 transition"
-            onClick={() => { setIsRegister(!isRegister); setError(null); setSuccess(null); }}
-          >
-            {isRegister ? 'Back to Login' : 'Create new account'}
-          </button>
-        </form>
+
+        {step === 'email' && (
+          <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-4">
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email"
+              required
+              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            />
+            {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+            >
+              {loading ? 'Checking...' : 'Continue'}
+            </button>
+          </form>
+        )}
+
+        {step === 'setPassword' && (
+          <form onSubmit={handleSetPassword} className="w-full flex flex-col gap-4">
+            <h2 className="text-xl font-bold mb-2 text-center">Set Your Password</h2>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="New Password"
+              required
+              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="Confirm Password"
+              required
+              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            />
+            {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+            >
+              {loading ? 'Setting Password...' : 'Set Password'}
+            </button>
+          </form>
+        )}
+
+        {step === 'login' && (
+          <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Password"
+              required
+              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+            />
+            {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
