@@ -249,4 +249,4 @@ function useSupabaseUser() {
   return user;
 }
 
-export default App;
+export default App; //ignore this comment 
