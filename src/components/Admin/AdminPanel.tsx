@@ -168,7 +168,7 @@ const AdminPanel: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8 bg-white rounded-xl shadow-lg px-8 py-6 sticky top-0 z-10">
           <div className="flex items-center gap-3">
-            <img src="/logo192.png" alt="Logo" className="w-10 h-10 rounded-full shadow" />
+            <img src={logo} alt="Logo" className="w-10 h-10 rounded-full shadow" />
             <h2 className="text-3xl font-extrabold tracking-tight text-blue-800">Admin Dashboard</h2>
           </div>
           <div>
