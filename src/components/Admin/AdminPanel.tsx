@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 
 function useSupabaseUser() {
@@ -60,6 +61,16 @@ const AdminPanel: React.FC = () => {
   const [website, setWebsite] = useState('');
   const [logo, setLogo] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirect admin away from non-admin routes
+  useEffect(() => {
+    if (localStorage.getItem('isAdmin') === 'true' && location.pathname !== '/admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [location, navigate]);
 
   useEffect(() => {
     const fetchCompanies = async () => {

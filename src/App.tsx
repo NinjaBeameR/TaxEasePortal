@@ -24,6 +24,7 @@ function App() {
   const [customerToEdit, setCustomerToEdit] = useState<Customer | undefined>(undefined);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
   const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
+  const location = useLocation();
 
   const handleAuthSuccess = () => {
     setLoggedIn(true);
@@ -224,7 +225,8 @@ function App() {
 
   return (
     <BrowserRouter>
-      <HeaderWithRouter />
+      {/* Only show Header if not on /admin */}
+      {location.pathname !== '/admin' && <HeaderWithRouter />}
       <MainRoutes />
     </BrowserRouter>
   );
