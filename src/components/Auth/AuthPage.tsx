@@ -21,8 +21,24 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
     setError(null);
     setLoading(true);
 
+    // Call backend to check user status
+    const res = await fetch('/.netlify/functions/check-user-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
     setLoading(false);
-    setStep('setPassword');
+
+    if (!res.ok) {
+      setError('No account found for this email.');
+      return;
+    }
+    const { must_set_password } = await res.json();
+    if (must_set_password) {
+      setStep('setPassword');
+    } else {
+      setStep('login');
+    }
   };
 
   // Step 2: User sets password (first time)

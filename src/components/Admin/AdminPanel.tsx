@@ -87,7 +87,7 @@ const AdminPanel: React.FC = () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
-        password,
+        role: 'user', // or 'admin'
         business_name: businessName,
         address_line1: addressLine1,
         address_line2: addressLine2,
@@ -105,11 +105,11 @@ const AdminPanel: React.FC = () => {
     if (data.error) {
       setMessage('Error: ' + data.error);
     } else {
-      setMessage('User created! Share these credentials with the user.');
-      setCreatedCredentials({ email, password });
+      setMessage('User created! Share this email with the user. They will set their password on first login.');
+      setCreatedCredentials({ email, password: '' });
       setModalOpen(false);
       // Reset form
-      setEmail(''); setPassword(''); setBusinessName(''); setAddressLine1(''); setAddressLine2('');
+      setEmail(''); setBusinessName(''); setAddressLine1(''); setAddressLine2('');
       setCity(''); setStateVal(''); setPincode(''); setGstin(''); setPhone(''); setCompanyEmail(''); setWebsite(''); setLogo('');
     }
   };
