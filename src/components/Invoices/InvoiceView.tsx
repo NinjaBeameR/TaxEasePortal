@@ -208,11 +208,16 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
                   </>
                 )}
               </div>
-              <div className="text-right">
+              <div className="text-right min-w-[220px]">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">TAX INVOICE</h2>
-                <div className="text-gray-600">
+                <div className="text-gray-600 space-y-1 text-sm">
                   <p><span className="font-medium">Invoice No:</span> {invoice.invoiceNumber}</p>
                   <p><span className="font-medium">Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
+                  {vehicleNumber && (
+                    <p>
+                      <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

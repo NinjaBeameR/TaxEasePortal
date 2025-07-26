@@ -29,6 +29,7 @@ type Invoice = {
   status: string;
   createdAt: string;
   updatedAt: string;
+  vehicle_id?: string; // <-- Add this line
 };
 import { db } from '../../services/database';
 import { calculateInvoiceTotal, convertToWords, isInterState } from '../../utils/calculations';
@@ -88,8 +89,10 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       setFormData(invoice);
       setInvoiceNumber(invoice.invoiceNumber);
       loadCustomerById(invoice.customerId);
+      setSelectedVehicleId(invoice.vehicle_id || ''); // <-- ADD THIS LINE
     } else {
       generateInvoiceNumber();
+      setSelectedVehicleId(''); // <-- Reset on new invoice
     }
   }, [invoice]);
 
@@ -329,7 +332,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
           updatedAt: new Date().toISOString(),
         },
         user_id: user.id,
-        vehicle_id: selectedVehicleId || null, // <-- ADD THIS LINE
+        vehicle_id: selectedVehicleId ? selectedVehicleId : undefined,
       };
 
       // Save invoice data to the database
