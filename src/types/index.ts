@@ -99,6 +99,7 @@ export interface Invoice {
   status: string;
   createdAt: string; // was Date
   updatedAt: string; // was Date
+  vehicle_id?: string;
 }
 
 export interface TaxCalculation {
