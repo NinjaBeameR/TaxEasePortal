@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { ArrowLeft, Download, Printer, Edit } from 'lucide-react';
-import { Invoice, Company } from '../../types';
+import { Invoice, Company, Vehicle } from '../../types';
 import { db } from '../../services/database';
 import { formatIndianNumber } from '../../utils/calculations';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
@@ -27,10 +27,25 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
 
   const [company, setCompany] = useState<Company | null>(null);
   const [loading, setLoading] = useState(true);
+  const [vehicleNumber, setVehicleNumber] = useState<string>('');
 
   useEffect(() => {
     loadCompany();
   }, []);
+
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      if (invoice.vehicle_id) {
+        try {
+          const vehicle = await db.getVehicleById(invoice.vehicle_id);
+          setVehicleNumber(vehicle?.vehicle_number || '');
+        } catch {
+          setVehicleNumber('');
+        }
+      }
+    };
+    fetchVehicle();
+  }, [invoice.vehicle_id]);
 
   const loadCompany = async () => {
     try {
@@ -221,6 +236,11 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
                 <p><span className="font-medium">Invoice Number:</span> {invoice.invoiceNumber}</p>
                 <p><span className="font-medium">Invoice Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
                 <p><span className="font-medium">Status:</span> {invoice.status}</p>
+                {vehicleNumber && (
+                  <p>
+                    <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
+                  </p>
+                )}
               </div>
             </div>
           </div>

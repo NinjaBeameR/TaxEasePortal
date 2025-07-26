@@ -587,6 +587,12 @@ class DatabaseService {
     const { error } = await supabase.from('vehicles').delete().eq('id', id);
     if (error) throw error;
   }
+
+  async getVehicleById(id: string) {
+    const { data, error } = await supabase.from('vehicles').select('*').eq('id', id).single();
+    if (error) throw error;
+    return data;
+  }
 }
 
 export const db = new DatabaseService();
