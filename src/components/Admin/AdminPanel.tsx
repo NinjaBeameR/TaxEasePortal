@@ -128,7 +128,7 @@ const AdminPanel: React.FC = () => {
   };
 
   if (user === null) return <div>Loading...</div>;
-  if (user?.user_metadata?.role !== 'admin') {
+  if (!localStorage.getItem('isAdmin')) {
     return <div>Access Denied: You are not an admin.</div>;
   }
 
