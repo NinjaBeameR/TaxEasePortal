@@ -28,6 +28,12 @@ function App() {
   const handleAuthSuccess = () => {
     setLoggedIn(true);
     localStorage.setItem('loggedIn', 'true');
+    // Route based on admin flag
+    if (localStorage.getItem('isAdmin') === 'true') {
+      window.location.href = '/admin'; // or use navigate('/admin') if inside a Router context
+    } else {
+      window.location.href = '/dashboard'; // or use navigate('/dashboard')
+    }
   };
 
   const handleLogout = () => {
