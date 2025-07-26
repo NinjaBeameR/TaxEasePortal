@@ -131,7 +131,10 @@ function AppWithRouter({
           />
         }
       />
-      <Route path="/invoices/view" element={<InvoiceView />} />
+      <Route
+        path="/invoices/view"
+        element={<InvoiceView setInvoiceToEdit={setInvoiceToEdit} />}
+      />
       <Route
         path="/customers"
         element={
@@ -249,4 +252,4 @@ function useSupabaseUser() {
   return user;
 }
 
-export default App; //ignore this comment 
+export default App; //ignore this comment

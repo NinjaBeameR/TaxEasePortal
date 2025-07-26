@@ -9,11 +9,13 @@ import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import { FileSpreadsheet } from 'lucide-react';
 
+// Add this prop to InvoiceView:
 interface InvoiceViewProps {
   invoice?: Invoice;
+  setInvoiceToEdit?: (invoice: Invoice) => void;
 }
 
-const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice }) => {
+const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvoiceToEdit }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const invoice = propInvoice ?? (location.state?.invoice as Invoice | undefined);
@@ -134,7 +136,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice }) => {
           
           <div className="flex gap-2 mb-4 print:hidden">
             <button
-              onClick={() => navigate('/invoices/edit', { state: { invoice } })}
+              onClick={() => {
+                if (typeof setInvoiceToEdit === 'function') setInvoiceToEdit(invoice);
+                navigate('/invoices/edit');
+              }}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
             >
               <Edit className="h-4 w-4" />

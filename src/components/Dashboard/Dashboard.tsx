@@ -304,16 +304,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                       </span>
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap flex gap-2">
-                      <button
-                        className="text-green-600 hover:underline active:scale-95"
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleDownloadInvoice(invoice);
-                        }}
-                        title="Download Invoice"
-                      >
-                        Download
-                      </button>
+                      {/* No actions needed here for now */}
                     </td>
                   </tr>
                 ))

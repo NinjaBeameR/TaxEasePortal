@@ -44,7 +44,9 @@ const Header: React.FC<HeaderProps> = ({ currentPage, onPageChange, onLogout }) 
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              {page.charAt(0).toUpperCase() + page.slice(1)}
+              {page === 'settings'
+                ? 'Company Profile'
+                : page.charAt(0).toUpperCase() + page.slice(1)}
             </button>
           ))}
           {isAdmin && (
