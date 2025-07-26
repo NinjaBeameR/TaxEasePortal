@@ -6,16 +6,23 @@ exports.handler = async (event) => {
   }
   const { email } = JSON.parse(event.body);
 
+  console.log('SUPABASE_URL:', process.env.SUPABASE_URL);
+  console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'not set');
+  console.log('Email searched:', email);
+
   const supabase = createClient(
     process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
   );
 
-  const { data: { users }, error } = await supabase.auth.admin.listUsers({ email });
-  if (error || !users || users.length === 0) {
+  const { data, error } = await supabase.auth.admin.listUsers({ email });
+  console.log('Users:', data?.users);
+  console.log('Error:', error);
+
+  if (error || !data?.users || data.users.length === 0) {
     return { statusCode: 404, body: JSON.stringify({ error: 'User not found' }) };
   }
-  const user = users[0];
+  const user = data.users[0];
   return {
     statusCode: 200,
     body: JSON.stringify({
