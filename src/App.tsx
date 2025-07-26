@@ -16,7 +16,7 @@ import InvoiceList from './components/Invoices/InvoiceList';
 import InvoiceForm from './components/Invoices/InvoiceForm';
 import InvoiceView from './components/Invoices/InvoiceView';
 import { Invoice, Customer, Product } from './types';
-import AdminPanel from './components/Admin/AdminPanel'; // <-- Add this import
+import AdminPanel from './components/Admin/AdminPanel';
 import { supabase } from './services/supabase';
 
 function App() {
@@ -24,16 +24,14 @@ function App() {
   const [customerToEdit, setCustomerToEdit] = useState<Customer | undefined>(undefined);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
   const [invoiceToEdit, setInvoiceToEdit] = useState<Invoice | null>(null);
-  const location = useLocation();
 
   const handleAuthSuccess = () => {
     setLoggedIn(true);
     localStorage.setItem('loggedIn', 'true');
-    // Route based on admin flag
     if (localStorage.getItem('isAdmin') === 'true') {
-      window.location.href = '/admin'; // or use navigate('/admin') if inside a Router context
+      window.location.href = '/admin';
     } else {
-      window.location.href = '/dashboard'; // or use navigate('/dashboard')
+      window.location.href = '/dashboard';
     }
   };
 
@@ -42,10 +40,40 @@ function App() {
     localStorage.removeItem('loggedIn');
   };
 
-  // Header that works with router
+  if (!loggedIn) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  return (
+    <BrowserRouter>
+      <AppWithRouter
+        handleLogout={handleLogout}
+        customerToEdit={customerToEdit}
+        setCustomerToEdit={setCustomerToEdit}
+        productToEdit={productToEdit}
+        setProductToEdit={setProductToEdit}
+        invoiceToEdit={invoiceToEdit}
+        setInvoiceToEdit={setInvoiceToEdit}
+      />
+    </BrowserRouter>
+  );
+}
+
+// This component is now inside <BrowserRouter> so hooks are safe!
+function AppWithRouter({
+  handleLogout,
+  customerToEdit,
+  setCustomerToEdit,
+  productToEdit,
+  setProductToEdit,
+  invoiceToEdit,
+  setInvoiceToEdit,
+}: any) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Only show Header if not on /admin
   const HeaderWithRouter = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
     const currentPage = location.pathname.replace('/', '') || 'dashboard';
     return (
       <Header
@@ -56,179 +84,150 @@ function App() {
     );
   };
 
-  // All navigation below uses useNavigate, not window.location.href!
-  const MainRoutes = () => {
-    const navigate = useNavigate();
-
-    return (
-      <Routes>
-        <Route path="/dashboard" element={<Dashboard onNavigate={() => {}} />} />
-
-        {/* Invoices List, Form, and View */}
-        <Route
-          path="/invoices"
-          element={
-            <InvoiceList
-              onView={invoice => {
-                setInvoiceToEdit(invoice);
-                navigate('/invoices/view');
-              }}
-              onEdit={invoice => {
-                setInvoiceToEdit(invoice);
-                navigate('/invoices/edit');
-              }}
-              onCreate={() => {
-                setInvoiceToEdit(null);
-                navigate('/invoices/new');
-              }}
-            />
-          }
-        />
-        <Route
-          path="/invoices/new"
-          element={
-            <InvoiceForm
-              onSave={() => navigate('/invoices')}
-              onCancel={() => navigate('/invoices')}
-            />
-          }
-        />
-        <Route
-          path="/invoices/edit"
-          element={
-            <InvoiceForm
-              invoice={invoiceToEdit!}
-              onSave={() => {
-                setInvoiceToEdit(null);
-                navigate('/invoices');
-              }}
-              onCancel={() => {
-                setInvoiceToEdit(null);
-                navigate('/invoices');
-              }}
-            />
-          }
-        />
-        <Route
-          path="/invoices/view"
-          element={<InvoiceView />}
-        />
-
-        {/* Customers List and Form */}
-        <Route
-          path="/customers"
-          element={
-            <CustomerList
-              onEdit={customer => {
-                setCustomerToEdit(customer);
-                navigate('/customers/edit');
-              }}
-              onCreate={() => {
-                setCustomerToEdit(undefined);
-                navigate('/customers/new');
-              }}
-            />
-          }
-        />
-        <Route
-          path="/customers/new"
-          element={
-            <CustomerForm
-              customer={undefined}
-              onSave={() => navigate('/customers')}
-              onCancel={() => navigate('/customers')}
-            />
-          }
-        />
-        <Route
-          path="/customers/edit"
-          element={
-            <CustomerForm
-              customer={customerToEdit}
-              onSave={() => {
-                setCustomerToEdit(undefined);
-                navigate('/customers');
-              }}
-              onCancel={() => {
-                setCustomerToEdit(undefined);
-                navigate('/customers');
-              }}
-            />
-          }
-        />
-
-        {/* Products List and Form */}
-        <Route
-          path="/products"
-          element={
-            <ProductList
-              onEdit={product => {
-                setProductToEdit(product);
-                navigate('/products/edit');
-              }}
-              onCreate={() => {
-                setProductToEdit(undefined);
-                navigate('/products/new');
-              }}
-            />
-          }
-        />
-        <Route
-          path="/products/new"
-          element={
-            <ProductForm
-              product={undefined}
-              onSave={() => navigate('/products')}
-              onCancel={() => navigate('/products')}
-            />
-          }
-        />
-        <Route
-          path="/products/edit"
-          element={
-            <ProductForm
-              product={productToEdit}
-              onSave={() => {
-                setProductToEdit(undefined);
-                navigate('/products');
-              }}
-              onCancel={() => {
-                setProductToEdit(undefined);
-                navigate('/products');
-              }}
-            />
-          }
-        />
-
-        {/* Settings */}
-        <Route
-          path="/settings"
-          element={
-            <CompanySetup
-              onComplete={() => navigate('/dashboard')}
-            />
-          }
-        />
-
-        {/* Admin Panel */}
-        <Route path="/admin" element={<AdminPanel />} />
-
-        {/* Default route */}
-        <Route path="*" element={<Navigate to="/dashboard" />} />
-      </Routes>
-    );
-  };
-
-  if (!loggedIn) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
-  }
+  const MainRoutes = () => (
+    <Routes>
+      <Route path="/dashboard" element={<Dashboard onNavigate={() => {}} />} />
+      <Route
+        path="/invoices"
+        element={
+          <InvoiceList
+            onView={invoice => {
+              setInvoiceToEdit(invoice);
+              navigate('/invoices/view');
+            }}
+            onEdit={invoice => {
+              setInvoiceToEdit(invoice);
+              navigate('/invoices/edit');
+            }}
+            onCreate={() => {
+              setInvoiceToEdit(null);
+              navigate('/invoices/new');
+            }}
+          />
+        }
+      />
+      <Route
+        path="/invoices/new"
+        element={
+          <InvoiceForm
+            onSave={() => navigate('/invoices')}
+            onCancel={() => navigate('/invoices')}
+          />
+        }
+      />
+      <Route
+        path="/invoices/edit"
+        element={
+          <InvoiceForm
+            invoice={invoiceToEdit!}
+            onSave={() => {
+              setInvoiceToEdit(null);
+              navigate('/invoices');
+            }}
+            onCancel={() => {
+              setInvoiceToEdit(null);
+              navigate('/invoices');
+            }}
+          />
+        }
+      />
+      <Route path="/invoices/view" element={<InvoiceView />} />
+      <Route
+        path="/customers"
+        element={
+          <CustomerList
+            onEdit={customer => {
+              setCustomerToEdit(customer);
+              navigate('/customers/edit');
+            }}
+            onCreate={() => {
+              setCustomerToEdit(undefined);
+              navigate('/customers/new');
+            }}
+          />
+        }
+      />
+      <Route
+        path="/customers/new"
+        element={
+          <CustomerForm
+            customer={undefined}
+            onSave={() => navigate('/customers')}
+            onCancel={() => navigate('/customers')}
+          />
+        }
+      />
+      <Route
+        path="/customers/edit"
+        element={
+          <CustomerForm
+            customer={customerToEdit}
+            onSave={() => {
+              setCustomerToEdit(undefined);
+              navigate('/customers');
+            }}
+            onCancel={() => {
+              setCustomerToEdit(undefined);
+              navigate('/customers');
+            }}
+          />
+        }
+      />
+      <Route
+        path="/products"
+        element={
+          <ProductList
+            onEdit={product => {
+              setProductToEdit(product);
+              navigate('/products/edit');
+            }}
+            onCreate={() => {
+              setProductToEdit(undefined);
+              navigate('/products/new');
+            }}
+          />
+        }
+      />
+      <Route
+        path="/products/new"
+        element={
+          <ProductForm
+            product={undefined}
+            onSave={() => navigate('/products')}
+            onCancel={() => navigate('/products')}
+          />
+        }
+      />
+      <Route
+        path="/products/edit"
+        element={
+          <ProductForm
+            product={productToEdit}
+            onSave={() => {
+              setProductToEdit(undefined);
+              navigate('/products');
+            }}
+            onCancel={() => {
+              setProductToEdit(undefined);
+              navigate('/products');
+            }}
+          />
+        }
+      />
+      <Route
+        path="/settings"
+        element={<CompanySetup onComplete={() => navigate('/dashboard')} />}
+      />
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route path="*" element={<Navigate to="/dashboard" />} />
+    </Routes>
+  );
 
   return (
-    <BrowserRouter>
-      {/* Only show Header if not on /admin */}
+    <>
       {location.pathname !== '/admin' && <HeaderWithRouter />}
       <MainRoutes />
-    </BrowserRouter>
+    </>
   );
 }
 
