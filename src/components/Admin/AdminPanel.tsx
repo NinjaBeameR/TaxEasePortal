@@ -25,9 +25,9 @@ function useSupabaseUser() {
 function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl">&times;</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative animate-slide-up">
+        <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl transition-colors">&times;</button>
         {children}
       </div>
     </div>
@@ -153,57 +153,79 @@ const AdminPanel: React.FC = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 bg-white p-8 rounded shadow">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold">Admin Dashboard</h2>
-        <div>
-          <button
-            onClick={() => { setModalOpen(true); setStep(1); }}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            + Create New User
-          </button>
-          <button
-            onClick={handleLogout}
-            className="bg-gray-200 text-gray-800 px-3 py-1 rounded hover:bg-gray-300 ml-4"
-          >
-            Logout
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-10 animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex justify-between items-center mb-8 bg-white rounded-xl shadow-lg px-8 py-6 sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <img src="/logo192.png" alt="Logo" className="w-10 h-10 rounded-full shadow" />
+            <h2 className="text-3xl font-extrabold tracking-tight text-blue-800">Admin Dashboard</h2>
+          </div>
+          <div>
+            <button
+              onClick={() => { setModalOpen(true); setStep(1); }}
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition-all duration-150 mr-2"
+            >
+              + Create New User
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all duration-150"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      </div>
-      {message && <div className="mb-4 text-green-600">{message}</div>}
-      {loading ? (
-        <div>Loading...</div>
-      ) : (
+        {message && <div className="mb-4 text-green-700 bg-green-100 border border-green-200 rounded px-4 py-2 shadow">{message}</div>}
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded shadow">
+          <table className="min-w-full bg-white rounded-xl shadow-xl border border-gray-200 animate-fade-in">
             <thead>
-              <tr>
-                <th className="px-4 py-2">Email</th>
-                <th className="px-4 py-2">Role</th>
-                <th className="px-4 py-2">Company</th>
-                <th className="px-4 py-2">GSTIN</th>
-                <th className="px-4 py-2">Created At</th>
+              <tr className="bg-blue-50 text-blue-900">
+                <th className="px-4 py-3 font-semibold">Email</th>
+                <th className="px-4 py-3 font-semibold">Role</th>
+                <th className="px-4 py-3 font-semibold">Business</th>
+                <th className="px-4 py-3 font-semibold">GSTIN</th>
+                <th className="px-4 py-3 font-semibold">Phone</th>
+                <th className="px-4 py-3 font-semibold">Company Email</th>
+                <th className="px-4 py-3 font-semibold">Website</th>
+                <th className="px-4 py-3 font-semibold">City</th>
+                <th className="px-4 py-3 font-semibold">State</th>
+                <th className="px-4 py-3 font-semibold">Pincode</th>
+                <th className="px-4 py-3 font-semibold">Created At</th>
               </tr>
             </thead>
             <tbody>
-              {companies.map(cmp => (
-                <tr key={cmp.id} className="border-t">
-                  <td className="px-4 py-2">{cmp.email}</td>
-                  <td className="px-4 py-2">{cmp.role}</td>
-                  <td className="px-4 py-2">{cmp.business_name}</td>
-                  <td className="px-4 py-2">{cmp.gstin}</td>
-                  <td className="px-4 py-2">{new Date(cmp.created_at).toLocaleDateString()}</td>
+              {companies.length === 0 && (
+                <tr>
+                  <td colSpan={11} className="text-center py-8 text-gray-400">No users found.</td>
+                </tr>
+              )}
+              {companies.map((cmp, idx) => (
+                <tr
+                  key={cmp.id}
+                  className={`border-t transition-all duration-150 hover:bg-blue-50 hover:scale-[1.01] ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}
+                  style={{ boxShadow: idx % 2 === 0 ? '0 1px 2px #e0e7ef' : undefined }}
+                >
+                  <td className="px-4 py-3">{cmp.email}</td>
+                  <td className="px-4 py-3">{cmp.role}</td>
+                  <td className="px-4 py-3">{cmp.business_name}</td>
+                  <td className="px-4 py-3">{cmp.gstin}</td>
+                  <td className="px-4 py-3">{cmp.phone}</td>
+                  <td className="px-4 py-3">{cmp.company_email}</td>
+                  <td className="px-4 py-3">{cmp.website}</td>
+                  <td className="px-4 py-3">{cmp.city}</td>
+                  <td className="px-4 py-3">{cmp.state}</td>
+                  <td className="px-4 py-3">{cmp.pincode}</td>
+                  <td className="px-4 py-3">{new Date(cmp.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      )}
+      </div>
 
       {/* Multi-step Create User Modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <h3 className="text-xl font-bold mb-4">Create New User & Company</h3>
+        <h3 className="text-xl font-bold mb-4 text-blue-800">Create New User & Company</h3>
         <div className="mb-2 text-sm text-gray-600">Step {step} of 2</div>
         <form onSubmit={handleCreateUser} className="space-y-3">
           {step === 1 && (
@@ -256,7 +278,7 @@ const AdminPanel: React.FC = () => {
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   type="button"
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-all"
                   onClick={() => {
                     if (!businessName || !companyEmail) {
                       setFormError('Please fill all required company fields.');
@@ -289,14 +311,14 @@ const AdminPanel: React.FC = () => {
               <div className="flex justify-between gap-2 mt-4">
                 <button
                   type="button"
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-400 transition-all"
                   onClick={() => setStep(1)}
                 >
                   Back
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                  className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-all"
                 >
                   Create User & Company
                 </button>
@@ -305,7 +327,7 @@ const AdminPanel: React.FC = () => {
           )}
         </form>
         {createdCredentials && (
-          <div className="mt-4 p-3 bg-gray-100 rounded border">
+          <div className="mt-4 p-3 bg-gray-100 rounded border animate-fade-in">
             <div className="mb-2 font-semibold">Credentials:</div>
             <div className="mb-2">
               <span className="font-medium">Email:</span> {createdCredentials.email}<br />
@@ -313,7 +335,7 @@ const AdminPanel: React.FC = () => {
             </div>
             <button
               onClick={handleCopy}
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-all"
             >
               Copy Credentials
             </button>
