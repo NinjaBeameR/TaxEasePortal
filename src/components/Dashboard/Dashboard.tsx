@@ -106,10 +106,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleDownloadInvoice = (invoice: Invoice) => {
-    window.open(`/invoices/download/${invoice.id}`, '_blank');
-  };
-
   const StatCard: React.FC<{
     title: string;
     value: string | number;
@@ -204,21 +200,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
           <div className="flex flex-col gap-2">
             <button
-              onClick={() => onNavigate('invoices', { action: 'create' })}
+              onClick={() => navigate('/invoices/new')}
               className="w-full text-left px-3 py-2 text-sm text-blue-700 font-semibold hover:bg-blue-50 rounded-md transition-colors active:scale-95"
             >
               <FileText className="inline-block h-4 w-4 mr-2" />
               Create New Invoice
             </button>
             <button
-              onClick={() => onNavigate('customers', { action: 'create' })}
+              onClick={() => navigate('/customers/new')}
               className="w-full text-left px-3 py-2 text-sm text-green-700 font-semibold hover:bg-green-50 rounded-md transition-colors active:scale-95"
             >
               <Users className="inline-block h-4 w-4 mr-2" />
               Add New Customer
             </button>
             <button
-              onClick={() => onNavigate('products', { action: 'create' })}
+              onClick={() => navigate('/products/new')}
               className="w-full text-left px-3 py-2 text-sm text-purple-700 font-semibold hover:bg-purple-50 rounded-md transition-colors active:scale-95"
             >
               <Package className="inline-block h-4 w-4 mr-2" />
