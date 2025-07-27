@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # TEP - GST Billing Software
+=======
+# TEP - TaxEasePortal - GST Billing Software
+>>>>>>> a08d7e36c004dca78f706995234b929fa096eb4f
 
 TEP is a modern GST billing and invoicing application designed for Indian small businesses. It provides an admin dashboard, company setup, invoice management, customer and product management, and more, with a focus on usability and compliance.
 
