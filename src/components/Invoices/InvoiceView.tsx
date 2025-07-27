@@ -168,6 +168,79 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
     XLSX.writeFile(wb, `Invoice_${invoice.invoiceNumber}.xlsx`);
   };
 
+  // Add this function to your InvoiceView:
+  function exportInvoiceAsHTML(invoice: Invoice) {
+    const html = `
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <style>
+          body { font-family: Calibri, Arial, sans-serif; }
+          table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+          th, td { border: 1px solid #888; padding: 6px 8px; text-align: center; }
+          th { background: #f0f0f0; font-weight: bold; }
+          .left { text-align: left; }
+          .right { text-align: right; }
+          .totals { font-weight: bold; background: #f9f9f9; }
+        </style>
+      </head>
+      <body>
+        <h2>Invoice ${invoice.invoiceNumber}</h2>
+        <table>
+          <tr><td class="left"><b>Date</b></td><td class="left">${new Date(invoice.date).toLocaleDateString('en-IN')}</td></tr>
+          <tr><td class="left"><b>Customer</b></td><td class="left">${invoice.customerName}</td></tr>
+          <tr><td class="left"><b>Status</b></td><td class="left">${invoice.status}</td></tr>
+          ${invoice.customerGstin ? `<tr><td class="left"><b>GSTIN</b></td><td class="left">${invoice.customerGstin}</td></tr>` : ''}
+        </table>
+        <table>
+          <tr>
+            <th>S.No</th>
+            <th>Description</th>
+            <th>HSN/SAC</th>
+            <th>Qty</th>
+            <th>Rate</th>
+            <th>Amount</th>
+            <th>Discount</th>
+            <th>Taxable Value</th>
+            ${invoice.totalCgst > 0 ? '<th>CGST</th><th>SGST</th>' : ''}
+            ${invoice.totalIgst > 0 ? '<th>IGST</th>' : ''}
+            <th>Total</th>
+          </tr>
+          ${invoice.items.map((item: any, idx: number) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td class="left">${item.productName}</td>
+              <td>${item.hsnSacCode}</td>
+              <td>${item.quantity}</td>
+              <td class="right">${item.rate}</td>
+              <td class="right">${item.quantity * item.rate}</td>
+              <td class="right">${item.discount || 0}</td>
+              <td class="right">${item.taxableValue}</td>
+              ${invoice.totalCgst > 0 ? `<td class="right">${item.cgst || 0}</td><td class="right">${item.sgst || 0}</td>` : ''}
+              ${invoice.totalIgst > 0 ? `<td class="right">${item.igst || 0}</td>` : ''}
+              <td class="right">${item.totalAmount}</td>
+            </tr>
+          `).join('')}
+          <tr class="totals">
+            <td colspan="${invoice.totalCgst > 0 ? 10 : invoice.totalIgst > 0 ? 9 : 8}" class="right">Total Amount</td>
+            <td class="right">${invoice.totalAmount}</td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Invoice_${invoice.invoiceNumber}.xls`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -233,6 +306,13 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             >
               <FileSpreadsheet className="h-5 w-5" />
               Excel
+            </button>
+            <button
+              onClick={() => exportInvoiceAsHTML(invoice)}
+              className="inline-flex items-center gap-2 bg-orange-600 text-white px-3 py-2 rounded-lg font-semibold shadow hover:bg-orange-700 transition active:scale-95"
+            >
+              <FileSpreadsheet className="h-5 w-5" />
+              Excel (HTML Table)
             </button>
           </div>
         </div>
