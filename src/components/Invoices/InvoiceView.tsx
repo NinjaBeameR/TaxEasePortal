@@ -191,7 +191,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
           id="invoice-print-area"
           className="print-invoice bg-white rounded-lg shadow-sm border border-gray-200"
           style={{
-            maxWidth: '794px', // A4 width for screen only
+            maxWidth: '794px', // Only for screen
             width: '100%',
             margin: '24px auto',
             padding: '32px',
@@ -200,7 +200,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             color: '#222',
           }}
         >
-          <div className="p-2 sm:p-8 print:p-6">
+          <div className="p-2 sm:p-8 print:p-0">
             {/* Header */}
             <div className="border-b-2 border-gray-200 pb-6 mb-6">
               <div className="flex justify-between items-start">
@@ -267,51 +267,69 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             <div className="mb-8 overflow-x-auto print:overflow-visible">
               <table
                 className="w-full border-collapse border border-gray-300 text-xs"
-                style={{ fontSize: '12px', tableLayout: 'auto' }}
+                style={{ fontSize: '13px', tableLayout: 'fixed' }}
               >
+                <colgroup>
+                  <col style={{ width: '36px' }} />
+                  <col style={{ width: '120px' }} />
+                  <col style={{ width: '60px' }} />
+                  <col style={{ width: '36px' }} />
+                  <col style={{ width: '60px' }} />
+                  <col style={{ width: '70px' }} />
+                  <col style={{ width: '60px' }} />
+                  <col style={{ width: '80px' }} />
+                  {invoice.totalCgst > 0 && (
+                    <>
+                      <col style={{ width: '60px' }} />
+                      <col style={{ width: '60px' }} />
+                    </>
+                  )}
+                  {invoice.totalIgst > 0 && <col style={{ width: '60px' }} />}
+                  <col style={{ width: '70px' }} />
+                </colgroup>
                 <thead>
                   <tr className="bg-gray-50">
-                    <th style={{ width: 40 }}>S.No</th>
-                    <th style={{ width: 120 }}>Description</th>
-                    <th style={{ width: 60 }}>HSN/SAC</th>
-                    <th style={{ width: 40 }}>Qty</th>
-                    <th style={{ width: 60 }}>Rate</th>
-                    <th style={{ width: 70 }}>Amount</th>
-                    <th style={{ width: 60 }}>Discount</th>
-                    <th style={{ width: 90 }}>Taxable Value</th>
+                    <th className="border px-2 py-1 text-left">S.No</th>
+                    <th className="border px-2 py-1 text-left">Description</th>
+                    <th className="border px-2 py-1 text-left">HSN/SAC</th>
+                    <th className="border px-2 py-1 text-right">Qty</th>
+                    <th className="border px-2 py-1 text-right">Rate</th>
+                    <th className="border px-2 py-1 text-right">Amount</th>
+                    <th className="border px-2 py-1 text-right">Discount</th>
+                    <th className="border px-2 py-1 text-right">Taxable Value</th>
                     {invoice.totalCgst > 0 && (
                       <>
-                        <th style={{ width: 60 }}>CGST</th>
-                        <th style={{ width: 60 }}>SGST</th>
+                        <th className="border px-2 py-1 text-right">CGST</th>
+                        <th className="border px-2 py-1 text-right">SGST</th>
                       </>
                     )}
                     {invoice.totalIgst > 0 && (
-                      <th style={{ width: 60 }}>IGST</th>
+                      <th className="border px-2 py-1 text-right">IGST</th>
                     )}
-                    <th style={{ width: 80 }}>Total</th>
+                    <th className="border px-2 py-1 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoice.items.map((item, index) => (
                     <tr key={item.id}>
-                      <td className="border border-gray-300 px-4 py-3 text-sm">{index + 1}</td>
-                      <td className="border border-gray-300 px-2 py-2 text-sm whitespace-normal align-top">{item.productName}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm font-mono">{item.hsnSacCode}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">{formatIndianNumber(item.quantity)}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.rate)}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.quantity * item.rate)}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.discount || 0)}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.taxableValue)}</td>
+                      <td className="border px-2 py-1 text-center">{index + 1}</td>
+                      <td className="border px-2 py-1 text-left">{item.productName}</td>
+                      <td className="border px-2 py-1 text-left">{item.hsnSacCode}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap">{formatIndianNumber(item.quantity)}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.rate)}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.quantity * item.rate)}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.discount || 0)}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.taxableValue)}</td>
                       {invoice.totalCgst > 0 && (
                         <>
-                          <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.cgst || 0)}</td>
-                          <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.sgst || 0)}</td>
+                          <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.cgst || 0)}</td>
+                          <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.sgst || 0)}</td>
                         </>
                       )}
                       {invoice.totalIgst > 0 && (
-                        <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.igst || 0)}</td>
+                        <td className="border px-2 py-1 text-right whitespace-nowrap">₹{formatIndianNumber(item.igst || 0)}</td>
                       )}
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right font-medium">₹{formatIndianNumber(item.totalAmount)}</td>
+                      <td className="border px-2 py-1 text-right whitespace-nowrap font-medium">₹{formatIndianNumber(item.totalAmount)}</td>
                     </tr>
                   ))}
                 </tbody>
