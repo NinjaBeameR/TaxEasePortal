@@ -82,6 +82,8 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
 
   const handleDownloadExcel = () => {
     if (!invoice) return;
+
+    // Header info
     const details = [
       ['Invoice Number', invoice.invoiceNumber],
       ['Date', new Date(invoice.date).toLocaleDateString('en-IN')],
@@ -89,14 +91,27 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
       ['GSTIN', invoice.customerGstin || ''],
       ['Status', invoice.status],
       ['Total Amount', invoice.totalAmount],
+      [''],
     ];
+
+    // Table header
     const itemsHeader = [
-      'Description', 'HSN/SAC', 'Qty', 'Rate', 'Amount', 'Discount', 'Taxable Value',
+      'S.No',
+      'Description',
+      'HSN/SAC',
+      'Qty',
+      'Rate',
+      'Amount',
+      'Discount',
+      'Taxable Value',
       ...(invoice.totalCgst > 0 ? ['CGST', 'SGST'] : []),
       ...(invoice.totalIgst > 0 ? ['IGST'] : []),
-      'Total'
+      'Total',
     ];
-    const items = invoice.items.map(item => [
+
+    // Table rows
+    const items = invoice.items.map((item, idx) => [
+      idx + 1,
       item.productName,
       item.hsnSacCode,
       item.quantity,
@@ -108,8 +123,46 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
       ...(invoice.totalIgst > 0 ? [item.igst || 0] : []),
       item.totalAmount,
     ]);
-    const data = [...details, [], itemsHeader, ...items];
-    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // Totals row
+    const totals = [
+      [
+        '', '', '', '', '', '', '', '', 
+        ...(invoice.totalCgst > 0 ? ['', ''] : []),
+        ...(invoice.totalIgst > 0 ? [''] : []),
+        'Total Amount', invoice.totalAmount
+      ]
+    ];
+
+    // Combine all rows
+    const wsData = [
+      ...details,
+      itemsHeader,
+      ...items,
+      ...totals,
+    ];
+
+    // Create worksheet and workbook
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Set column widths for neatness
+    ws['!cols'] = [
+      { wch: 6 },   // S.No
+      { wch: 24 },  // Description
+      { wch: 10 },  // HSN/SAC
+      { wch: 6 },   // Qty
+      { wch: 10 },  // Rate
+      { wch: 12 },  // Amount
+      { wch: 10 },  // Discount
+      { wch: 14 },  // Taxable Value
+      ...(invoice.totalCgst > 0 ? [{ wch: 10 }, { wch: 10 }] : []),
+      ...(invoice.totalIgst > 0 ? [{ wch: 10 }] : []),
+      { wch: 14 },  // Total
+    ];
+
+    // Optional: Set font and alignment for all cells (SheetJS Pro supports full styling, but for open source, only col widths)
+    // For more advanced styling, consider exporting as HTML and opening in Excel.
+
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Invoice');
     XLSX.writeFile(wb, `Invoice_${invoice.invoiceNumber}.xlsx`);
