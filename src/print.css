@@ -1,4 +1,25 @@
 @media print {
+  html, body {
+    background: #fff !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  #invoice-print-area {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0.5in !important;
+    box-shadow: none !important;
+    border: none !important;
+    font-size: 12px !important;
+  }
+  .print\:hidden { display: none !important; }
+  table, th, td {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
   body * {
     visibility: hidden !important;
     box-shadow: none !important;
@@ -13,7 +34,7 @@
     border: none !important;
   }
   /* Hide navigation, header, footer, etc. */
-  .print:hidden {
+  .print\:hidden {
     display: none !important;
   }
 }

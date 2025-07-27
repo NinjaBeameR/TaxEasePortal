@@ -189,10 +189,10 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
       <div className="flex justify-center print:bg-white print:p-0">
         <div
           id="invoice-print-area"
-          className="bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none"
+          className="print-invoice bg-white rounded-lg shadow-sm border border-gray-200"
           style={{
-            width: '794px', // A4 width at 96dpi
-            minHeight: '1123px', // A4 height at 96dpi
+            maxWidth: '794px', // A4 width for screen only
+            width: '100%',
             margin: '24px auto',
             padding: '32px',
             boxSizing: 'border-box',
@@ -265,7 +265,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
 
             {/* Items Table */}
             <div className="mb-8 overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300 text-xs" style={{ fontSize: '13px' }}>
+              <table className="w-full border-collapse border border-gray-300 text-xs" style={{ fontSize: '12px', tableLayout: 'fixed' }}>
                 <thead>
                   <tr className="bg-gray-50">
                     <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">S.No</th>
