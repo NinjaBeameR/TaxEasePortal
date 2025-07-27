@@ -153,8 +153,13 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('isAdmin');
+  const handleLogout = async () => {
+    // Sign out from Supabase session
+    await supabase.auth.signOut();
+    // Clear all local/session storage
+    localStorage.clear();
+    sessionStorage.clear();
+    // Redirect to login page
     window.location.href = '/';
   };
 
