@@ -98,13 +98,26 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
     e.preventDefault();
     setAdminError(null);
     setAdminLoading(true);
+
+    // 1. Check credentials with your Netlify function (for extra security)
     const res = await fetch('/.netlify/functions/admin-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: adminEmail, password: adminPassword }),
     });
+
     setAdminLoading(false);
+
     if (res.ok) {
+      // 2. Now sign in with Supabase Auth to set the session!
+      const { error } = await supabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword,
+      });
+      if (error) {
+        setAdminError('Supabase session error');
+        return;
+      }
       localStorage.setItem('isAdmin', 'true');
       onAuthSuccess();
     } else {
