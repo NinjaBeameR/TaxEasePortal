@@ -55,10 +55,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
     recentInvoices: [],
   });
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadDashboardData();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const loadDashboardData = async () => {
@@ -139,9 +146,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
+    <div className="max-w-6xl mx-auto px-2 sm:px-4 space-y-8 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight mb-4 sm:mb-0">Dashboard</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight mb-4 sm:mb-0">Dashboard</h1>
       </div>
 
       {/* Stats Cards */}
@@ -223,7 +230,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
       {/* Recent Invoices */}
       <div className="bg-white rounded-xl shadow-lg animate-fade-in">
-        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row justify-between items-center px-4 py-3 border-b border-gray-100 gap-2">
           <h3 className="text-base font-semibold text-gray-900">Recent Invoices</h3>
           <button
             onClick={() => navigate('/invoices/new')}
@@ -233,85 +240,138 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             New Invoice
           </button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50 sticky top-0 z-10">
-              <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Invoice Number
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {stats.recentInvoices.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="text-center py-8 text-gray-400">
-                    <div className="flex flex-col items-center">
-                      <span className="text-4xl mb-2">📄</span>
-                      No invoices found. <button
-                        className="text-blue-600 underline hover:text-blue-800 transition"
-                        onClick={() => navigate('/invoices/new')}
-                      >Create your first invoice</button> to get started.
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                stats.recentInvoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="dashboard-row cursor-pointer transition group"
-                    onClick={() => navigate(`/invoices/view`, { state: { invoice } })}
-                    tabIndex={0}
-                    role="button"
+        {/* Mobile: Cards, Desktop: Table */}
+        {isMobile ? (
+          <div className="flex flex-col gap-3 p-3">
+            {stats.recentInvoices.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                <div className="flex flex-col items-center">
+                  <span className="text-4xl mb-2">📄</span>
+                  No invoices found.{' '}
+                  <button
+                    className="text-blue-600 underline hover:text-blue-800 transition"
+                    onClick={() => navigate('/invoices/new')}
                   >
-                    <td className="px-4 py-2 whitespace-nowrap text-sm font-semibold text-blue-700 flex items-center gap-2">
-                      {invoice.invoiceNumber}
-                      <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {invoice.customerName}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(invoice.date).toLocaleDateString('en-IN')}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 font-semibold">
-                      {formatCurrency(invoice.totalAmount)}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        invoice.status === 'PAID'
-                          ? 'bg-green-100 text-green-800'
-                          : invoice.status === 'SENT'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap flex gap-2">
-                      {/* No actions needed here for now */}
+                    Create your first invoice
+                  </button>{' '}
+                  to get started.
+                </div>
+              </div>
+            ) : (
+              stats.recentInvoices.map((invoice) => (
+                <div
+                  key={invoice.id}
+                  className="rounded-lg border border-gray-100 shadow p-3 flex flex-col gap-1 cursor-pointer transition group hover:bg-blue-50"
+                  onClick={() => navigate(`/invoices/view`, { state: { invoice } })}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-blue-700 text-sm">{invoice.invoiceNumber}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                      invoice.status === 'PAID'
+                        ? 'bg-green-100 text-green-800'
+                        : invoice.status === 'SENT'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {invoice.status}
+                    </span>
+                  </div>
+                  <div className="text-gray-900 text-sm">{invoice.customerName}</div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>{new Date(invoice.date).toLocaleDateString('en-IN')}</span>
+                    <span className="font-semibold text-gray-900">{formatCurrency(invoice.totalAmount)}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Invoice Number
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {stats.recentInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-gray-400">
+                      <div className="flex flex-col items-center">
+                        <span className="text-4xl mb-2">📄</span>
+                        No invoices found.{' '}
+                        <button
+                          className="text-blue-600 underline hover:text-blue-800 transition"
+                          onClick={() => navigate('/invoices/new')}
+                        >
+                          Create your first invoice
+                        </button>{' '}
+                        to get started.
+                      </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  stats.recentInvoices.map((invoice) => (
+                    <tr
+                      key={invoice.id}
+                      className="dashboard-row cursor-pointer transition group"
+                      onClick={() => navigate(`/invoices/view`, { state: { invoice } })}
+                      tabIndex={0}
+                      role="button"
+                    >
+                      <td className="px-4 py-2 whitespace-nowrap text-sm font-semibold text-blue-700 flex items-center gap-2">
+                        {invoice.invoiceNumber}
+                        <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                        {invoice.customerName}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(invoice.date).toLocaleDateString('en-IN')}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        {formatCurrency(invoice.totalAmount)}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          invoice.status === 'PAID'
+                            ? 'bg-green-100 text-green-800'
+                            : invoice.status === 'SENT'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {invoice.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap flex gap-2">
+                        {/* No actions needed here for now */}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

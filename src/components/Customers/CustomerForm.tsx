@@ -234,8 +234,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 animate-fade-in">
-      <div className="bg-white rounded-xl shadow p-6 mb-6">
+    <div className="max-w-xs sm:max-w-2xl mx-auto px-2 sm:px-4 animate-fade-in">
+      <div className="bg-white rounded-xl shadow p-4 sm:p-6 mb-6">
         <div className="flex items-center mb-4">
           <button
             onClick={onCancel}
@@ -243,7 +243,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900">
             {customer ? 'Edit Customer' : 'Add New Customer'}
           </h2>
         </div>
@@ -567,18 +567,18 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel 
           </div>
 
           {/* Submit Buttons */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4 border-t border-gray-200">
             <button
               type="button"
               onClick={onCancel}
-              className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              className="w-full sm:w-auto px-5 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="w-full sm:w-auto bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

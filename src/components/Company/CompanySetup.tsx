@@ -212,9 +212,9 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
   const progress = ((step + 1) / steps.length) * 100;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-8 animate-fade-in">
-      <div className="max-w-2xl mx-auto w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-8 px-2 animate-fade-in">
+      <div className="max-w-xs sm:max-w-2xl mx-auto w-full">
+        <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 mb-8">
           <div className="flex items-center mb-2">
             <Building2 className="h-7 w-7 text-blue-600 mr-3" />
             <h2 className="text-2xl font-bold text-gray-900">
@@ -523,12 +523,12 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-6">
+            <div className="flex flex-col sm:flex-row justify-between gap-2 mt-6">
               {step > 0 && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
+                  className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition flex items-center justify-center"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
@@ -538,7 +538,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2 active:scale-95"
+                  className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 active:scale-95"
                 >
                   <span>Next: {steps[step + 1].label}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -547,7 +547,7 @@ const CompanySetup: React.FC<CompanySetupProps> = ({ onComplete }) => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center space-x-2 active:scale-95"
+                  className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 active:scale-95"
                 >
                   {loading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

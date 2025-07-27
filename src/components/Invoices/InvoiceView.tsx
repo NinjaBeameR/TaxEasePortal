@@ -124,7 +124,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
   }
 
   return (
-    <div className="max-w-4xl mx-auto animate-fade-in">
+    <div className="max-w-4xl w-full mx-auto px-2 sm:px-0 animate-fade-in">
       {/* Action Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 print:hidden">
         <div className="px-6 py-4 flex justify-between items-center">
@@ -187,7 +187,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
 
       {/* Invoice Document */}
       <div id="invoice-print-area" className="print-invoice bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none">
-        <div className="p-8 print:p-6">
+        <div className="p-2 sm:p-8 print:p-6">
           {/* Header */}
           <div className="border-b-2 border-gray-200 pb-6 mb-6">
             <div className="flex justify-between items-start">
@@ -224,7 +224,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
           </div>
 
           {/* Bill To */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Bill To:</h3>
               <div className="text-gray-700 space-y-1">
@@ -251,8 +251,8 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
           </div>
 
           {/* Items Table */}
-          <div className="mb-8">
-            <table className="w-full border-collapse border border-gray-300">
+          <div className="mb-8 overflow-x-auto">
+            <table className="w-full border-collapse border border-gray-300 text-xs sm:text-sm">
               <thead>
                 <tr className="bg-gray-50">
                   <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">S.No</th>
@@ -303,7 +303,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
           </div>
 
           {/* Totals */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Amount in Words:</h3>
               <p className="text-gray-700 bg-gray-50 p-4 rounded border font-medium">

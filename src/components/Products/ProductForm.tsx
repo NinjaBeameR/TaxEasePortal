@@ -104,30 +104,30 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-8 mb-8 max-w-xl mx-auto animate-fade-in">
-      <div className="px-6 py-4 border-b border-gray-200">
+    <div className="bg-white rounded-2xl shadow-md p-4 sm:p-8 mb-8 max-w-xs sm:max-w-xl mx-auto animate-fade-in">
+      <div className="px-2 sm:px-6 py-4 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <button
               onClick={onCancel}
-              className="mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+              className="mr-2 sm:mr-4 p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               {product ? 'Edit Product' : 'Add New Product'}
             </h2>
           </div>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-2 sm:p-6 space-y-6">
         {/* Product Type */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-3">
             Type *
           </label>
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:space-x-4">
             <button
               type="button"
               onClick={() => handleInputChange('type', 'GOODS')}
@@ -192,7 +192,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
         </div>
 
         {/* HSN/SAC Code and GST Rate */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               HSN/SAC Code *
@@ -232,7 +232,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
         </div>
 
         {/* Price and Unit */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Price (₹) *
@@ -275,18 +275,18 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSave, onCancel }) 
         </div>
 
         {/* Submit Buttons */}
-        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:space-x-4 pt-6 border-t border-gray-200">
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            className="w-full sm:w-auto px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
           >
             {loading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

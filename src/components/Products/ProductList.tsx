@@ -119,13 +119,13 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-gray-900">Products & Services</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900">Products & Services</h1>
         <button
           onClick={onCreate}
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition"
+          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition w-full sm:w-auto"
         >
           <Plus className="h-5 w-5" />
           Add Product
@@ -194,116 +194,175 @@ const ProductList: React.FC<ProductListProps> = ({ onEdit, onCreate }) => {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Product/Service
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    HSN/SAC Code
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Price
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    GST Rate
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Unit
-                  </th>
-                  <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-100">
-                {filteredProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className="dashboard-row hover:bg-gray-50 group transition-all"
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => onEdit(product)}
-                  >
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
-                          product.type === 'GOODS' ? 'bg-blue-100' : 'bg-green-100'
-                        }`}>
-                          {product.type === 'GOODS' ? (
-                            <Package className="h-4 w-4 text-blue-600" />
-                          ) : (
-                            <Tag className="h-4 w-4 text-green-600" />
-                          )}
-                        </div>
-                        <div className="ml-3">
-                          <div className="text-sm font-medium text-gray-900">
-                            {product.name}
-                          </div>
-                          {product.description && (
-                            <div className="text-sm text-gray-500 truncate max-w-xs">
-                              {product.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 font-mono">
-                      {product.hsnSacCode}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        product.type === 'GOODS'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {product.type}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {formatCurrency(product.price)}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
-                      {product.gstRate}%
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                      {product.unitOfMeasurement}
-                    </td>
-                    <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={e => { e.stopPropagation(); onEdit(product); }}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
-                          title="Edit product"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={e => { e.stopPropagation(); handleDelete(product); }}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
-                          title="Delete product"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={e => { e.stopPropagation(); handleExportProductInvoices(product); }}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
-                          title="Export invoices as Excel"
-                        >
-                          <FileSpreadsheet className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            {/* Mobile: Cards, Desktop: Table */}
+            <div className="block sm:hidden p-2 space-y-3">
+              {filteredProducts.map(product => (
+                <div
+                  key={product.id}
+                  className="rounded-lg border border-gray-100 shadow p-3 flex flex-col gap-1 cursor-pointer transition group hover:bg-blue-50"
+                  onClick={() => onEdit(product)}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                      product.type === 'GOODS' ? 'bg-blue-100' : 'bg-green-100'
+                    }`}>
+                      {product.type === 'GOODS' ? (
+                        <Package className="h-4 w-4 text-blue-600" />
+                      ) : (
+                        <Tag className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{product.name}</div>
+                      {product.description && (
+                        <div className="text-xs text-gray-500 truncate max-w-xs">{product.description}</div>
+                      )}
+                    </div>
+                    <span className={`ml-auto px-2 py-1 text-xs font-semibold rounded-full ${
+                      product.type === 'GOODS'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {product.type}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-500 mt-1">
+                    <span>HSN/SAC: <span className="font-mono">{product.hsnSacCode}</span></span>
+                    <span>GST: {product.gstRate}%</span>
+                    <span>Unit: {product.unitOfMeasurement}</span>
+                    <span>Price: {formatCurrency(product.price)}</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={e => { e.stopPropagation(); onEdit(product); }}
+                      className="text-blue-600 hover:underline text-xs"
+                    >Edit</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(product); }}
+                      className="text-red-600 hover:underline text-xs"
+                    >Delete</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleExportProductInvoices(product); }}
+                      className="text-green-600 hover:underline text-xs"
+                    >Export Invoices</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Product/Service
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      HSN/SAC Code
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      GST Rate
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Unit
+                    </th>
+                    <th className="px-4 py-2 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {filteredProducts.map((product) => (
+                    <tr
+                      key={product.id}
+                      className="dashboard-row hover:bg-gray-50 group transition-all"
+                      tabIndex={0}
+                      role="button"
+                      onClick={() => onEdit(product)}
+                    >
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                            product.type === 'GOODS' ? 'bg-blue-100' : 'bg-green-100'
+                          }`}>
+                            {product.type === 'GOODS' ? (
+                              <Package className="h-4 w-4 text-blue-600" />
+                            ) : (
+                              <Tag className="h-4 w-4 text-green-600" />
+                            )}
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {product.name}
+                            </div>
+                            {product.description && (
+                              <div className="text-sm text-gray-500 truncate max-w-xs">
+                                {product.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 font-mono">
+                        {product.hsnSacCode}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          product.type === 'GOODS'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {product.type}
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                        {formatCurrency(product.price)}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">
+                        {product.gstRate}%
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {product.unitOfMeasurement}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={e => { e.stopPropagation(); onEdit(product); }}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
+                            title="Edit product"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleDelete(product); }}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
+                            title="Delete product"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleExportProductInvoices(product); }}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
+                            title="Export invoices as Excel"
+                          >
+                            <FileSpreadsheet className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
       {filteredProducts.length > 0 && (

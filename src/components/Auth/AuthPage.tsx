@@ -127,23 +127,23 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-2xl flex flex-col items-center animate-fade-in transition-all duration-500">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50 px-2">
+      <div className="w-full max-w-xs sm:max-w-md p-4 sm:p-8 bg-white rounded-xl shadow-2xl flex flex-col items-center animate-fade-in transition-all duration-500">
         {/* Logo and App Title */}
-        <div className="mb-6 flex flex-col items-center">
+        <div className="mb-4 sm:mb-6 flex flex-col items-center">
           <img
             src={logo}
             alt="Logo"
-            className="w-16 h-16 mb-2 drop-shadow-lg transition-transform duration-300 hover:scale-105"
+            className="w-12 h-12 sm:w-16 sm:h-16 mb-2 drop-shadow-lg transition-transform duration-300 hover:scale-105"
           />
-          <h1 className="text-3xl font-extrabold text-gray-800 mb-1">TaxEase Portal</h1>
-          <span className="text-gray-500 text-sm">
+          <h1 className="text-lg sm:text-3xl font-extrabold text-gray-800 mb-1 text-center">TaxEase Portal</h1>
+          <span className="text-gray-500 text-xs sm:text-sm text-center">
             {adminMode ? 'Admin Login' : 'Sign in to your account'}
           </span>
         </div>
 
         <button
-          className="mb-4 text-blue-600 underline"
+          className="mb-4 text-blue-600 underline text-xs sm:text-base"
           onClick={() => {
             setAdminMode(!adminMode);
             setError(null);
@@ -154,7 +154,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
         </button>
 
         {adminMode ? (
-          <form onSubmit={handleAdminLogin} className="w-full flex flex-col gap-4">
+          <form onSubmit={handleAdminLogin} className="w-full flex flex-col gap-3 sm:gap-4">
             <input
               type="email"
               autoComplete="username"
@@ -162,7 +162,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
               onChange={e => setAdminEmail(e.target.value)}
               placeholder="Admin Email"
               required
-              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             />
             <input
               type="password"
@@ -171,13 +171,13 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
               onChange={e => setAdminPassword(e.target.value)}
               placeholder="Admin Password"
               required
-              className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             />
-            {adminError && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{adminError}</div>}
+            {adminError && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2 text-xs sm:text-sm">{adminError}</div>}
             <button
               type="submit"
               disabled={adminLoading}
-              className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+              className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60 text-sm sm:text-base"
             >
               {adminLoading ? 'Logging in...' : 'Login as Admin'}
             </button>
@@ -185,7 +185,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
         ) : (
           <>
             {step === 'email' && (
-              <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-4">
+              <form onSubmit={handleEmailSubmit} className="w-full flex flex-col gap-3 sm:gap-4">
                 <input
                   type="email"
                   autoComplete="username"
@@ -193,13 +193,13 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Email"
                   required
-                  className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
-                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2 text-xs sm:text-sm">{error}</div>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60 text-sm sm:text-base"
                 >
                   {loading ? 'Checking...' : 'Continue'}
                 </button>
@@ -207,8 +207,8 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
             )}
 
             {step === 'setPassword' && (
-              <form onSubmit={handleSetPassword} className="w-full flex flex-col gap-4">
-                <h2 className="text-xl font-bold mb-2 text-center">Set Your Password</h2>
+              <form onSubmit={handleSetPassword} className="w-full flex flex-col gap-3 sm:gap-4">
+                <h2 className="text-base sm:text-xl font-bold mb-2 text-center">Set Your Password</h2>
                 <input
                   type="password"
                   autoComplete="new-password"
@@ -216,7 +216,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="New Password"
                   required
-                  className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
                 <input
                   type="password"
@@ -225,13 +225,13 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
                   required
-                  className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
-                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2 text-xs sm:text-sm">{error}</div>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60 text-sm sm:text-base"
                 >
                   {loading ? 'Setting Password...' : 'Set Password'}
                 </button>
@@ -239,7 +239,7 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
             )}
 
             {step === 'login' && (
-              <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+              <form onSubmit={handleLogin} className="w-full flex flex-col gap-3 sm:gap-4">
                 <input
                   type="password"
                   autoComplete="current-password"
@@ -247,13 +247,13 @@ const AuthPage = ({ onAuthSuccess }: AuthPageProps) => {
                   onChange={e => setPassword(e.target.value)}
                   placeholder="Password"
                   required
-                  className="border border-gray-300 rounded px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  className="border border-gray-300 rounded px-3 py-2 text-sm sm:text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
-                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2">{error}</div>}
+                {error && <div className="text-red-600 text-center font-medium bg-red-50 border border-red-200 rounded p-2 text-xs sm:text-sm">{error}</div>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60"
+                  className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700 font-semibold transition-all duration-200 transform hover:-translate-y-0.5 active:scale-95 disabled:opacity-60 text-sm sm:text-base"
                 >
                   {loading ? 'Logging in...' : 'Login'}
                 </button>

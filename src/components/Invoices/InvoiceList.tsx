@@ -202,7 +202,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Invoices</h1>
@@ -294,110 +294,154 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Invoice Number
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredInvoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all"
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => onView(invoice)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          onView(invoice);
-                        }}
-                        className="text-blue-700 hover:underline flex items-center gap-2 focus:outline-none"
-                        style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer' }}
-                        title="View invoice"
-                      >
-                        {invoice.invoiceNumber}
-                        <ArrowRight className="h-4 w-4 text-blue-300" />
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{invoice.customerName}</div>
-                      {invoice.customerGstin && (
-                        <div className="text-xs text-gray-500 font-mono">{invoice.customerGstin}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(invoice.date).toLocaleDateString('en-IN')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
-                      ₹{Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(invoice.status)}`}>
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+          <>
+            {/* Mobile: Cards, Desktop: Table */}
+            <div className="block sm:hidden p-2 space-y-3">
+              {filteredInvoices.map(invoice => (
+                <div
+                  key={invoice.id}
+                  className="rounded-lg border border-gray-100 shadow p-3 flex flex-col gap-1 cursor-pointer transition group hover:bg-blue-50"
+                  onClick={() => onView(invoice)}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold text-blue-700 text-sm">{invoice.invoiceNumber}</span>
+                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(invoice.status)}`}>
+                      {invoice.status}
+                    </span>
+                  </div>
+                  <div className="text-gray-900 text-sm">{invoice.customerName}</div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>{new Date(invoice.date).toLocaleDateString('en-IN')}</span>
+                    <span className="font-semibold text-gray-900">₹{Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={e => { e.stopPropagation(); onView(invoice); }}
+                      className="text-blue-600 hover:underline text-xs"
+                    >View</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleEdit(invoice); }}
+                      className="text-green-600 hover:underline text-xs"
+                    >Edit</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDownloadPDF(invoice); }}
+                      className="text-purple-600 hover:underline text-xs"
+                    >PDF</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(invoice.id); }}
+                      className="text-red-600 hover:underline text-xs"
+                    >Delete</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Invoice Number
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredInvoices.map((invoice) => (
+                    <tr
+                      key={invoice.id}
+                      className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all"
+                      tabIndex={0}
+                      role="button"
+                      onClick={() => onView(invoice)}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
                         <button
                           onClick={e => {
                             e.stopPropagation();
                             onView(invoice);
                           }}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
+                          className="text-blue-700 hover:underline flex items-center gap-2 focus:outline-none"
+                          style={{ background: 'none', border: 'none', padding: 0, margin: 0, cursor: 'pointer' }}
                           title="View invoice"
                         >
-                          <Eye className="h-4 w-4" />
+                          {invoice.invoiceNumber}
+                          <ArrowRight className="h-4 w-4 text-blue-300" />
                         </button>
-                        <button
-                          onClick={() => handleEdit(invoice)}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
-                          title="Edit invoice"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDownloadPDF(invoice)}
-                          className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50 active:scale-95"
-                          title="Download PDF"
-                        >
-                          <Download className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(invoice.id)}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
-                          title="Delete invoice"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{invoice.customerName}</div>
+                        {invoice.customerGstin && (
+                          <div className="text-xs text-gray-500 font-mono">{invoice.customerGstin}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(invoice.date).toLocaleDateString('en-IN')}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                        ₹{Number(invoice.totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(invoice.status)}`}>
+                          {invoice.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={e => {
+                              e.stopPropagation();
+                              onView(invoice);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
+                            title="View invoice"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(invoice)}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
+                            title="Edit invoice"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDownloadPDF(invoice)}
+                            className="text-purple-600 hover:text-purple-900 p-1 rounded hover:bg-purple-50 active:scale-95"
+                            title="Download PDF"
+                          >
+                            <Download className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(invoice.id)}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
+                            title="Delete invoice"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

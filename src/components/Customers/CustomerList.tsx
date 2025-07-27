@@ -93,7 +93,7 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+    <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-xl font-bold text-gray-900">Customers</h1>
@@ -160,100 +160,158 @@ const CustomerList: React.FC<CustomerListProps> = ({ onEdit, onCreate }) => {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    GSTIN
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contact
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    City
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCustomers.map((customer) => (
-                  <tr
-                    key={customer.id}
-                    className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all dashboard-row"
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => onEdit(customer)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
-                      <span>
-                        {customer.name}
-                      </span>
-                      <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        customer.type === 'B2B'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-green-100 text-green-800'
-                      }`}>
-                        {customer.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {customer.gstin || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div>
-                        {customer.contact.phone && (
-                          <div>{customer.contact.phone}</div>
-                        )}
-                        {customer.contact.email && (
-                          <div className="text-xs">{customer.contact.email}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {customer.billingAddress.city}, {customer.billingAddress.state}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={e => { e.stopPropagation(); onEdit(customer); }}
-                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
-                          title="Edit customer"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={e => { e.stopPropagation(); handleDelete(customer); }}
-                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
-                          title="Delete customer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={e => { e.stopPropagation(); handleExportCustomerInvoices(customer); }}
-                          className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
-                          title="Export invoices as Excel"
-                        >
-                          <FileSpreadsheet className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+          <>
+            {/* Mobile: Cards, Desktop: Table */}
+            <div className="block sm:hidden p-2 space-y-3">
+              {filteredCustomers.map(customer => (
+                <div
+                  key={customer.id}
+                  className="rounded-lg border border-gray-100 shadow p-3 flex flex-col gap-1 cursor-pointer transition group hover:bg-blue-50"
+                  onClick={() => onEdit(customer)}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
+                      customer.type === 'B2B' ? 'bg-blue-100' : 'bg-green-100'
+                    }`}>
+                      {customer.type === 'B2B' ? (
+                        <Building className="h-4 w-4 text-blue-600" />
+                      ) : (
+                        <User className="h-4 w-4 text-green-600" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                      {customer.gstin && (
+                        <div className="text-xs text-gray-500 truncate max-w-xs">{customer.gstin}</div>
+                      )}
+                    </div>
+                    <span className={`ml-auto px-2 py-1 text-xs font-semibold rounded-full ${
+                      customer.type === 'B2B'
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {customer.type}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-500 mt-1">
+                    <span>{customer.contact.phone}</span>
+                    <span>{customer.contact.email}</span>
+                    <span>{customer.billingAddress.city}, {customer.billingAddress.state}</span>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={e => { e.stopPropagation(); onEdit(customer); }}
+                      className="text-blue-600 hover:underline text-xs"
+                    >Edit</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(customer); }}
+                      className="text-red-600 hover:underline text-xs"
+                    >Delete</button>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleExportCustomerInvoices(customer); }}
+                      className="text-green-600 hover:underline text-xs"
+                    >Export Invoices</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50 sticky top-0 z-10">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      GSTIN
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Contact
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      City
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredCustomers.map((customer) => (
+                    <tr
+                      key={customer.id}
+                      className="group hover:bg-blue-50 hover:shadow cursor-pointer transition-all dashboard-row"
+                      tabIndex={0}
+                      role="button"
+                      onClick={() => onEdit(customer)}
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap flex items-center gap-2 font-semibold text-blue-700">
+                        <span>
+                          {customer.name}
+                        </span>
+                        <ArrowRight className="h-4 w-4 text-blue-300 opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition" />
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          customer.type === 'B2B'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {customer.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {customer.gstin || '-'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div>
+                          {customer.contact.phone && (
+                            <div>{customer.contact.phone}</div>
+                          )}
+                          {customer.contact.email && (
+                            <div className="text-xs">{customer.contact.email}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {customer.billingAddress.city}, {customer.billingAddress.state}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end space-x-2">
+                          <button
+                            onClick={e => { e.stopPropagation(); onEdit(customer); }}
+                            className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 active:scale-95"
+                            title="Edit customer"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleDelete(customer); }}
+                            className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 active:scale-95"
+                            title="Delete customer"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); handleExportCustomerInvoices(customer); }}
+                            className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 active:scale-95"
+                            title="Export invoices as Excel"
+                          >
+                            <FileSpreadsheet className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 
