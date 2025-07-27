@@ -19,6 +19,8 @@
   table, th, td {
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    word-break: break-word !important;
+    white-space: normal !important;
   }
   body * {
     visibility: hidden !important;

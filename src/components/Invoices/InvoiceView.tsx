@@ -264,35 +264,38 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             </div>
 
             {/* Items Table */}
-            <div className="mb-8 overflow-x-auto">
-              <table className="w-full border-collapse border border-gray-300 text-xs" style={{ fontSize: '12px', tableLayout: 'fixed' }}>
+            <div className="mb-8 overflow-x-auto print:overflow-visible">
+              <table
+                className="w-full border-collapse border border-gray-300 text-xs"
+                style={{ fontSize: '12px', tableLayout: 'auto' }}
+              >
                 <thead>
                   <tr className="bg-gray-50">
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">S.No</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">Description</th>
-                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">HSN/SAC</th>
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Qty</th>
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Rate</th>
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Amount</th>
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Discount</th>
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Taxable Value</th>
+                    <th style={{ width: 40 }}>S.No</th>
+                    <th style={{ width: 120 }}>Description</th>
+                    <th style={{ width: 60 }}>HSN/SAC</th>
+                    <th style={{ width: 40 }}>Qty</th>
+                    <th style={{ width: 60 }}>Rate</th>
+                    <th style={{ width: 70 }}>Amount</th>
+                    <th style={{ width: 60 }}>Discount</th>
+                    <th style={{ width: 90 }}>Taxable Value</th>
                     {invoice.totalCgst > 0 && (
                       <>
-                        <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">CGST</th>
-                        <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">SGST</th>
+                        <th style={{ width: 60 }}>CGST</th>
+                        <th style={{ width: 60 }}>SGST</th>
                       </>
                     )}
                     {invoice.totalIgst > 0 && (
-                      <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">IGST</th>
+                      <th style={{ width: 60 }}>IGST</th>
                     )}
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Total</th>
+                    <th style={{ width: 80 }}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoice.items.map((item, index) => (
                     <tr key={item.id}>
                       <td className="border border-gray-300 px-4 py-3 text-sm">{index + 1}</td>
-                      <td className="border border-gray-300 px-4 py-3 text-sm">{item.productName}</td>
+                      <td className="border border-gray-300 px-2 py-2 text-sm whitespace-normal align-top">{item.productName}</td>
                       <td className="border border-gray-300 px-4 py-3 text-sm font-mono">{item.hsnSacCode}</td>
                       <td className="border border-gray-300 px-4 py-3 text-sm text-right">{formatIndianNumber(item.quantity)}</td>
                       <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.rate)}</td>
