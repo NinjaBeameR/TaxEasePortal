@@ -5,7 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY // Use service role for admin ops
 );
 
-const ADMIN_EMAIL = "admin_tep25@tep.com"; // <-- Set your admin email here
+const ADMIN_EMAIL = "admin_tep25@tep.admin.in"; // <-- Set your admin email here
 
 exports.handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -27,6 +27,7 @@ exports.handler = async (event) => {
 
   // Authenticate with Supabase
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  console.log({ email, error, data }); // Add this line for debugging
 
   if (error || !data.user) {
     return {
