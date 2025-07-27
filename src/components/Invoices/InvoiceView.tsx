@@ -169,7 +169,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
   };
 
   // Add this function to your InvoiceView:
-  function exportInvoiceAsHTML(invoice: Invoice) {
+  function exportInvoiceAsHTML(invoice: Invoice, vehicleNumber?: string) {
     const html = `
       <html>
       <head>
@@ -198,6 +198,7 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             <tr><td><b>Customer</b></td><td>${invoice.customerName}</td></tr>
             <tr><td><b>Status</b></td><td>${invoice.status}</td></tr>
             ${invoice.customerGstin ? `<tr><td><b>GSTIN</b></td><td>${invoice.customerGstin}</td></tr>` : ''}
+            ${vehicleNumber ? `<tr><td><b>Vehicle Number</b></td><td>${vehicleNumber}</td></tr>` : ''}
           </table>
           <table class="data-table">
             <tr>
@@ -309,18 +310,11 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
               <span>PDF</span>
             </button>
             <button
-              onClick={handleDownloadExcel}
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-3 py-2 rounded-lg font-semibold shadow hover:bg-green-700 transition active:scale-95"
-            >
-              <FileSpreadsheet className="h-5 w-5" />
-              Excel
-            </button>
-            <button
-              onClick={() => exportInvoiceAsHTML(invoice)}
+              onClick={() => exportInvoiceAsHTML(invoice, vehicleNumber)}
               className="inline-flex items-center gap-2 bg-orange-600 text-white px-3 py-2 rounded-lg font-semibold shadow hover:bg-orange-700 transition active:scale-95"
             >
               <FileSpreadsheet className="h-5 w-5" />
-              Excel (HTML Table)
+              Excel
             </button>
           </div>
         </div>
