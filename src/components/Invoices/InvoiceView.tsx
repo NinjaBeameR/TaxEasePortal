@@ -175,57 +175,65 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
       <head>
         <meta charset="UTF-8">
         <style>
-          body { font-family: Calibri, Arial, sans-serif; }
-          table { border-collapse: collapse; width: 100%; margin-top: 16px; }
-          th, td { border: 1px solid #888; padding: 6px 8px; text-align: center; }
-          th { background: #f0f0f0; font-weight: bold; }
+          body { font-family: Calibri, Arial, sans-serif; background: #fff; }
+          .container { max-width: 900px; margin: 32px auto; background: #fff; }
+          .title { text-align: center; font-size: 2rem; font-weight: bold; margin-bottom: 8px; }
+          .subtitle { text-align: center; font-size: 1.1rem; color: #444; margin-bottom: 24px; }
+          .info-table { margin: 0 auto 24px auto; border: 1px solid #bbb; border-radius: 8px; background: #f9f9f9; }
+          .info-table td { border: none; padding: 6px 18px; font-size: 1rem; }
+          table.data-table { border-collapse: collapse; width: 100%; margin: 0 auto 24px auto; }
+          table.data-table th, table.data-table td { border: 1px solid #888; padding: 8px 10px; text-align: center; font-size: 1rem; }
+          table.data-table th { background: #f0f0f0; font-weight: bold; }
           .left { text-align: left; }
           .right { text-align: right; }
           .totals { font-weight: bold; background: #f9f9f9; }
         </style>
       </head>
       <body>
-        <h2>Invoice ${invoice.invoiceNumber}</h2>
-        <table>
-          <tr><td class="left"><b>Date</b></td><td class="left">${new Date(invoice.date).toLocaleDateString('en-IN')}</td></tr>
-          <tr><td class="left"><b>Customer</b></td><td class="left">${invoice.customerName}</td></tr>
-          <tr><td class="left"><b>Status</b></td><td class="left">${invoice.status}</td></tr>
-          ${invoice.customerGstin ? `<tr><td class="left"><b>GSTIN</b></td><td class="left">${invoice.customerGstin}</td></tr>` : ''}
-        </table>
-        <table>
-          <tr>
-            <th>S.No</th>
-            <th>Description</th>
-            <th>HSN/SAC</th>
-            <th>Qty</th>
-            <th>Rate</th>
-            <th>Amount</th>
-            <th>Discount</th>
-            <th>Taxable Value</th>
-            ${invoice.totalCgst > 0 ? '<th>CGST</th><th>SGST</th>' : ''}
-            ${invoice.totalIgst > 0 ? '<th>IGST</th>' : ''}
-            <th>Total</th>
-          </tr>
-          ${invoice.items.map((item: any, idx: number) => `
+        <div class="container">
+          <div class="title">TAX INVOICE</div>
+          <div class="subtitle">Invoice No: <b>${invoice.invoiceNumber}</b></div>
+          <table class="info-table">
+            <tr><td><b>Date</b></td><td>${new Date(invoice.date).toLocaleDateString('en-IN')}</td></tr>
+            <tr><td><b>Customer</b></td><td>${invoice.customerName}</td></tr>
+            <tr><td><b>Status</b></td><td>${invoice.status}</td></tr>
+            ${invoice.customerGstin ? `<tr><td><b>GSTIN</b></td><td>${invoice.customerGstin}</td></tr>` : ''}
+          </table>
+          <table class="data-table">
             <tr>
-              <td>${idx + 1}</td>
-              <td class="left">${item.productName}</td>
-              <td>${item.hsnSacCode}</td>
-              <td>${item.quantity}</td>
-              <td class="right">${item.rate}</td>
-              <td class="right">${item.quantity * item.rate}</td>
-              <td class="right">${item.discount || 0}</td>
-              <td class="right">${item.taxableValue}</td>
-              ${invoice.totalCgst > 0 ? `<td class="right">${item.cgst || 0}</td><td class="right">${item.sgst || 0}</td>` : ''}
-              ${invoice.totalIgst > 0 ? `<td class="right">${item.igst || 0}</td>` : ''}
-              <td class="right">${item.totalAmount}</td>
+              <th>S.No</th>
+              <th>Description</th>
+              <th>HSN/SAC</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+              <th>Discount</th>
+              <th>Taxable Value</th>
+              ${invoice.totalCgst > 0 ? '<th>CGST</th><th>SGST</th>' : ''}
+              ${invoice.totalIgst > 0 ? '<th>IGST</th>' : ''}
+              <th>Total</th>
             </tr>
-          `).join('')}
-          <tr class="totals">
-            <td colspan="${invoice.totalCgst > 0 ? 10 : invoice.totalIgst > 0 ? 9 : 8}" class="right">Total Amount</td>
-            <td class="right">${invoice.totalAmount}</td>
-          </tr>
-        </table>
+            ${invoice.items.map((item: any, idx: number) => `
+              <tr>
+                <td>${idx + 1}</td>
+                <td class="left">${item.productName}</td>
+                <td>${item.hsnSacCode}</td>
+                <td>${item.quantity}</td>
+                <td class="right">${item.rate}</td>
+                <td class="right">${item.quantity * item.rate}</td>
+                <td class="right">${item.discount || 0}</td>
+                <td class="right">${item.taxableValue}</td>
+                ${invoice.totalCgst > 0 ? `<td class="right">${item.cgst || 0}</td><td class="right">${item.sgst || 0}</td>` : ''}
+                ${invoice.totalIgst > 0 ? `<td class="right">${item.igst || 0}</td>` : ''}
+                <td class="right">${item.totalAmount}</td>
+              </tr>
+            `).join('')}
+            <tr class="totals">
+              <td colspan="${invoice.totalCgst > 0 ? 10 : invoice.totalIgst > 0 ? 9 : 8}" class="right">Total Amount</td>
+              <td class="right">${invoice.totalAmount}</td>
+            </tr>
+          </table>
+        </div>
       </body>
       </html>
     `;
