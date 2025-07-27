@@ -219,50 +219,57 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
   };
 
   const updateItem = (itemId: string, field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      items: prev.items?.map(item => {
-        if (item.id === itemId) {
-          const updatedItem = { ...item, [field]: value };
-          
-          // If product is selected, update related fields
-          if (field === 'productId' && value) {
-            const product = products.find(p => p.id === value);
-            if (product) {
-              updatedItem.productName = product.name;
-              updatedItem.hsnSacCode = product.hsnSacCode;
-              updatedItem.rate = product.price;
-              updatedItem.gstRate = product.gstRate;
-            }
+    setFormData(prev => {
+      const items = (prev.items || []).map(item => {
+        if (item.id !== itemId) return item;
+
+        // Always create a new object for the updated item
+        const updatedItem = { ...item, [field]: value };
+
+        // If product is selected, update related fields
+        if (field === 'productId' && value) {
+          const product = products.find(p => p.id === value);
+          if (product) {
+            updatedItem.productName = product.name;
+            updatedItem.hsnSacCode = product.hsnSacCode;
+            updatedItem.rate = product.price;
+            updatedItem.gstRate = product.gstRate;
           }
-          
-          // Recalculate item totals
-          const itemTotal = updatedItem.quantity * updatedItem.rate;
-          const discount = updatedItem.discount || 0;
-          updatedItem.taxableValue = itemTotal - discount;
-          
-          // Calculate GST
-          const gstAmount = (updatedItem.taxableValue * updatedItem.gstRate) / 100;
-          const isInterStateTx = company && selectedCustomer ? 
-            isInterState(company.gstin, selectedCustomer.gstin) : false;
-          
-          if (isInterStateTx) {
-            updatedItem.igst = gstAmount;
-            updatedItem.cgst = 0;
-            updatedItem.sgst = 0;
-          } else {
-            updatedItem.cgst = gstAmount / 2;
-            updatedItem.sgst = gstAmount / 2;
-            updatedItem.igst = 0;
-          }
-          
-          updatedItem.totalAmount = updatedItem.taxableValue + gstAmount;
-          
-          return updatedItem;
         }
-        return item;
-      }) || [],
-    }));
+
+        // Ensure numbers are numbers
+        updatedItem.quantity = Number(updatedItem.quantity) || 0;
+        updatedItem.rate = Number(updatedItem.rate) || 0;
+        updatedItem.discount = Number(updatedItem.discount) || 0;
+        updatedItem.gstRate = Number(updatedItem.gstRate) || 0;
+
+        // Recalculate item totals
+        const itemTotal = updatedItem.quantity * updatedItem.rate;
+        const discount = updatedItem.discount || 0;
+        updatedItem.taxableValue = itemTotal - discount;
+
+        // Calculate GST
+        const gstAmount = (updatedItem.taxableValue * updatedItem.gstRate) / 100;
+        const isInterStateTx = company && selectedCustomer ?
+          isInterState(company.gstin, selectedCustomer.gstin) : false;
+
+        if (isInterStateTx) {
+          updatedItem.igst = gstAmount;
+          updatedItem.cgst = 0;
+          updatedItem.sgst = 0;
+        } else {
+          updatedItem.cgst = gstAmount / 2;
+          updatedItem.sgst = gstAmount / 2;
+          updatedItem.igst = 0;
+        }
+
+        updatedItem.totalAmount = updatedItem.taxableValue + gstAmount;
+
+        return updatedItem;
+      });
+
+      return { ...prev, items };
+    });
   };
 
   const validateForm = (): boolean => {
