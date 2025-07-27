@@ -186,33 +186,74 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
       </div>
 
       {/* Invoice Document */}
-      <div id="invoice-print-area" className="print-invoice bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none">
-        <div className="p-2 sm:p-8 print:p-6">
-          {/* Header */}
-          <div className="border-b-2 border-gray-200 pb-6 mb-6">
-            <div className="flex justify-between items-start">
-              <div>
-                {company && (
-                  <>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                      {company.businessName}
-                    </h1>
-                    <div className="text-gray-600 space-y-1">
-                      <p>{company.address.line1}</p>
-                      {company.address.line2 && <p>{company.address.line2}</p>}
-                      <p>{company.address.city}, {company.address.state} - {company.address.pincode}</p>
-                      <p>GSTIN: {company.gstin}</p>
-                      {company.contact.phone && <p>Phone: {company.contact.phone}</p>}
-                      {company.contact.email && <p>Email: {company.contact.email}</p>}
-                    </div>
-                  </>
-                )}
+      <div className="flex justify-center print:bg-white print:p-0">
+        <div
+          id="invoice-print-area"
+          className="bg-white rounded-lg shadow-sm border border-gray-200 print:shadow-none print:border-none"
+          style={{
+            width: '794px', // A4 width at 96dpi
+            minHeight: '1123px', // A4 height at 96dpi
+            margin: '24px auto',
+            padding: '32px',
+            boxSizing: 'border-box',
+            fontSize: '14px',
+            color: '#222',
+          }}
+        >
+          <div className="p-2 sm:p-8 print:p-6">
+            {/* Header */}
+            <div className="border-b-2 border-gray-200 pb-6 mb-6">
+              <div className="flex justify-between items-start">
+                <div>
+                  {company && (
+                    <>
+                      <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        {company.businessName}
+                      </h1>
+                      <div className="text-gray-600 space-y-1">
+                        <p>{company.address.line1}</p>
+                        {company.address.line2 && <p>{company.address.line2}</p>}
+                        <p>{company.address.city}, {company.address.state} - {company.address.pincode}</p>
+                        <p>GSTIN: {company.gstin}</p>
+                        {company.contact.phone && <p>Phone: {company.contact.phone}</p>}
+                        {company.contact.email && <p>Email: {company.contact.email}</p>}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="text-right min-w-[220px]">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2">TAX INVOICE</h2>
+                  <div className="text-gray-600 space-y-1 text-sm">
+                    <p><span className="font-medium">Invoice No:</span> {invoice.invoiceNumber}</p>
+                    <p><span className="font-medium">Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
+                    {vehicleNumber && (
+                      <p>
+                        <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
+                      </p>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="text-right min-w-[220px]">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">TAX INVOICE</h2>
-                <div className="text-gray-600 space-y-1 text-sm">
-                  <p><span className="font-medium">Invoice No:</span> {invoice.invoiceNumber}</p>
-                  <p><span className="font-medium">Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
+            </div>
+
+            {/* Bill To */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Bill To:</h3>
+                <div className="text-gray-700 space-y-1">
+                  <p className="font-medium text-lg">{invoice.customerName}</p>
+                  <p>{invoice.customerAddress.line1}</p>
+                  {invoice.customerAddress.line2 && <p>{invoice.customerAddress.line2}</p>}
+                  <p>{invoice.customerAddress.city}, {invoice.customerAddress.state} - {invoice.customerAddress.pincode}</p>
+                  {invoice.customerGstin && <p>GSTIN: {invoice.customerGstin}</p>}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Invoice Details:</h3>
+                <div className="text-gray-700 space-y-1">
+                  <p><span className="font-medium">Invoice Number:</span> {invoice.invoiceNumber}</p>
+                  <p><span className="font-medium">Invoice Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
+                  <p><span className="font-medium">Status:</span> {invoice.status}</p>
                   {vehicleNumber && (
                     <p>
                       <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
@@ -221,160 +262,133 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Bill To */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Bill To:</h3>
-              <div className="text-gray-700 space-y-1">
-                <p className="font-medium text-lg">{invoice.customerName}</p>
-                <p>{invoice.customerAddress.line1}</p>
-                {invoice.customerAddress.line2 && <p>{invoice.customerAddress.line2}</p>}
-                <p>{invoice.customerAddress.city}, {invoice.customerAddress.state} - {invoice.customerAddress.pincode}</p>
-                {invoice.customerGstin && <p>GSTIN: {invoice.customerGstin}</p>}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Invoice Details:</h3>
-              <div className="text-gray-700 space-y-1">
-                <p><span className="font-medium">Invoice Number:</span> {invoice.invoiceNumber}</p>
-                <p><span className="font-medium">Invoice Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
-                <p><span className="font-medium">Status:</span> {invoice.status}</p>
-                {vehicleNumber && (
-                  <p>
-                    <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <div className="mb-8 overflow-x-auto">
-            <table className="w-full border-collapse border border-gray-300 text-xs sm:text-sm">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">S.No</th>
-                  <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">Description</th>
-                  <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">HSN/SAC</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Qty</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Rate</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Amount</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Discount</th>
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Taxable Value</th>
-                  {invoice.totalCgst > 0 && (
-                    <>
-                      <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">CGST</th>
-                      <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">SGST</th>
-                    </>
-                  )}
-                  {invoice.totalIgst > 0 && (
-                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">IGST</th>
-                  )}
-                  <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {invoice.items.map((item, index) => (
-                  <tr key={item.id}>
-                    <td className="border border-gray-300 px-4 py-3 text-sm">{index + 1}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm">{item.productName}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm font-mono">{item.hsnSacCode}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right">{formatIndianNumber(item.quantity)}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.rate)}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.quantity * item.rate)}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.discount || 0)}</td>
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.taxableValue)}</td>
+            {/* Items Table */}
+            <div className="mb-8 overflow-x-auto">
+              <table className="w-full border-collapse border border-gray-300 text-xs" style={{ fontSize: '13px' }}>
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">S.No</th>
+                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">Description</th>
+                    <th className="border border-gray-300 px-4 py-3 text-left text-sm font-semibold">HSN/SAC</th>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Qty</th>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Rate</th>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Amount</th>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Discount</th>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Taxable Value</th>
                     {invoice.totalCgst > 0 && (
                       <>
-                        <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.cgst || 0)}</td>
-                        <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.sgst || 0)}</td>
+                        <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">CGST</th>
+                        <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">SGST</th>
                       </>
                     )}
                     {invoice.totalIgst > 0 && (
-                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.igst || 0)}</td>
+                      <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">IGST</th>
                     )}
-                    <td className="border border-gray-300 px-4 py-3 text-sm text-right font-medium">₹{formatIndianNumber(item.totalAmount)}</td>
+                    <th className="border border-gray-300 px-4 py-3 text-right text-sm font-semibold">Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Totals */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Amount in Words:</h3>
-              <p className="text-gray-700 bg-gray-50 p-4 rounded border font-medium">
-                {invoice.amountInWords}
-              </p>
-            </div>
-            <div>
-              <table className="w-full">
+                </thead>
                 <tbody>
-                  <tr>
-                    <td className="py-2 text-right font-medium">Subtotal:</td>
-                    <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.subtotal)}</td>
-                  </tr>
-                  <tr>
-                    <td className="py-2 text-right font-medium">Taxable Amount:</td>
-                    <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalTaxableValue)}</td>
-                  </tr>
-                  {invoice.totalCgst > 0 && (
-                    <>
-                      <tr>
-                        <td className="py-2 text-right font-medium">CGST:</td>
-                        <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalCgst)}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 text-right font-medium">SGST:</td>
-                        <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalSgst)}</td>
-                      </tr>
-                    </>
-                  )}
-                  {invoice.totalIgst > 0 && (
-                    <tr>
-                      <td className="py-2 text-right font-medium">IGST:</td>
-                      <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalIgst)}</td>
+                  {invoice.items.map((item, index) => (
+                    <tr key={item.id}>
+                      <td className="border border-gray-300 px-4 py-3 text-sm">{index + 1}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm">{item.productName}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm font-mono">{item.hsnSacCode}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">{formatIndianNumber(item.quantity)}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.rate)}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.quantity * item.rate)}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.discount || 0)}</td>
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.taxableValue)}</td>
+                      {invoice.totalCgst > 0 && (
+                        <>
+                          <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.cgst || 0)}</td>
+                          <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.sgst || 0)}</td>
+                        </>
+                      )}
+                      {invoice.totalIgst > 0 && (
+                        <td className="border border-gray-300 px-4 py-3 text-sm text-right">₹{formatIndianNumber(item.igst || 0)}</td>
+                      )}
+                      <td className="border border-gray-300 px-4 py-3 text-sm text-right font-medium">₹{formatIndianNumber(item.totalAmount)}</td>
                     </tr>
-                  )}
-                  <tr className="border-t-2 border-gray-300">
-                    <td className="py-3 text-right font-bold text-lg">Total Amount:</td>
-                    <td className="py-3 text-right pl-4 font-bold text-lg">₹{formatIndianNumber(invoice.totalAmount)}</td>
-                  </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
 
-          {/* Notes */}
-          {invoice.notes && (
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Notes:</h3>
-              <p className="text-gray-700 bg-gray-50 p-4 rounded border">
-                {invoice.notes}
-              </p>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="border-t-2 border-gray-200 pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Totals */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8">
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Terms & Conditions:</h4>
-                <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Payment is due within 30 days of invoice date</li>
-                  <li>• Late payments may incur additional charges</li>
-                  <li>• Goods once sold will not be taken back</li>
-                </ul>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Amount in Words:</h3>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded border font-medium">
+                  {invoice.amountInWords}
+                </p>
               </div>
-              <div className="text-right">
-                <div className="mb-16">
-                  <p className="text-sm text-gray-600 mb-2">For {company?.businessName}</p>
+              <div>
+                <table className="w-full">
+                  <tbody>
+                    <tr>
+                      <td className="py-2 text-right font-medium">Subtotal:</td>
+                      <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.subtotal)}</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 text-right font-medium">Taxable Amount:</td>
+                      <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalTaxableValue)}</td>
+                    </tr>
+                    {invoice.totalCgst > 0 && (
+                      <>
+                        <tr>
+                          <td className="py-2 text-right font-medium">CGST:</td>
+                          <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalCgst)}</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 text-right font-medium">SGST:</td>
+                          <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalSgst)}</td>
+                        </tr>
+                      </>
+                    )}
+                    {invoice.totalIgst > 0 && (
+                      <tr>
+                        <td className="py-2 text-right font-medium">IGST:</td>
+                        <td className="py-2 text-right pl-4">₹{formatIndianNumber(invoice.totalIgst)}</td>
+                      </tr>
+                    )}
+                    <tr className="border-t-2 border-gray-300">
+                      <td className="py-3 text-right font-bold text-lg">Total Amount:</td>
+                      <td className="py-3 text-right pl-4 font-bold text-lg">₹{formatIndianNumber(invoice.totalAmount)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Notes */}
+            {invoice.notes && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">Notes:</h3>
+                <p className="text-gray-700 bg-gray-50 p-4 rounded border">
+                  {invoice.notes}
+                </p>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div className="border-t-2 border-gray-200 pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">Terms & Conditions:</h4>
+                  <ul className="text-sm text-gray-600 space-y-1">
+                    <li>• Payment is due within 30 days of invoice date</li>
+                    <li>• Late payments may incur additional charges</li>
+                    <li>• Goods once sold will not be taken back</li>
+                  </ul>
                 </div>
-                <div className="border-t border-gray-300 pt-2">
-                  <p className="text-sm font-medium">Authorized Signatory</p>
+                <div className="text-right">
+                  <div className="mb-16">
+                    <p className="text-sm text-gray-600 mb-2">For {company?.businessName}</p>
+                  </div>
+                  <div className="border-t border-gray-300 pt-2">
+                    <p className="text-sm font-medium">Authorized Signatory</p>
+                  </div>
                 </div>
               </div>
             </div>
