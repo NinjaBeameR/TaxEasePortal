@@ -20,25 +20,41 @@
     background: #fff !important;
     height: auto !important;
   }
+  /* Hide everything except the invoice area */
   body * {
     visibility: hidden !important;
-    box-shadow: none !important;
   }
-  #invoice-print-area, #invoice-print-area * ,
-  .print-invoice, .print-invoice * {
+  #invoice-print-area, #invoice-print-area * {
     visibility: visible !important;
   }
-  .print\:hidden {
+  #invoice-print-area {
+    position: absolute !important;
+    left: 0; top: 0; width: 100% !important;
+    margin: 0 !important;
+    padding: 0.5in !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Hide site header, footer, nav, and any banners */
+  header, footer, nav, .site-header, .site-footer, .app-banner, .top-bar, .print\:hidden {
     display: none !important;
+    visibility: hidden !important;
   }
-  th, td {
-    padding: 4px 6px !important;
-    font-size: 13px !important;
-    white-space: nowrap !important;
-    word-break: keep-all !important;
+
+  /* Remove page numbers, URL, date/time from print (works in most browsers) */
+  @page {
+    margin: 0.5in;
+    size: auto;
   }
-  table, th, td {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
+  @page {
+    /* Chrome/Edge: removes default header/footer */
+    margin: 0.5in;
+  }
+  /* Firefox: */
+  html, body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

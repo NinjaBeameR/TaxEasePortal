@@ -26,7 +26,7 @@ type Invoice = {
   totalAmount: number;
   amountInWords: string;
   notes?: string;
-  status: string;
+  status: 'CREDIT' | 'PAID'; // <-- Restrict to only these two
   createdAt: string;
   updatedAt: string;
   vehicle_id?: string; // <-- Add this line
@@ -57,7 +57,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
     },
     items: [],
     notes: '',
-    status: 'DRAFT',
+    status: 'CREDIT', // <-- Default to CREDIT
   });
   
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -316,6 +316,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !user.id) throw new Error('User not authenticated');
 
+      // Explicitly cast status to 'CREDIT' | 'PAID'
       const invoiceData: Invoice & { user_id: string; vehicle_id?: string } = {
         ...{
           id: invoice?.id || crypto.randomUUID(),
@@ -334,7 +335,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
           totalAmount: calculations.totalAmount,
           amountInWords: convertToWords(calculations.totalAmount),
           notes: formData.notes,
-          status: formData.status!,
+          status: (formData.status as 'CREDIT' | 'PAID'), // <-- Fix type here
           createdAt: invoice?.createdAt || new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         },
@@ -401,8 +402,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
                 onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="DRAFT">Draft</option>
-                <option value="SENT">Sent</option>
+                <option value="CREDIT">Credit</option>
                 <option value="PAID">Paid</option>
               </select>
             </div>

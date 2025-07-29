@@ -96,7 +96,7 @@ export interface Invoice {
   totalAmount: number;
   amountInWords: string;
   notes?: string;
-  status: string;
+  status: 'CREDIT' | 'PAID';
   createdAt: string; // was Date
   updatedAt: string; // was Date
   vehicle_id?: string;

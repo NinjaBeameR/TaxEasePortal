@@ -1,6 +1,11 @@
 import { Company, Customer, Product, Invoice, Vehicle } from '../types';
 import { supabase } from './supabase';
 
+// Helper to map any status to 'CREDIT' or 'PAID'
+function mapInvoiceStatus(status: string): 'CREDIT' | 'PAID' {
+  return status === 'PAID' ? 'PAID' : 'CREDIT';
+}
+
 // Supabase database service
 class DatabaseService {
   async init(): Promise<void> {
@@ -293,7 +298,7 @@ class DatabaseService {
       total_amount: invoice.totalAmount,
       amount_in_words: invoice.amountInWords,
       notes: invoice.notes || null,
-      status: invoice.status,
+      status: mapInvoiceStatus(invoice.status), // Always store as 'CREDIT' or 'PAID'
       updated_at: new Date().toISOString(),
       vehicle_id: invoice.vehicle_id || null, // <-- ADD THIS LINE
     };
@@ -384,9 +389,10 @@ class DatabaseService {
       totalAmount: invoice.total_amount,
       amountInWords: invoice.amount_in_words,
       notes: invoice.notes,
-      status: invoice.status as 'DRAFT' | 'SENT' | 'PAID',
+      status: mapInvoiceStatus(invoice.status), // Map to 'CREDIT' or 'PAID'
       createdAt: invoice.created_at,
       updatedAt: invoice.updated_at,
+      vehicle_id: invoice.vehicle_id || '',
     }));
 
     return invoicesData.map(invoice => {
@@ -431,10 +437,10 @@ class DatabaseService {
         totalAmount: invoice.total_amount,
         amountInWords: invoice.amount_in_words,
         notes: invoice.notes,
-        status: invoice.status as 'DRAFT' | 'SENT' | 'PAID',
+        status: mapInvoiceStatus(invoice.status), // Map to 'CREDIT' or 'PAID'
         createdAt: invoice.created_at,
         updatedAt: invoice.updated_at,
-        vehicle_id: invoice.vehicle_id || '', // <-- ADD THIS LINE
+        vehicle_id: invoice.vehicle_id || '',
       };
     });
   }
@@ -479,9 +485,10 @@ class DatabaseService {
       totalAmount: invoiceData.total_amount,
       amountInWords: invoiceData.amount_in_words,
       notes: invoiceData.notes,
-      status: invoiceData.status as 'DRAFT' | 'SENT' | 'PAID',
+      status: mapInvoiceStatus(invoiceData.status), // Map to 'CREDIT' or 'PAID'
       createdAt: invoiceData.created_at,
       updatedAt: invoiceData.updated_at,
+      vehicle_id: invoiceData.vehicle_id || '',
     };
 
     const items = itemsData.map(item => ({
@@ -523,10 +530,10 @@ class DatabaseService {
       totalAmount: invoiceData.total_amount,
       amountInWords: invoiceData.amount_in_words,
       notes: invoiceData.notes,
-      status: invoiceData.status as 'DRAFT' | 'SENT' | 'PAID',
+      status: mapInvoiceStatus(invoiceData.status), // Map to 'CREDIT' or 'PAID'
       createdAt: invoiceData.created_at,
       updatedAt: invoiceData.updated_at,
-      vehicle_id: invoiceData.vehicle_id || '', // <-- ADD THIS LINE
+      vehicle_id: invoiceData.vehicle_id || '',
     };
   }
 

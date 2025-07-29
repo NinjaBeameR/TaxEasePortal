@@ -267,11 +267,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                       invoice.status === 'PAID'
                         ? 'bg-green-100 text-green-800'
-                        : invoice.status === 'SENT'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : 'bg-gray-100 text-gray-800'
+                        : 'bg-yellow-100 text-yellow-800'
                     }`}>
-                      {invoice.status}
+                      {invoice.status === 'CREDIT' ? 'Credit' : 'Paid'}
                     </span>
                   </div>
                   <div className="text-gray-900 text-sm">{invoice.customerName}</div>
@@ -351,11 +349,9 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                           invoice.status === 'PAID'
                             ? 'bg-green-100 text-green-800'
-                            : invoice.status === 'SENT'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
+                            : 'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {invoice.status}
+                          {invoice.status === 'CREDIT' ? 'Credit' : 'Paid'}
                         </span>
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap flex gap-2">
