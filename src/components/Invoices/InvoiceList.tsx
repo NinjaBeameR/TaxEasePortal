@@ -16,7 +16,7 @@ interface InvoiceListProps {
 }
 
 // Animated number for summary cards
-const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
+const AnimatedNumber: React.FC<{ value: number; isCurrency?: boolean }> = ({ value, isCurrency = false }) => {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
     let start = 0;
@@ -35,7 +35,13 @@ const AnimatedNumber: React.FC<{ value: number }> = ({ value }) => {
     }, 15);
     return () => clearInterval(timer);
   }, [value]);
-  return <span>{display}</span>;
+  
+  // Format the display value based on whether it's currency or count
+  const formattedValue = isCurrency 
+    ? typeof display === 'number' ? display.toFixed(2) : '0.00'
+    : display.toString();
+  
+  return <span>{formattedValue}</span>;
 };
 
 const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, initialAction }) => {
@@ -461,19 +467,19 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Total Amount</div>
             <div className="text-xl font-semibold text-gray-900">
-              <AnimatedNumber value={filteredInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0)} />
+              ₹<AnimatedNumber value={filteredInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0)} isCurrency={true} />
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Paid Amount</div>
             <div className="text-xl font-semibold text-green-600">
-              <AnimatedNumber value={filteredInvoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} />
+              ₹<AnimatedNumber value={filteredInvoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} isCurrency={true} />
             </div>
           </div>
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow hover:shadow-lg transition">
             <div className="text-gray-600">Pending Amount</div>
             <div className="text-xl font-semibold text-yellow-600">
-              <AnimatedNumber value={filteredInvoices.filter(inv => inv.status !== 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} />
+              ₹<AnimatedNumber value={filteredInvoices.filter(inv => inv.status !== 'PAID').reduce((sum, inv) => sum + inv.totalAmount, 0)} isCurrency={true} />
             </div>
           </div>
         </div>
