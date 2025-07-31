@@ -359,11 +359,6 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
                   <div className="text-gray-600 space-y-1 text-sm">
                     <p><span className="font-medium">Invoice No:</span> {invoice.invoiceNumber}</p>
                     <p><span className="font-medium">Date:</span> {new Date(invoice.date).toLocaleDateString('en-IN')}</p>
-                    {vehicleNumber && (
-                      <p>
-                        <span className="font-medium">Vehicle Number:</span> {vehicleNumber}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>

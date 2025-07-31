@@ -185,5 +185,8 @@ export const formatCurrency = (amount: number): string => {
 
 // Format number with Indian comma separation
 export const formatIndianNumber = (num: number): string => {
-  return new Intl.NumberFormat('en-IN').format(num);
+  return new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
 };
