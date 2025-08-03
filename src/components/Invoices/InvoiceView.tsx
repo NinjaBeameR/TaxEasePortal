@@ -59,30 +59,50 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
     }
   };
 
-  // Enhanced print handlers using the new print service
+  // Enhanced print handlers with improved UX and error handling
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [printSuccess, setPrintSuccess] = useState<boolean | null>(null);
+
   const handlePrintDirect = async () => {
+    if (isPrinting) return; // Prevent multiple simultaneous print requests
+    
+    setIsPrinting(true);
+    setPrintSuccess(null);
+    
     try {
-      console.log('🖨️ Direct print requested');
+      console.log('🖨️ Enhanced direct print requested');
       const success = await printService.printDirect('invoice-print-area');
-      if (!success) {
-        alert('Print failed. Please check your printer connection and try again.');
+      
+      setPrintSuccess(success);
+      
+      if (success) {
+        // Brief success feedback that auto-disappears
+        setTimeout(() => setPrintSuccess(null), 3000);
+      } else {
+        // Show user-friendly error message
+        setTimeout(() => setPrintSuccess(null), 5000);
       }
     } catch (error) {
       console.error('Print error:', error);
-      alert('Unable to print. Please try the print preview option or check your browser settings.');
+      setPrintSuccess(false);
+      setTimeout(() => setPrintSuccess(null), 5000);
+    } finally {
+      setIsPrinting(false);
     }
   };
 
   const handlePrintPreview = async () => {
+    if (isPrinting) return; // Prevent interference with direct print
+    
     try {
       console.log('👁️ Print preview requested');
       const success = await printService.printWithPreview('invoice-print-area');
       if (!success) {
-        alert('Print preview failed. Please try again.');
+        alert('Print preview failed. Please check your browser settings and try again.');
       }
     } catch (error) {
       console.error('Print preview error:', error);
-      alert('Unable to open print preview. Please check your browser settings.');
+      alert('Unable to open print preview. Please check your browser settings or try the direct print option.');
     }
   };
 
@@ -325,19 +345,62 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
             </button>
             <button
               onClick={handlePrintDirect}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              title="Send directly to printer"
+              disabled={isPrinting}
+              className={`
+                relative px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 font-medium
+                ${isPrinting 
+                  ? 'bg-blue-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700 hover:shadow-lg active:scale-95'
+                } 
+                ${printSuccess === true ? 'bg-green-600 hover:bg-green-700' : ''}
+                ${printSuccess === false ? 'bg-red-600 hover:bg-red-700' : ''}
+                text-white shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              `}
+              title="Send directly to your printer without preview"
             >
-              <Printer className="h-4 w-4" />
-              <span>Send to Printer</span>
+              {isPrinting ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <span>Printing...</span>
+                </>
+              ) : printSuccess === true ? (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span>Sent!</span>
+                </>
+              ) : printSuccess === false ? (
+                <>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Failed</span>
+                </>
+              ) : (
+                <>
+                  <Printer className="h-4 w-4" />
+                  <span className="hidden sm:inline">Send to Printer</span>
+                  <span className="sm:hidden">Print</span>
+                </>
+              )}
             </button>
             <button
               onClick={handlePrintPreview}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
-              title="Preview before printing"
+              disabled={isPrinting}
+              className={`
+                px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 font-medium
+                ${isPrinting 
+                  ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+                  : 'bg-gray-600 hover:bg-gray-700 hover:shadow-lg active:scale-95 text-white'
+                }
+                shadow-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
+              `}
+              title="Preview the invoice before printing"
             >
               <Eye className="h-4 w-4" />
-              <span>Print Preview</span>
+              <span className="hidden sm:inline">Print Preview</span>
+              <span className="sm:hidden">Preview</span>
             </button>
             <button
               onClick={handleDownloadPDF}

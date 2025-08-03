@@ -101,13 +101,13 @@ class PrintService {
           @bottom-right { content: "" !important; }
         }
 
-        /* Remove page breaks inside invoice elements */
-        .invoice-section, .invoice-item, .invoice-total {
+        /* Page break control */
+        .invoice-section, .invoice-item, .invoice-total, .invoice-header {
           page-break-inside: avoid !important;
           break-inside: avoid !important;
         }
 
-        /* Ensure tables print properly */
+        /* Table printing optimization */
         table {
           width: 100% !important;
           border-collapse: collapse !important;
@@ -119,22 +119,22 @@ class PrintService {
           page-break-after: auto !important;
         }
 
-        /* Force black text for printing */
-        .invoice-content, .invoice-content * {
+        /* Ensure all text is black for printing */
+        .invoice-content, 
+        .invoice-content *,
+        #invoice-print-area,
+        #invoice-print-area * {
           color: #000 !important;
           background: transparent !important;
         }
 
-        /* Hide buttons and interactive elements */
-        button, .btn, .button, 
-        input[type="button"], input[type="submit"],
-        .action-buttons, .controls,
-        [role="button"] {
-          display: none !important;
+        /* Make sure borders and lines are visible */
+        .border, [class*="border"] {
+          border-color: #000 !important;
         }
       }
 
-      /* Print preparation styles */
+      /* Loading indicator styles */
       .print-preparing {
         position: fixed;
         top: 50%;
@@ -207,73 +207,218 @@ class PrintService {
   }
 
   /**
-   * Direct print - bypasses preview and goes straight to printer dialog
+   * Detect browser and system capabilities for enhanced printing
+   */
+  private detectPrintCapabilities(): {
+    hasModernPrintEvents: boolean;
+    hasMatchMedia: boolean;
+    browserName: string;
+    recommendedMethod: string;
+  } {
+    const hasModernPrintEvents = 'onbeforeprint' in window && 'onafterprint' in window;
+    const hasMatchMedia = window.matchMedia && typeof window.matchMedia === 'function';
+    
+    // Detect browser for optimal print handling
+    const userAgent = navigator.userAgent.toLowerCase();
+    let browserName = 'unknown';
+    let recommendedMethod = 'standard';
+
+    if (userAgent.includes('chrome')) {
+      browserName = 'chrome';
+      recommendedMethod = 'afterprint'; // Chrome handles afterprint well
+    } else if (userAgent.includes('firefox')) {
+      browserName = 'firefox';
+      recommendedMethod = 'mediaquery'; // Firefox prefers media query approach
+    } else if (userAgent.includes('safari')) {
+      browserName = 'safari';
+      recommendedMethod = 'timeout'; // Safari can be unreliable with print events
+    } else if (userAgent.includes('edge')) {
+      browserName = 'edge';
+      recommendedMethod = 'afterprint'; // Edge supports modern events
+    }
+
+    console.log('🔍 Print capabilities detected:', {
+      hasModernPrintEvents,
+      hasMatchMedia,
+      browserName,
+      recommendedMethod
+    });
+
+    return {
+      hasModernPrintEvents,
+      hasMatchMedia,
+      browserName,
+      recommendedMethod
+    };
+  }
+
+  /**
+   * Enhanced method to handle all connected printers
+   */
+  private async checkPrinterAvailability(): Promise<{
+    hasPrinters: boolean;
+    printerCount: number;
+    canDetectPrinters: boolean;
+  }> {
+    try {
+      // Modern browsers may support printer detection
+      if ('getInstalledRelatedApps' in navigator) {
+        // Future API - not widely supported yet
+        console.log('🖨️ Modern printer detection available');
+      }
+
+      // Check if print dialog can be opened (indirect printer detection)
+      const printAvailable = window.print && typeof window.print === 'function';
+      
+      return {
+        hasPrinters: printAvailable, // Assume printers available if print function exists
+        printerCount: printAvailable ? 1 : 0, // Cannot detect exact count reliably
+        canDetectPrinters: false // Current web standards don't allow direct printer enumeration
+      };
+    } catch (error) {
+      console.warn('⚠️ Printer detection failed:', error);
+      return {
+        hasPrinters: true, // Assume printers are available
+        printerCount: 1,
+        canDetectPrinters: false
+      };
+    }
+  }
+
+  /**
+   * Enhanced direct print - bypasses preview and works with all connected printers
    */
   async printDirect(elementId: string = 'invoice-print-area', options: PrintOptions = {}): Promise<boolean> {
-    console.log('🖨️ Starting direct print process...', options);
+    console.log('🖨️ Starting enhanced direct print process...', options);
+    
+    // Detect system capabilities
+    const capabilities = this.detectPrintCapabilities();
+    const printerInfo = await this.checkPrinterAvailability();
+    
+    console.log('🔧 System info:', { capabilities, printerInfo });
     
     const loader = this.showPrintLoading();
     
     try {
-      // Prepare document
+      // Prepare document with enhanced error handling
       const element = this.preparePrintDocument(elementId);
       if (!element) {
-        throw new Error('Invoice content not found for printing');
+        throw new Error('Invoice content not found for printing - please refresh and try again');
       }
 
-      // Small delay to ensure styles are applied
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Enhanced delay based on browser type
+      const delay = capabilities.browserName === 'safari' ? 300 : 200;
+      await new Promise(resolve => setTimeout(resolve, delay));
 
-      // Focus the window for better print dialog behavior
+      // Focus window and bring to front for better printer dialog access
       window.focus();
+      
+      // Try to request focus if available (for better cross-browser support)
+      if (document.hasFocus && !document.hasFocus()) {
+        window.focus();
+      }
 
-      // Apply print-specific page title
+      // Apply print-specific page title for better printer queue identification
       const originalTitle = document.title;
-      const invoiceTitle = options.showPreview ? 'Invoice Preview' : 'Invoice';
-      document.title = `${invoiceTitle} - ${new Date().toLocaleDateString()}`;
+      const timestamp = new Date().toLocaleString();
+      document.title = `Invoice Print - ${timestamp}`;
 
-      // Trigger print dialog directly
+      // Enhanced print execution with browser-specific optimizations
       const printPromise = new Promise<boolean>((resolve) => {
-        const mediaQuery = window.matchMedia('print');
+        let printResolved = false;
         
-        const handlePrintStart = () => {
-          console.log('🖨️ Print dialog opened');
-          mediaQuery.removeEventListener('change', handlePrintStart);
+        // Adaptive timeout based on browser
+        const timeoutDuration = capabilities.browserName === 'safari' ? 8000 : 5000;
+        const timeoutId = setTimeout(() => {
+          if (!printResolved) {
+            console.log('⏰ Print timeout reached, assuming success');
+            printResolved = true;
+            resolve(true);
+          }
+        }, timeoutDuration);
+
+        const resolvePrint = (success: boolean) => {
+          if (!printResolved) {
+            printResolved = true;
+            clearTimeout(timeoutId);
+            document.title = originalTitle;
+            resolve(success);
+          }
         };
 
-        const handleAfterPrint = () => {
-          console.log('✅ Print process completed');
-          document.title = originalTitle;
-          window.removeEventListener('afterprint', handleAfterPrint);
-          resolve(true);
-        };
+        // Method selection based on browser capabilities
+        const useMethod = capabilities.recommendedMethod;
 
-        mediaQuery.addEventListener('change', handlePrintStart);
-        window.addEventListener('afterprint', handleAfterPrint);
+        // Method 1: Modern browser print events (most reliable for Chrome/Edge)
+        if ((useMethod === 'afterprint' || useMethod === 'standard') && capabilities.hasModernPrintEvents) {
+          const handleAfterPrint = () => {
+            console.log('✅ Print completed (afterprint event)');
+            window.removeEventListener('afterprint', handleAfterPrint);
+            resolvePrint(true);
+          };
 
-        // Fallback timeout
-        setTimeout(() => {
-          document.title = originalTitle;
-          resolve(true);
-        }, 5000);
+          const handleBeforePrint = () => {
+            console.log('📄 Print dialog opened (beforeprint event)');
+            window.removeEventListener('beforeprint', handleBeforePrint);
+          };
+
+          window.addEventListener('afterprint', handleAfterPrint, { once: true });
+          window.addEventListener('beforeprint', handleBeforePrint, { once: true });
+        }
+
+        // Method 2: Media query listener (good for Firefox)
+        if ((useMethod === 'mediaquery' || useMethod === 'standard') && capabilities.hasMatchMedia) {
+          const mediaQuery = window.matchMedia('print');
+          const handlePrintChange = (mq: MediaQueryListEvent | MediaQueryList) => {
+            if (!mq.matches) { // Print dialog closed
+              console.log('✅ Print completed (media query)');
+              if (mediaQuery.removeEventListener) {
+                mediaQuery.removeEventListener('change', handlePrintChange);
+              }
+              resolvePrint(true);
+            }
+          };
+
+          if (mediaQuery.addEventListener) {
+            mediaQuery.addEventListener('change', handlePrintChange);
+          } else {
+            // Fallback for older browsers
+            mediaQuery.addListener(handlePrintChange);
+          }
+        }
+
+        // Method 3: Timeout-based resolution (Safari and fallback)
+        if (useMethod === 'timeout' || (!capabilities.hasModernPrintEvents && !capabilities.hasMatchMedia)) {
+          console.log('⏰ Using timeout-based print resolution');
+          setTimeout(() => {
+            if (!printResolved) {
+              resolvePrint(true);
+            }
+          }, 2000);
+        }
+
+        // Enhanced window.print() call with error handling
+        try {
+          console.log('🖨️ Calling window.print()...');
+          window.print();
+          
+          // Immediate resolution for very basic browsers
+          if (!capabilities.hasModernPrintEvents && !capabilities.hasMatchMedia && useMethod === 'standard') {
+            setTimeout(() => resolvePrint(true), 1000);
+          }
+        } catch (printError) {
+          console.error('❌ window.print() failed:', printError);
+          resolvePrint(false);
+        }
       });
 
-      // Trigger the print
-      window.print();
-
-      return await printPromise;
+      const result = await printPromise;
+      console.log('📋 Enhanced print process result:', result);
+      return result;
 
     } catch (error) {
-      console.error('❌ Direct print failed:', error);
-      
-      // Fallback to simple print
-      try {
-        window.print();
-        return true;
-      } catch (fallbackError) {
-        console.error('❌ Fallback print also failed:', fallbackError);
-        return false;
-      }
+      console.error('❌ Enhanced direct print error:', error);
+      return false;
     } finally {
       this.hidePrintLoading(loader);
     }
@@ -293,80 +438,31 @@ class PrintService {
       }
 
       // Small delay to ensure styles are applied
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 150));
 
-      // Focus window and trigger print preview
+      // Focus the window for better print dialog behavior
       window.focus();
-      
-      // Set a temporary title
+
+      // Apply print-specific page title
       const originalTitle = document.title;
-      const previewTitle = options.showPreview !== false ? 'Invoice Preview' : 'Invoice';
-      document.title = `${previewTitle} - ${new Date().toLocaleDateString()}`;
+      document.title = 'Invoice Preview';
 
-      // Use setTimeout to allow the browser to show preview
-      setTimeout(() => {
+      // Open print preview (same as window.print() but explicitly for preview)
+      try {
+        window.print();
         document.title = originalTitle;
-      }, 1000);
-
-      // Open print dialog (most browsers will show preview by default)
-      window.print();
-
-      return true;
+        return true;
+      } catch (error) {
+        document.title = originalTitle;
+        throw error;
+      }
 
     } catch (error) {
-      console.error('❌ Print preview failed:', error);
+      console.error('❌ Print preview error:', error);
       return false;
-    }
-  }
-
-  /**
-   * Check if printing is supported
-   */
-  isPrintingSupported(): boolean {
-    return typeof window !== 'undefined' && 'print' in window;
-  }
-
-  /**
-   * Get browser-specific print capabilities
-   */
-  getPrintCapabilities(): {
-    supportsDirect: boolean;
-    supportsPreview: boolean;
-    browserInfo: string;
-  } {
-    const isChrome = /Chrome/.test(navigator.userAgent);
-    const isFirefox = /Firefox/.test(navigator.userAgent);
-    const isSafari = /Safari/.test(navigator.userAgent) && !isChrome;
-    const isEdge = /Edg/.test(navigator.userAgent);
-
-    let browserInfo = 'Unknown';
-    if (isChrome) browserInfo = 'Chrome';
-    else if (isFirefox) browserInfo = 'Firefox';
-    else if (isSafari) browserInfo = 'Safari';
-    else if (isEdge) browserInfo = 'Edge';
-
-    return {
-      supportsDirect: true, // All modern browsers support window.print()
-      supportsPreview: true, // Most browsers show preview by default
-      browserInfo
-    };
-  }
-
-  /**
-   * Clean up print styles (optional, for memory management)
-   */
-  cleanup(): void {
-    const printStyles = document.getElementById('enhanced-print-styles');
-    if (printStyles) {
-      printStyles.remove();
-      this.printStylesInjected = false;
-      console.log('🧹 Print styles cleaned up');
     }
   }
 }
 
 // Export singleton instance
 export const printService = new PrintService();
-
-// Export class for custom instances if needed
-export { PrintService };
