@@ -1,9 +1,37 @@
 import { Company, Customer, Product, Invoice, Vehicle } from '../types';
 import { supabase } from './supabase';
 
-// Helper to map any status to 'CREDIT' or 'PAID'
-function mapInvoiceStatus(status: string): 'CREDIT' | 'PAID' {
-  return status === 'PAID' ? 'PAID' : 'CREDIT';
+// Helper to map any status to database-compatible values
+function mapInvoiceStatus(status: string): 'DRAFT' | 'SENT' | 'PAID' {
+  // Temporary mapping until database is updated
+  // CREDIT -> DRAFT (for now, until DB migration is applied)
+  // PAID -> PAID (stays the same)
+  switch (status) {
+    case 'CREDIT':
+      return 'DRAFT'; // Temporary mapping
+    case 'PAID':
+      return 'PAID';
+    case 'DRAFT':
+    case 'SENT':
+      return status as 'DRAFT' | 'SENT';
+    default:
+      return 'DRAFT'; // Default fallback
+  }
+}
+
+// Helper to map database status back to frontend values
+function mapStatusFromDatabase(dbStatus: string): 'CREDIT' | 'PAID' {
+  // Temporary mapping until database is updated
+  // DRAFT/SENT -> CREDIT (for frontend display)
+  // PAID -> PAID (stays the same)
+  switch (dbStatus) {
+    case 'PAID':
+      return 'PAID';
+    case 'DRAFT':
+    case 'SENT':
+    default:
+      return 'CREDIT';
+  }
 }
 
 // Supabase database service
@@ -292,8 +320,8 @@ class DatabaseService {
     if (!invoice.items || invoice.items.length === 0) throw new Error('Invoice items are required');
     if (typeof invoice.totalAmount !== 'number' || invoice.totalAmount < 0) throw new Error('Valid total amount is required');
 
-    // Validate status
-    const validStatuses = ['CREDIT', 'PAID', 'DRAFT', 'SENT']; // Allow frontend statuses
+    // Validate status (frontend uses CREDIT/PAID, DB uses DRAFT/SENT/PAID for now)
+    const validStatuses = ['CREDIT', 'PAID']; // Only allow new frontend statuses
     if (!validStatuses.includes(invoice.status)) {
       console.warn('⚠️ Invalid status provided:', invoice.status, 'mapping to CREDIT');
     }
@@ -321,7 +349,7 @@ class DatabaseService {
       total_amount: invoice.totalAmount,
       amount_in_words: invoice.amountInWords,
       notes: invoice.notes || null,
-      status: mapInvoiceStatus(invoice.status), // Always store as 'CREDIT' or 'PAID'
+      status: mapInvoiceStatus(invoice.status), // Map to DB-compatible values (DRAFT/SENT/PAID)
       updated_at: new Date().toISOString(),
       vehicle_id: invoice.vehicle_id || null, // <-- ADD THIS LINE
     };
@@ -455,7 +483,7 @@ class DatabaseService {
       totalAmount: invoice.total_amount,
       amountInWords: invoice.amount_in_words,
       notes: invoice.notes,
-      status: mapInvoiceStatus(invoice.status), // Map to 'CREDIT' or 'PAID'
+      status: mapStatusFromDatabase(invoice.status), // Map from DB to frontend values
       createdAt: invoice.created_at,
       updatedAt: invoice.updated_at,
       vehicle_id: invoice.vehicle_id || '',
@@ -503,7 +531,7 @@ class DatabaseService {
         totalAmount: invoice.total_amount,
         amountInWords: invoice.amount_in_words,
         notes: invoice.notes,
-        status: mapInvoiceStatus(invoice.status), // Map to 'CREDIT' or 'PAID'
+        status: mapStatusFromDatabase(invoice.status), // Map from DB to frontend values
         createdAt: invoice.created_at,
         updatedAt: invoice.updated_at,
         vehicle_id: invoice.vehicle_id || '',
@@ -551,7 +579,7 @@ class DatabaseService {
       totalAmount: invoiceData.total_amount,
       amountInWords: invoiceData.amount_in_words,
       notes: invoiceData.notes,
-      status: mapInvoiceStatus(invoiceData.status), // Map to 'CREDIT' or 'PAID'
+      status: mapStatusFromDatabase(invoiceData.status), // Map from DB to frontend values
       createdAt: invoiceData.created_at,
       updatedAt: invoiceData.updated_at,
       vehicle_id: invoiceData.vehicle_id || '',
@@ -596,7 +624,7 @@ class DatabaseService {
       totalAmount: invoiceData.total_amount,
       amountInWords: invoiceData.amount_in_words,
       notes: invoiceData.notes,
-      status: mapInvoiceStatus(invoiceData.status), // Map to 'CREDIT' or 'PAID'
+      status: mapStatusFromDatabase(invoiceData.status), // Map from DB to frontend values
       createdAt: invoiceData.created_at,
       updatedAt: invoiceData.updated_at,
       vehicle_id: invoiceData.vehicle_id || '',

@@ -48,7 +48,7 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ onView, onEdit, onCreate, ini
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'ALL' | 'DRAFT' | 'SENT' | 'PAID'>('ALL');
+  const [filterStatus, setFilterStatus] = useState<'ALL' | 'CREDIT' | 'PAID'>('ALL');
   const [dateRange, setDateRange] = useState({ from: '', to: '' });
   const [loading, setLoading] = useState(true);
 
