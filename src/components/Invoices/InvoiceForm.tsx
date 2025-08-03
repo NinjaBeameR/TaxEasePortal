@@ -316,14 +316,15 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !user.id) throw new Error('User not authenticated');
 
-      console.log('🔍 InvoiceForm - Preparing to save invoice:', {
+      console.log('🔍 InvoiceForm - Preparing to save invoice:', JSON.stringify({
         hasFormData: !!formData,
         invoiceNumber: formData.invoiceNumber,
         customerName: formData.customerName,
         itemsCount: formData.items?.length || 0,
         status: formData.status,
-        selectedVehicleId
-      });
+        selectedVehicleId,
+        date: formData.date
+      }, null, 2));
 
       // Validate date format (must be YYYY-MM-DD for Supabase)
       const invoiceDate = formData.date || new Date().toISOString().split('T')[0];
@@ -370,7 +371,7 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
         vehicle_id: selectedVehicleId ? selectedVehicleId : undefined,
       };
 
-      console.log('🚀 InvoiceForm - Final invoice data:', {
+      console.log('🚀 InvoiceForm - Final invoice data:', JSON.stringify({
         id: invoiceData.id,
         invoiceNumber: invoiceData.invoiceNumber,
         date: invoiceData.date,
@@ -378,7 +379,14 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
         totalAmount: invoiceData.totalAmount,
         itemsCount: invoiceData.items.length,
         vehicle_id: invoiceData.vehicle_id,
-      });
+        customerAddress: invoiceData.customerAddress,
+        firstItem: invoiceData.items[0] ? {
+          id: invoiceData.items[0].id,
+          productName: invoiceData.items[0].productName,
+          quantity: invoiceData.items[0].quantity,
+          rate: invoiceData.items[0].rate
+        } : null
+      }, null, 2));
 
       // Save invoice data to the database
       await db.saveInvoice(invoiceData);
@@ -399,18 +407,29 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
 
       onSave();
     } catch (error) {
-      console.error('❌ Error saving invoice:', error);
+      console.error('❌ Error saving invoice:', JSON.stringify(error, null, 2));
       
       // Enhanced error logging for 400 errors
       if (error && typeof error === 'object') {
         const err = error as any;
+        console.error('🔥 Complete Error Details:', JSON.stringify({
+          message: err.message,
+          details: err.details, 
+          hint: err.hint,
+          code: err.code,
+          status: err.status,
+          statusText: err.statusText,
+          stack: err.stack
+        }, null, 2));
+        
         if (err.code === 'PGRST116' || err.status === 400) {
-          console.error('🔥 400 Bad Request Details:', {
-            message: err.message,
-            details: err.details,
-            hint: err.hint,
-            code: err.code
-          });
+          console.error('🔥 400 Bad Request - Likely causes:', [
+            '1. Invalid date format (must be YYYY-MM-DD)',
+            '2. Missing required fields in database',
+            '3. Data type mismatch',
+            '4. Foreign key constraint violation',
+            '5. Check database schema vs payload'
+          ]);
         }
       }
       

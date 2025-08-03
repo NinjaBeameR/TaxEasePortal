@@ -263,13 +263,15 @@ class DatabaseService {
 
   // Invoice operations
   async saveInvoice(invoice: Invoice): Promise<void> {
-    console.log('📝 saveInvoice called with data:', {
+    console.log('📝 saveInvoice called with data:', JSON.stringify({
       id: invoice.id,
       invoiceNumber: invoice.invoiceNumber,
       status: invoice.status,
       itemsCount: invoice.items?.length || 0,
-      totalAmount: invoice.totalAmount
-    });
+      totalAmount: invoice.totalAmount,
+      date: invoice.date,
+      customerName: invoice.customerName
+    }, null, 2));
 
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
@@ -324,15 +326,16 @@ class DatabaseService {
       vehicle_id: invoice.vehicle_id || null, // <-- ADD THIS LINE
     };
 
-    console.log('💾 Prepared invoice data for Supabase:', {
+    console.log('💾 Prepared invoice data for Supabase:', JSON.stringify({
       ...invoiceData,
       items_preview: invoice.items.slice(0, 2).map(item => ({
         id: item.id,
         productName: item.productName,
         quantity: item.quantity,
-        rate: item.rate
+        rate: item.rate,
+        totalAmount: item.totalAmount
       }))
-    });
+    }, null, 2));
 
     // Save invoice
     const { error: invoiceError } = await supabase
@@ -340,7 +343,12 @@ class DatabaseService {
       .upsert(invoiceData);
 
     if (invoiceError) {
-      console.error('❌ Invoice save error:', invoiceError);
+      console.error('❌ Invoice save error:', JSON.stringify({
+        message: invoiceError.message,
+        details: invoiceError.details,
+        hint: invoiceError.hint,
+        code: invoiceError.code
+      }, null, 2));
       throw invoiceError;
     }
 
