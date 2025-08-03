@@ -1,11 +1,22 @@
+/* Enhanced Print Styles for GST Billing Application */
 @media print {
+  /* Base print reset */
   html, body {
     background: #fff !important;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: #000 !important;
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
+
+  /* Invoice print area styling */
   #invoice-print-area,
   .print-invoice {
     position: static !important;
@@ -13,41 +24,101 @@
     min-width: 0 !important;
     max-width: 100% !important;
     margin: 0 !important;
-    padding: 0.5in !important;
+    padding: 0.4in !important;
     box-shadow: none !important;
     border: none !important;
-    font-size: 13px !important;
+    font-size: 12px !important;
     background: #fff !important;
     height: auto !important;
   }
+
   /* Hide everything except the invoice area */
   body * {
     visibility: hidden !important;
   }
-  #invoice-print-area, #invoice-print-area * {
+  
+  #invoice-print-area, 
+  #invoice-print-area * {
     visibility: visible !important;
   }
+  
   #invoice-print-area {
     position: absolute !important;
-    left: 0; top: 0; width: 100% !important;
+    left: 0 !important; 
+    top: 0 !important; 
+    width: 100% !important;
     margin: 0 !important;
-    padding: 0.5in !important;
+    padding: 0.4in !important;
     background: #fff !important;
     box-shadow: none !important;
     border: none !important;
   }
 
-  /* Hide site header, footer, nav, and any banners */
-  header, footer, nav, .site-header, .site-footer, .app-banner, .top-bar, .print\:hidden {
+  /* Hide all navigation, headers, footers, and UI elements */
+  header, footer, nav, 
+  .site-header, .site-footer, 
+  .app-banner, .top-bar, .bottom-bar,
+  .navigation, .sidebar, .menu,
+  .print\:hidden,
+  button, .btn, .button,
+  input[type="button"], input[type="submit"],
+  .action-buttons, .controls,
+  [role="button"],
+  [class*="header"], [class*="footer"], [class*="nav"] {
     display: none !important;
     visibility: hidden !important;
   }
 
-  /* Remove page numbers, URL, date/time from print (works in most browsers) */
+  /* Page settings for clean output and header/footer suppression */
   @page {
-    margin: 0.5in;
-    size: auto;
+    size: A4 !important;
+    margin: 0.4in !important;
+    
+    /* Attempt to suppress browser-generated headers/footers */
+    @top-left-corner { content: "" !important; }
+    @top-left { content: "" !important; }
+    @top-center { content: "" !important; }
+    @top-right { content: "" !important; }
+    @top-right-corner { content: "" !important; }
+    @bottom-left-corner { content: "" !important; }
+    @bottom-left { content: "" !important; }
+    @bottom-center { content: "" !important; }
+    @bottom-right { content: "" !important; }
+    @bottom-right-corner { content: "" !important; }
   }
+
+  /* Page break control */
+  .invoice-section, .invoice-item, .invoice-total, .invoice-header {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Table printing optimization */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    page-break-after: auto !important;
+  }
+
+  /* Ensure all text is black for printing */
+  .invoice-content, 
+  .invoice-content *,
+  #invoice-print-area,
+  #invoice-print-area * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  /* Make sure borders and lines are visible */
+  .border, [class*="border"] {
+    border-color: #000 !important;
+  }
+}
   @page {
     /* Chrome/Edge: removes default header/footer */
     margin: 0.5in;

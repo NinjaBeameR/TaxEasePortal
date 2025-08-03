@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { ArrowLeft, Download, Printer, Edit } from 'lucide-react';
+import { ArrowLeft, Download, Printer, Edit, Eye } from 'lucide-react';
 import { Invoice, Company, Vehicle } from '../../types';
 import { db } from '../../services/database';
+import { printService } from '../../services/printService';
 import { formatIndianNumber } from '../../utils/calculations';
 import { useLocation, useNavigate, Navigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
@@ -58,7 +59,36 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
     }
   };
 
+  // Enhanced print handlers using the new print service
+  const handlePrintDirect = async () => {
+    try {
+      console.log('🖨️ Direct print requested');
+      const success = await printService.printDirect('invoice-print-area');
+      if (!success) {
+        alert('Print failed. Please check your printer connection and try again.');
+      }
+    } catch (error) {
+      console.error('Print error:', error);
+      alert('Unable to print. Please try the print preview option or check your browser settings.');
+    }
+  };
+
+  const handlePrintPreview = async () => {
+    try {
+      console.log('👁️ Print preview requested');
+      const success = await printService.printWithPreview('invoice-print-area');
+      if (!success) {
+        alert('Print preview failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Print preview error:', error);
+      alert('Unable to open print preview. Please check your browser settings.');
+    }
+  };
+
+  // Legacy print handler (fallback)
   const handlePrint = () => {
+    console.log('📄 Legacy print fallback');
     window.print();
   };
 
@@ -294,11 +324,20 @@ const InvoiceView: React.FC<InvoiceViewProps> = ({ invoice: propInvoice, setInvo
               <span>Edit</span>
             </button>
             <button
-              onClick={handlePrint}
-              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+              onClick={handlePrintDirect}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              title="Send directly to printer"
             >
               <Printer className="h-4 w-4" />
-              <span>Print</span>
+              <span>Send to Printer</span>
+            </button>
+            <button
+              onClick={handlePrintPreview}
+              className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2"
+              title="Preview before printing"
+            >
+              <Eye className="h-4 w-4" />
+              <span>Print Preview</span>
             </button>
             <button
               onClick={handleDownloadPDF}
