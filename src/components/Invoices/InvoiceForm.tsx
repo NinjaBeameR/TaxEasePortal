@@ -316,12 +316,39 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !user.id) throw new Error('User not authenticated');
 
+      console.log('🔍 InvoiceForm - Preparing to save invoice:', {
+        hasFormData: !!formData,
+        invoiceNumber: formData.invoiceNumber,
+        customerName: formData.customerName,
+        itemsCount: formData.items?.length || 0,
+        status: formData.status,
+        selectedVehicleId
+      });
+
+      // Validate date format (must be YYYY-MM-DD for Supabase)
+      const invoiceDate = formData.date || new Date().toISOString().split('T')[0];
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(invoiceDate)) {
+        throw new Error(`Invalid date format: ${invoiceDate}. Expected YYYY-MM-DD`);
+      }
+
+      // Validate each item has required fields
+      if (!formData.items || formData.items.length === 0) {
+        throw new Error('At least one invoice item is required');
+      }
+
+      formData.items.forEach((item, index) => {
+        if (!item.productName?.trim()) throw new Error(`Item ${index + 1}: Product name is required`);
+        if (!item.quantity || item.quantity <= 0) throw new Error(`Item ${index + 1}: Valid quantity is required`);
+        if (item.rate === undefined || item.rate < 0) throw new Error(`Item ${index + 1}: Valid rate is required`);
+      });
+
       // Explicitly cast status to 'CREDIT' | 'PAID'
       const invoiceData: Invoice & { user_id: string; vehicle_id?: string } = {
         ...{
           id: invoice?.id || crypto.randomUUID(),
           invoiceNumber: formData.invoiceNumber!,
-          date: formData.date || new Date().toISOString().split('T')[0],
+          date: invoiceDate,
           customerId: formData.customerId!,
           customerName: formData.customerName!,
           customerGstin: formData.customerGstin,
@@ -343,6 +370,16 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
         vehicle_id: selectedVehicleId ? selectedVehicleId : undefined,
       };
 
+      console.log('🚀 InvoiceForm - Final invoice data:', {
+        id: invoiceData.id,
+        invoiceNumber: invoiceData.invoiceNumber,
+        date: invoiceData.date,
+        status: invoiceData.status,
+        totalAmount: invoiceData.totalAmount,
+        itemsCount: invoiceData.items.length,
+        vehicle_id: invoiceData.vehicle_id,
+      });
+
       // Save invoice data to the database
       await db.saveInvoice(invoiceData);
       
@@ -362,7 +399,23 @@ const InvoiceForm: React.FC<InvoiceFormProps> = ({ invoice, onSave, onCancel }) 
 
       onSave();
     } catch (error) {
-      console.error('Error saving invoice:', error);
+      console.error('❌ Error saving invoice:', error);
+      
+      // Enhanced error logging for 400 errors
+      if (error && typeof error === 'object') {
+        const err = error as any;
+        if (err.code === 'PGRST116' || err.status === 400) {
+          console.error('🔥 400 Bad Request Details:', {
+            message: err.message,
+            details: err.details,
+            hint: err.hint,
+            code: err.code
+          });
+        }
+      }
+      
+      // Show user-friendly error message
+      alert('Failed to save invoice. Please check the console for details and try again.');
     } finally {
       setLoading(false);
     }

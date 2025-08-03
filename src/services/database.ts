@@ -263,6 +263,14 @@ class DatabaseService {
 
   // Invoice operations
   async saveInvoice(invoice: Invoice): Promise<void> {
+    console.log('📝 saveInvoice called with data:', {
+      id: invoice.id,
+      invoiceNumber: invoice.invoiceNumber,
+      status: invoice.status,
+      itemsCount: invoice.items?.length || 0,
+      totalAmount: invoice.totalAmount
+    });
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user || !user.id) throw new Error('User not authenticated');
@@ -274,6 +282,19 @@ class DatabaseService {
       .eq('user_id', user.id)
       .single();
     if (!companyData || !companyData.id) throw new Error('Company not found for user');
+
+    // Validate required fields
+    if (!invoice.id) throw new Error('Invoice ID is required');
+    if (!invoice.invoiceNumber) throw new Error('Invoice number is required');
+    if (!invoice.customerName) throw new Error('Customer name is required');
+    if (!invoice.items || invoice.items.length === 0) throw new Error('Invoice items are required');
+    if (typeof invoice.totalAmount !== 'number' || invoice.totalAmount < 0) throw new Error('Valid total amount is required');
+
+    // Validate status
+    const validStatuses = ['CREDIT', 'PAID', 'DRAFT', 'SENT']; // Allow frontend statuses
+    if (!validStatuses.includes(invoice.status)) {
+      console.warn('⚠️ Invalid status provided:', invoice.status, 'mapping to CREDIT');
+    }
 
     // Prepare invoice data
     const invoiceData = {
@@ -303,12 +324,25 @@ class DatabaseService {
       vehicle_id: invoice.vehicle_id || null, // <-- ADD THIS LINE
     };
 
+    console.log('💾 Prepared invoice data for Supabase:', {
+      ...invoiceData,
+      items_preview: invoice.items.slice(0, 2).map(item => ({
+        id: item.id,
+        productName: item.productName,
+        quantity: item.quantity,
+        rate: item.rate
+      }))
+    });
+
     // Save invoice
     const { error: invoiceError } = await supabase
       .from('invoices')
       .upsert(invoiceData);
 
-    if (invoiceError) throw invoiceError;
+    if (invoiceError) {
+      console.error('❌ Invoice save error:', invoiceError);
+      throw invoiceError;
+    }
 
     // Delete existing items and insert new ones
     const { error: deleteError } = await supabase
@@ -316,33 +350,57 @@ class DatabaseService {
       .delete()
       .eq('invoice_id', invoice.id);
 
-    if (deleteError) throw deleteError;
+    if (deleteError) {
+      console.error('❌ Delete items error:', deleteError);
+      throw deleteError;
+    }
 
-    // Prepare invoice items
-    const itemsData = invoice.items.map(item => ({
-      id: item.id,
-      invoice_id: invoice.id,
-      product_id: item.productId || null,
-      product_name: item.productName,
-      hsn_sac_code: item.hsnSacCode,
-      quantity: item.quantity,
-      rate: item.rate,
-      discount: item.discount || 0,
-      taxable_value: item.taxableValue,
-      gst_rate: item.gstRate,
-      cgst: item.cgst || 0,
-      sgst: item.sgst || 0,
-      igst: item.igst || 0,
-      total_amount: item.totalAmount,
-    }));
+    // Validate and prepare invoice items
+    const itemsData = invoice.items.map((item, index) => {
+      // Validate each item
+      if (!item.id) {
+        console.warn(`⚠️ Item ${index} missing ID, generating one`);
+        item.id = crypto.randomUUID();
+      }
+      if (!item.productName) throw new Error(`Item ${index} missing product name`);
+      if (typeof item.quantity !== 'number' || item.quantity <= 0) throw new Error(`Item ${index} invalid quantity`);
+      if (typeof item.rate !== 'number' || item.rate < 0) throw new Error(`Item ${index} invalid rate`);
+
+      return {
+        id: item.id,
+        invoice_id: invoice.id,
+        product_id: item.productId || null,
+        product_name: item.productName,
+        hsn_sac_code: item.hsnSacCode,
+        quantity: item.quantity,
+        rate: item.rate,
+        discount: item.discount || 0,
+        taxable_value: item.taxableValue,
+        gst_rate: item.gstRate,
+        cgst: item.cgst || 0,
+        sgst: item.sgst || 0,
+        igst: item.igst || 0,
+        total_amount: item.totalAmount,
+      };
+    });
+
+    console.log('📦 Prepared invoice items:', {
+      count: itemsData.length,
+      sample: itemsData.slice(0, 2)
+    });
 
     if (itemsData.length > 0) {
       const { error: itemsError } = await supabase
         .from('invoice_items')
         .insert(itemsData);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('❌ Invoice items save error:', itemsError);
+        throw itemsError;
+      }
     }
+
+    console.log('✅ Invoice saved successfully:', invoice.id);
   }
 
   async getInvoices(): Promise<Invoice[]> {
