@@ -55,7 +55,7 @@ function Modal({
     >
       <div
         ref={ref}
-        className="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 relative animate-slide-up outline-none"
+        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative animate-slide-up outline-none"
         tabIndex={-1}
       >
         <button
@@ -495,60 +495,88 @@ const AdminPanel: React.FC = () => {
 
       {/* Multi-step Create User Modal */}
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} labelledBy="create-user-title">
-        <h3 id="create-user-title" className="text-xl font-bold mb-4 text-blue-800">Create New User & Company</h3>
-        <div className="mb-2 text-sm text-gray-600">Step {step} of 2</div>
-        <form onSubmit={handleCreateUser} className="space-y-3" aria-label="Create user form">
+        <h3 id="create-user-title" className="text-2xl font-bold mb-6 text-blue-800">Create New User & Company</h3>
+        
+        {/* Progress Bar */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-blue-600">Step {step} of 2</span>
+            <span className="text-sm text-gray-500">
+              {step === 1 ? 'Company Information' : 'User Credentials'}
+            </span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
+              style={{ width: `${(step / 2) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <form onSubmit={handleCreateUser} className="space-y-6" aria-label="Create user form">
           {step === 1 && (
-            <>
-              <div>
-                <label htmlFor="businessName" className="block font-medium">Business Name *</label>
-                <input id="businessName" type="text" className="border rounded px-3 py-2 w-full" value={businessName} onChange={e => setBusinessName(e.target.value)} required aria-required="true" />
-              </div>
-              <div>
-                <label htmlFor="companyEmail" className="block font-medium">Company Email *</label>
-                <input id="companyEmail" type="email" className="border rounded px-3 py-2 w-full" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} required aria-required="true" />
-              </div>
-              <div>
-                <label htmlFor="addressLine1" className="block font-medium">Address Line 1</label>
-                <input id="addressLine1" type="text" className="border rounded px-3 py-2 w-full" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
-              </div>
-              <div>
-                <label htmlFor="addressLine2" className="block font-medium">Address Line 2</label>
-                <input id="addressLine2" type="text" className="border rounded px-3 py-2 w-full" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label htmlFor="city" className="block font-medium">City</label>
-                  <input id="city" type="text" className="border rounded px-3 py-2 w-full" value={city} onChange={e => setCity(e.target.value)} />
+            <div className="space-y-6">
+              {/* Basic Company Information */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">Basic Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="businessName" className="block font-medium text-gray-700 mb-1">Business Name *</label>
+                    <input id="businessName" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={businessName} onChange={e => setBusinessName(e.target.value)} required aria-required="true" />
+                  </div>
+                  <div>
+                    <label htmlFor="companyEmail" className="block font-medium text-gray-700 mb-1">Company Email *</label>
+                    <input id="companyEmail" type="email" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} required aria-required="true" />
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <label htmlFor="stateVal" className="block font-medium">State</label>
-                  <input id="stateVal" type="text" className="border rounded px-3 py-2 w-full" value={stateVal} onChange={e => setStateVal(e.target.value)} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="gstin" className="block font-medium text-gray-700 mb-1">GSTIN</label>
+                    <input id="gstin" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={gstin} onChange={e => setGstin(e.target.value)} />
+                  </div>
+                  <div>
+                    <label htmlFor="website" className="block font-medium text-gray-700 mb-1">Website</label>
+                    <input id="website" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://example.com" />
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label htmlFor="pincode" className="block font-medium">Pincode</label>
-                  <input id="pincode" type="text" className="border rounded px-3 py-2 w-full" value={pincode} onChange={e => setPincode(e.target.value)} />
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="gstin" className="block font-medium">GSTIN</label>
-                  <input id="gstin" type="text" className="border rounded px-3 py-2 w-full" value={gstin} onChange={e => setGstin(e.target.value)} />
+                <div>
+                  <label htmlFor="logo" className="block font-medium text-gray-700 mb-1">Logo URL</label>
+                  <input id="logo" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={logo} onChange={e => setLogo(e.target.value)} placeholder="https://example.com/logo.png" />
                 </div>
               </div>
-              <div>
-                <label htmlFor="website" className="block font-medium">Website</label>
-                <input id="website" type="text" className="border rounded px-3 py-2 w-full" value={website} onChange={e => setWebsite(e.target.value)} />
+
+              {/* Address Information */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">Address Details</h4>
+                <div>
+                  <label htmlFor="addressLine1" className="block font-medium text-gray-700 mb-1">Address Line 1</label>
+                  <input id="addressLine1" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
+                </div>
+                <div>
+                  <label htmlFor="addressLine2" className="block font-medium text-gray-700 mb-1">Address Line 2</label>
+                  <input id="addressLine2" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label htmlFor="city" className="block font-medium text-gray-700 mb-1">City</label>
+                    <input id="city" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={city} onChange={e => setCity(e.target.value)} />
+                  </div>
+                  <div>
+                    <label htmlFor="stateVal" className="block font-medium text-gray-700 mb-1">State</label>
+                    <input id="stateVal" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={stateVal} onChange={e => setStateVal(e.target.value)} />
+                  </div>
+                  <div>
+                    <label htmlFor="pincode" className="block font-medium text-gray-700 mb-1">Pincode</label>
+                    <input id="pincode" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={pincode} onChange={e => setPincode(e.target.value)} />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label htmlFor="logo" className="block font-medium">Logo URL</label>
-                <input id="logo" type="text" className="border rounded px-3 py-2 w-full" value={logo} onChange={e => setLogo(e.target.value)} />
-              </div>
-              {formError && <div className="text-red-600 text-sm">{formError}</div>}
-              <div className="flex justify-end gap-2 mt-4">
+
+              {formError && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200">{formError}</div>}
+              <div className="flex justify-end pt-4">
                 <button
                   type="button"
-                  className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-all"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200 font-medium"
                   onClick={() => {
                     if (!businessName || !companyEmail) {
                       setFormError('Please fill all required company fields.');
@@ -558,37 +586,45 @@ const AdminPanel: React.FC = () => {
                     }
                   }}
                 >
-                  Next
+                  Next: User Details →
                 </button>
               </div>
-            </>
+            </div>
           )}
           {step === 2 && (
-            <>
-              <div>
-                <label htmlFor="userEmail" className="block font-medium">User Email (Login) *</label>
-                <input id="userEmail" type="email" className="border rounded px-3 py-2 w-full" value={email} onChange={e => setEmail(e.target.value)} required aria-required="true" />
+            <div className="space-y-6">
+              {/* User Credentials */}
+              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">User Login Credentials</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="userEmail" className="block font-medium text-gray-700 mb-1">User Email (Login) *</label>
+                    <input id="userEmail" type="email" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={email} onChange={e => setEmail(e.target.value)} required aria-required="true" placeholder="user@example.com" />
+                  </div>
+                  <div>
+                    <label htmlFor="userPassword" className="block font-medium text-gray-700 mb-1">Password *</label>
+                    <input id="userPassword" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={password} onChange={e => setPassword(e.target.value)} required aria-required="true" placeholder="Enter password" />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="userPhone" className="block font-medium text-gray-700 mb-1">Phone Number</label>
+                  <input id="userPhone" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" />
+                </div>
               </div>
-              <div>
-                <label htmlFor="userPassword" className="block font-medium">Password *</label>
-                <input id="userPassword" type="text" className="border rounded px-3 py-2 w-full" value={password} onChange={e => setPassword(e.target.value)} required aria-required="true" />
-              </div>
-              <div>
-                <label htmlFor="userPhone" className="block font-medium">Phone</label>
-                <input id="userPhone" type="text" className="border rounded px-3 py-2 w-full" value={phone} onChange={e => setPhone(e.target.value)} />
-              </div>
-              {formError && <div className="text-red-600 text-sm">{formError}</div>}
-              <div className="flex justify-between gap-2 mt-4">
+
+              {formError && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200">{formError}</div>}
+              
+              <div className="flex justify-between items-center pt-4">
                 <button
                   type="button"
-                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-400 transition-all"
+                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md shadow hover:bg-gray-400 transition-all duration-200 font-medium"
                   onClick={() => setStep(1)}
                 >
-                  Back
+                  ← Back
                 </button>
                 <button
                   type="submit"
-                  className={`bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-all flex items-center justify-center ${createLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  className={`bg-blue-600 text-white px-6 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200 flex items-center justify-center font-medium ${createLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={createLoading}
                   aria-busy={createLoading}
                 >
@@ -602,21 +638,29 @@ const AdminPanel: React.FC = () => {
                   )}
                 </button>
               </div>
-            </>
+            </div>
           )}
         </form>
         {createdCredentials && (
-          <div className="mt-4 p-3 bg-gray-100 rounded border animate-fade-in">
-            <div className="mb-2 font-semibold">Credentials:</div>
-            <div className="mb-2">
-              <span className="font-medium">Email:</span> {createdCredentials.email}<br />
-              <span className="font-medium">Password:</span> {createdCredentials.password}
+          <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 animate-fade-in">
+            <div className="mb-3 font-semibold text-green-800 text-lg">✅ User Created Successfully!</div>
+            <div className="mb-3 text-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-white p-3 rounded border">
+                  <span className="font-medium text-gray-600">Email:</span>
+                  <div className="font-mono text-sm text-gray-800">{createdCredentials.email}</div>
+                </div>
+                <div className="bg-white p-3 rounded border">
+                  <span className="font-medium text-gray-600">Password:</span>
+                  <div className="font-mono text-sm text-gray-800">{createdCredentials.password}</div>
+                </div>
+              </div>
             </div>
             <button
               onClick={handleCopy}
-              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition-all"
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-all duration-200 font-medium"
             >
-              Copy Credentials
+              📋 Copy Credentials
             </button>
           </div>
         )}
