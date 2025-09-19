@@ -48,24 +48,26 @@ function Modal({
   if (!open) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 animate-fade-in p-4"
       aria-modal="true"
       role="dialog"
       aria-labelledby={labelledBy}
     >
       <div
         ref={ref}
-        className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-8 relative animate-slide-up outline-none"
+        className="bg-white rounded-xl shadow-2xl w-[85vw] max-w-4xl max-h-[85vh] p-8 relative animate-slide-up outline-none overflow-hidden flex flex-col"
         tabIndex={-1}
       >
         <button
           onClick={onClose}
           aria-label="Close modal"
-          className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl transition-colors"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-xl transition-colors z-10"
         >
           &times;
         </button>
-        {children}
+        <div className="overflow-y-auto flex-1 pr-2">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -517,66 +519,66 @@ const AdminPanel: React.FC = () => {
           {step === 1 && (
             <div className="space-y-6">
               {/* Basic Company Information */}
-              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">Basic Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="businessName" className="block font-medium text-gray-700 mb-1">Business Name *</label>
-                    <input id="businessName" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={businessName} onChange={e => setBusinessName(e.target.value)} required aria-required="true" />
+                    <label htmlFor="businessName" className="block font-medium text-gray-700 mb-2">Business Name *</label>
+                    <input id="businessName" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={businessName} onChange={e => setBusinessName(e.target.value)} required aria-required="true" />
                   </div>
                   <div>
-                    <label htmlFor="companyEmail" className="block font-medium text-gray-700 mb-1">Company Email *</label>
-                    <input id="companyEmail" type="email" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} required aria-required="true" />
+                    <label htmlFor="companyEmail" className="block font-medium text-gray-700 mb-2">Company Email *</label>
+                    <input id="companyEmail" type="email" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={companyEmail} onChange={e => setCompanyEmail(e.target.value)} required aria-required="true" />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="gstin" className="block font-medium text-gray-700 mb-1">GSTIN</label>
-                    <input id="gstin" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={gstin} onChange={e => setGstin(e.target.value)} />
+                    <label htmlFor="gstin" className="block font-medium text-gray-700 mb-2">GSTIN</label>
+                    <input id="gstin" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={gstin} onChange={e => setGstin(e.target.value)} />
                   </div>
                   <div>
-                    <label htmlFor="website" className="block font-medium text-gray-700 mb-1">Website</label>
-                    <input id="website" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://example.com" />
+                    <label htmlFor="website" className="block font-medium text-gray-700 mb-2">Website</label>
+                    <input id="website" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://example.com" />
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="logo" className="block font-medium text-gray-700 mb-1">Logo URL</label>
-                  <input id="logo" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={logo} onChange={e => setLogo(e.target.value)} placeholder="https://example.com/logo.png" />
+                  <label htmlFor="logo" className="block font-medium text-gray-700 mb-2">Logo URL</label>
+                  <input id="logo" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={logo} onChange={e => setLogo(e.target.value)} placeholder="https://example.com/logo.png" />
                 </div>
               </div>
 
               {/* Address Information */}
-              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">Address Details</h4>
                 <div>
-                  <label htmlFor="addressLine1" className="block font-medium text-gray-700 mb-1">Address Line 1</label>
-                  <input id="addressLine1" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
+                  <label htmlFor="addressLine1" className="block font-medium text-gray-700 mb-2">Address Line 1</label>
+                  <input id="addressLine1" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
                 </div>
                 <div>
-                  <label htmlFor="addressLine2" className="block font-medium text-gray-700 mb-1">Address Line 2</label>
-                  <input id="addressLine2" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
+                  <label htmlFor="addressLine2" className="block font-medium text-gray-700 mb-2">Address Line 2</label>
+                  <input id="addressLine2" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
-                    <label htmlFor="city" className="block font-medium text-gray-700 mb-1">City</label>
-                    <input id="city" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={city} onChange={e => setCity(e.target.value)} />
+                    <label htmlFor="city" className="block font-medium text-gray-700 mb-2">City</label>
+                    <input id="city" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={city} onChange={e => setCity(e.target.value)} />
                   </div>
                   <div>
-                    <label htmlFor="stateVal" className="block font-medium text-gray-700 mb-1">State</label>
-                    <input id="stateVal" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={stateVal} onChange={e => setStateVal(e.target.value)} />
+                    <label htmlFor="stateVal" className="block font-medium text-gray-700 mb-2">State</label>
+                    <input id="stateVal" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={stateVal} onChange={e => setStateVal(e.target.value)} />
                   </div>
                   <div>
-                    <label htmlFor="pincode" className="block font-medium text-gray-700 mb-1">Pincode</label>
-                    <input id="pincode" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={pincode} onChange={e => setPincode(e.target.value)} />
+                    <label htmlFor="pincode" className="block font-medium text-gray-700 mb-2">Pincode</label>
+                    <input id="pincode" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={pincode} onChange={e => setPincode(e.target.value)} />
                   </div>
                 </div>
               </div>
 
               {formError && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200">{formError}</div>}
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-end pt-6">
                 <button
                   type="button"
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200 font-medium"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-md shadow hover:bg-blue-700 transition-all duration-200 font-medium"
                   onClick={() => {
                     if (!businessName || !companyEmail) {
                       setFormError('Please fill all required company fields.');
@@ -594,37 +596,37 @@ const AdminPanel: React.FC = () => {
           {step === 2 && (
             <div className="space-y-6">
               {/* User Credentials */}
-              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+              <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 <h4 className="font-semibold text-gray-800 text-lg border-b border-gray-200 pb-2">User Login Credentials</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="userEmail" className="block font-medium text-gray-700 mb-1">User Email (Login) *</label>
-                    <input id="userEmail" type="email" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={email} onChange={e => setEmail(e.target.value)} required aria-required="true" placeholder="user@example.com" />
+                    <label htmlFor="userEmail" className="block font-medium text-gray-700 mb-2">User Email (Login) *</label>
+                    <input id="userEmail" type="email" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={email} onChange={e => setEmail(e.target.value)} required aria-required="true" placeholder="user@example.com" />
                   </div>
                   <div>
-                    <label htmlFor="userPassword" className="block font-medium text-gray-700 mb-1">Password *</label>
-                    <input id="userPassword" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={password} onChange={e => setPassword(e.target.value)} required aria-required="true" placeholder="Enter password" />
+                    <label htmlFor="userPassword" className="block font-medium text-gray-700 mb-2">Password *</label>
+                    <input id="userPassword" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={password} onChange={e => setPassword(e.target.value)} required aria-required="true" placeholder="Enter password" />
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="userPhone" className="block font-medium text-gray-700 mb-1">Phone Number</label>
-                  <input id="userPhone" type="text" className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" />
+                  <label htmlFor="userPhone" className="block font-medium text-gray-700 mb-2">Phone Number</label>
+                  <input id="userPhone" type="text" className="border border-gray-300 rounded-md px-4 py-3 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+91 9876543210" />
                 </div>
               </div>
 
               {formError && <div className="text-red-600 text-sm bg-red-50 p-3 rounded-md border border-red-200">{formError}</div>}
               
-              <div className="flex justify-between items-center pt-4">
+              <div className="flex justify-between items-center pt-6">
                 <button
                   type="button"
-                  className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md shadow hover:bg-gray-400 transition-all duration-200 font-medium"
+                  className="bg-gray-300 text-gray-800 px-6 py-3 rounded-md shadow hover:bg-gray-400 transition-all duration-200 font-medium"
                   onClick={() => setStep(1)}
                 >
                   ← Back
                 </button>
                 <button
                   type="submit"
-                  className={`bg-blue-600 text-white px-6 py-2 rounded-md shadow hover:bg-blue-700 transition-all duration-200 flex items-center justify-center font-medium ${createLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                  className={`bg-blue-600 text-white px-6 py-3 rounded-md shadow hover:bg-blue-700 transition-all duration-200 flex items-center justify-center font-medium ${createLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
                   disabled={createLoading}
                   aria-busy={createLoading}
                 >
